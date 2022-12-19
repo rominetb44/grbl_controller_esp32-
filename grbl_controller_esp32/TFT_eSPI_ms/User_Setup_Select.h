@@ -143,13 +143,13 @@
       #include "TFT_Drivers/ST7796_Defines.h"
       #define  TFT_DRIVER 0x7796
 #elif defined (ILI9486_DRIVER)
-     #include <TFT_Drivers/ILI9486_Defines.h>
+     #include "TFT_Drivers/ILI9486_Defines.h"
      #define  TFT_DRIVER 0x9486
 #elif defined (ILI9481_DRIVER)
      #include <TFT_Drivers/ILI9481_Defines.h>
      #define  TFT_DRIVER 0x9481
 #elif defined (ILI9488_DRIVER)
-     #include <TFT_Drivers/ILI9488_Defines.h>
+     #include "TFT_Drivers/ILI9488_Defines.h"
      #define  TFT_DRIVER 0x9488
 #elif defined (HX8357D_DRIVER)
      #include "TFT_Drivers/HX8357D_Defines.h"

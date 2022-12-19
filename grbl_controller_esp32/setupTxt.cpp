@@ -117,7 +117,7 @@ mButton[_FILE2_GRBL].pLabel = grblFileNamesTft[2] ;
 mButton[_FILE3_GRBL].pLabel = grblFileNamesTft[3] ; 
 mButton[_YES_BTN].pLabel = __YES ;
 mButton[_NO_BTN].pLabel = __NO ;
-mButton[_LOG].pLabel =  __LOG ; //modified by HTheatre (switched from pLabel to Icon )
+mButton[_LOG].pLabel =  __LOG ;
 
 
 #ifdef USE_ICONS
@@ -142,10 +142,12 @@ mButton[_YP].pIcon = ypIcon ;
 mButton[_YM].pIcon = ymIcon ;
 mButton[_ZP].pIcon = zpIcon ;
 mButton[_ZM].pIcon = zmIcon ;
+mButton[_AP].pLabel = "A+" ;
+mButton[_AM].pLabel = "A-" ;
 //mButton[_AP].pIcon = "A+" ;
 //mButton[_AM].pIcon = "A-" ;
 mButton[_D_AUTO].pIcon = dAutoIcon  ;
-mButton[_D100].pIcon = d100Icon ; //added by HTheatre for 100mm pitch displacement in move screen - also created in setupTxt.cpp file)
+mButton[_D100].pIcon = d100Icon ;
 mButton[_D10].pIcon = d10Icon ;
 mButton[_D1].pIcon = d1Icon ;
 mButton[_D0_1].pIcon = d0_1Icon ;
@@ -154,9 +156,17 @@ mButton[_SET_WCS].pIcon = setWCSIcon  ;
 mButton[_SETX].pIcon = setXIcon ;
 mButton[_SETY].pIcon = setYIcon ;
 mButton[_SETZ].pIcon = setZIcon ;
-//mButton[_SETA].pIcon = __SETA  ;
+	#if defined(TFT_SIZE) && (TFT_SIZE == 4) 		// because icon for this button is only available on the 4.0" TFT
+	mButton[_SETA].pIcon = setAIcon ;
+	#else									 		// because icon for this button does not exist on the 3.2" TFT
+	mButton[_SETA].pLabel = __SETA ;
+	#endif
 mButton[_SETXYZ].pIcon = setXYZIcon  ;
-//mButton[_SETXYZA].pIcon = __SETXYZA  ;
+	#if defined(TFT_SIZE) && (TFT_SIZE == 4) 		// because icon for this button is only available on the 4.0" TFT
+	mButton[_SETXYZA].pIcon = setXYZAIcon ;
+	#else									 		// because icon for this button does not exist on the 3.2" TFT
+	mButton[_SETXYZA].pLabel = __SETXYZA ;
+	#endif
 mButton[_TOOL].pIcon = toolIcon  ;
 mButton[_SET_CHANGE].pIcon = setChangeIcon  ;
 mButton[_SET_PROBE].pIcon = setProbeIcon  ;
@@ -187,31 +197,36 @@ mButton[_MASKED1].pLabel = "" ; // this is a hidden button; so must be empty
 mButton[_PG_PREV].pIcon = pgPrevIcon ;
 mButton[_PG_NEXT].pIcon = pgNextIcon ;
 mButton[_SD_SHOW].pIcon = sdShowIcon ; 
-mButton[_OVERWRITE].pIcon = overwriteIcon ; //modified by HTheatre (switched from pLabel to Icon )
-mButton[_OVER_SWITCH_TO_FEEDRATE].pIcon = over_switch_to_FeedrateIcon ; //modified by HTheatre (switched from pLabel to Icon )
-mButton[_OVER_SWITCH_TO_SPINDLE].pIcon = over_switch_to_SpindleIcon ; //modified by HTheatre (switched from pLabel to Icon )
-//mButton[_OVER_10P].pLabel = __OVER_10P ;
-//mButton[_OVER_10M].pLabel = __OVER_10M ;
-//mButton[_OVER_1P].pLabel = __OVER_1P ;
-//mButton[_OVER_1M].pLabel = __OVER_1M ;
-//mButton[_OVER_100].pLabel = __OVER_100 ;
-mButton[_COMMUNICATION].pIcon = communicationIcon ; //modified by HTheatre (switched from pLabel to Icon )
-mButton[_SERIAL].pIcon = serialIcon ; //modified by HTheatre (switched from pLabel to Icon )
-mButton[_BLUETOOTH].pIcon = bluetoothIcon ; //modified by HTheatre (switched from pLabel to Icon )
-mButton[_TELNET].pIcon = telnetGrblIcon ; //modified by HTheatre (switched from pLabel to Icon )
-mButton[_SD_GRBL].pIcon = sdGrblIcon ; //modified by HTheatre (switched from pLabel to Icon )
+mButton[_OVERWRITE].pIcon = overwriteIcon ;
+mButton[_OVER_SWITCH_TO_FEEDRATE].pIcon = over_switch_to_FeedrateIcon ;
+mButton[_OVER_SWITCH_TO_SPINDLE].pIcon = over_switch_to_SpindleIcon ;
+	#if defined(TFT_SIZE) && (TFT_SIZE == 4) 		// because icons for these buttons are only available on the 4.0" TFT
+	mButton[_OVER_10P].pIcon = plus10per100Icon ;
+	mButton[_OVER_10M].pIcon = minus10per100Icon ;
+	mButton[_OVER_1P].pIcon = plus1per100Icon ;
+	mButton[_OVER_1M].pIcon = minus1per100Icon ;
+	mButton[_OVER_100].pIcon = set100per100Icon ;
+	#else									 		// because there is no icons for these buttons on the 3.2" TFT
+	mButton[_OVER_10P].pLabel = __OVER_10P ;
+	mButton[_OVER_10M].pLabel = __OVER_10M ;
+	mButton[_OVER_1P].pLabel = __OVER_1P ;
+	mButton[_OVER_1M].pLabel = __OVER_1M ;
+	mButton[_OVER_100].pLabel = __OVER_100 ;
+	#endif
+mButton[_COMMUNICATION].pIcon = communicationIcon ;
+mButton[_SERIAL].pIcon = serialIcon ;
+mButton[_BLUETOOTH].pIcon = bluetoothIcon ;
+mButton[_TELNET].pIcon = telnetGrblIcon ;
+mButton[_SD_GRBL].pIcon = sdGrblIcon ;
 //mButton[_FILE0_GRBL].pLabel = grblFileNamesTft[0] ;
 //mButton[_FILE1_GRBL].pLabel = grblFileNamesTft[1] ;
 //mButton[_FILE2_GRBL].pLabel = grblFileNamesTft[2] ;
 //mButton[_FILE3_GRBL].pLabel = grblFileNamesTft[3] ;
 mButton[_YES_BTN].pIcon = yesIcon ;
 mButton[_NO_BTN].pIcon = noIcon ;
-mButton[_LOG].pIcon = logGrblIcon ; //modified by HTheatre (switched from pLabel to Icon )
-
+mButton[_LOG].pIcon = logGrblIcon ;
 
 #endif //end of USE_ICONS
-
-
 
 // ************** fill the parameters to declare the buttons for each pages
 mPages[_P_INFO].titel = "" ;
@@ -719,5 +734,3 @@ boolean copyLanguage(void){ // copy language.txt from SD to SPIFFS
       Serial.println("[MSG: File language.txt uploaded from SD card]") ;
       return true ;
 }
-
-

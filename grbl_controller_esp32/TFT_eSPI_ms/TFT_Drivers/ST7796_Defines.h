@@ -33,8 +33,7 @@
 
 #define TFT_INVOFF  0x20
 #define TFT_INVON   0x21
-
-
+   
 // ST7796 specific commands
 #define ST7796_NOP     0x00
 #define ST7796_SWRESET 0x01

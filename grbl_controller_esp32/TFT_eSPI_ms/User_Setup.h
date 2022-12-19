@@ -15,11 +15,18 @@
 	#error TFT_SIZE defined in config.h must be 3 or 4
 #endif
 
+#ifndef TFT4_0_DRIVER
+	#error TFT4_0_DRIVER must be defined in config.h
+#elif TFT4_0_DRIVER != 1 && TFT4_0_DRIVER != 2 && TFT4_0_DRIVER != 3
+	#error TFT4_0_DRIVER defined in config.h must be 1 or 2 or 3
+#endif
+
 #ifndef TFT_CARD_VERSION
 	#error TFT_CARD_VERSION must be defined in config.h
 #elif TFT_CARD_VERSION != 1 && TFT_CARD_VERSION != 2
 	#error TFT_CARD_VERSION defined in config.h must be 1 or 2
-#endif	
+#endif
+
 // ##################################################################################
 //
 // Section 1. Call up the right driver file and any options for it
@@ -29,20 +36,23 @@
 // Only define one driver, the other ones must be commented out
 #if TFT_SIZE == 3
 	#define ILI9341_DRIVER
-#else
 //#define ST7735_DRIVER      // Define additional parameters below for this display
 //#define ILI9163_DRIVER     // Define additional parameters below for this display
 //#define S6D02A1_DRIVER
 //#define RPI_ILI9486_DRIVER // 20MHz maximum SPI
 //#define HX8357D_DRIVER
 //#define ILI9481_DRIVER
-//#define ILI9486_DRIVER
-//#define ILI9488_DRIVER     // WARNING: Do not connect ILI9488 display SDO to MISO if other devices share the SPI bus (TFT SDO does NOT tristate when CS is high)
+#elif TFT_SIZE == 4 and TFT4_0_DRIVER == 2  
+	#define ILI9486_DRIVER
+#elif TFT_SIZE == 4 and TFT4_0_DRIVER == 3 
+    #define ILI9488_DRIVER     // WARNING: Do not connect ILI9488 display SDO to MISO if other devices share the SPI bus (TFT SDO does NOT tristate when CS is high)
 //#define ST7789_DRIVER      // Full configuration option, define additional parameters below for this display
 //#define ST7789_2_DRIVER    // Minimal configuration option, define additional parameters below for this display
 //#define R61581_DRIVER
 //#define RM68140_DRIVER
-#define ST7796_DRIVER
+#elif TFT_SIZE == 4 and TFT4_0_DRIVER == 1
+	#define ST7796_DRIVER
+#else
 //#define SSD1963_480_DRIVER
 //#define SSD1963_800_DRIVER
 //#define SSD1963_800ALT_DRIVER

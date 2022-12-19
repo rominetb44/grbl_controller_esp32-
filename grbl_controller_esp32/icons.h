@@ -8,7 +8,6 @@
 const uint8_t logoIcon[] = {
 #include "icons/bmp74/logo.h"  
 };
-
 const uint8_t setupIcon[] = {
 #include "icons/bmp74/setup_button.h"  
 };
@@ -280,8 +279,14 @@ const uint8_t setYIcon[] = {
 const uint8_t setZIcon[] = {
 #include "icons/bmp100/setZ_button.h"  
 };
+const uint8_t setAIcon[] = {
+#include "icons/bmp100/setA_button.h"  
+};
 const uint8_t setXYZIcon[] = {
 #include "icons/bmp100/setXYZ_button.h"  
+};
+const uint8_t setXYZAIcon[] = {
+#include "icons/bmp100/setXYZA_button.h"  
 };
 const uint8_t toolIcon[] = {
 #include "icons/bmp100/tool_button.h"  
@@ -289,12 +294,14 @@ const uint8_t toolIcon[] = {
 const uint8_t backIcon[] = {
 #include "icons/bmp100/back_button.h"  
 };
-//const uint8_t leftIcon[] = {
-//#include "icons/bmp100/.h"  
-//};
-//const uint8_t rightIcon[] = {
-//#include "icons/bmp100/ .h"  
-//};
+/*
+const uint8_t leftIcon[] = {
+#include "icons/bmp100/.h"  
+};
+const uint8_t rightIcon[] = {
+#include "icons/bmp100/ .h"  
+};
+*/
 const uint8_t upIcon[] = {
 #include "icons/bmp100/up_button.h"  
 };
@@ -318,6 +325,21 @@ const uint8_t over_switch_to_FeedrateIcon[] = {
 };
 const uint8_t over_switch_to_SpindleIcon[] = {
 #include "icons/bmp100/rpm_button.h"  
+};
+const uint8_t plus10per100Icon[] = {
+#include "icons/bmp100/+10per100.h"  
+};
+const uint8_t minus10per100Icon[] = {
+#include "icons/bmp100/-10per100.h"  
+};
+const uint8_t plus1per100Icon[] = {
+#include "icons/bmp100/+1per100.h"  
+};
+const uint8_t minus1per100Icon[] = {
+#include "icons/bmp100/-1per100.h"  
+};
+const uint8_t set100per100Icon[] = {
+#include "icons/bmp100/set100per100.h"  
 };
 const uint8_t communicationIcon[] = {
 #include "icons/bmp100/com_button.h"  
@@ -368,5 +390,3 @@ const uint8_t GoProbeIcon[] = {
 
 
 #endif
-
-

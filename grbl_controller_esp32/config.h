@@ -2,19 +2,19 @@
 #define _config_h
 
 
-#define ESP32_VERSION "vers.2.1.g"
-#define VERSION_TEXT "Firmware vers. 2.1.g( 10 jun 2021)"
+#define ESP32_VERSION "vers.2.1.i"
+#define VERSION_TEXT "Firmware vers.2.1.i (28 may 2022)"
 
 
 // decide if you will use Wifi or not (and how)
 #define WIFI ESP32_ACT_AS_STATION              // select between NO_WIFI, ESP32_ACT_AS_STATION, ESP32_ACT_AS_AP 
 
 // If wifi is used, set the parameter to identify the access point (= the router when ESP32_ACT_AS_STATION or the ESP32 when ESP32_ACT_AS_AP)
-#define MY_SSID "bbox2-58c4"       // replace by the name of your access point (when act as station) or the name you assign to your device (when act as acces point)
+#define MY_SSID "YourSSID"       // replace by the name of your access point (when act as station) or the name you assign to your device (when act as acces point)
 
 // for ESP32_ACT_AS_STATION , set the password to get access to your access point (router)
 // for ESP_ACT_AS_AP, set the password you want to use to protect your ESP32 ( can be empty)
-#define MY_PASSWORD "your password" // replace by your password 
+#define MY_PASSWORD "YourPassword" // replace by your password 
 
 // if you use Wifi, you can (optional) define a fix IP address. Then you have to define 3 parameters
 // If one of next 3 parameters is "", it means that you do not want to use a fix local IP address.
@@ -32,16 +32,20 @@
 
 
 // select your language between EN, FR, DE
-#define LANGUAGE EN
+#define LANGUAGE FR
 
 // uncomment if you want that the firmware handles 4 axes instead of 3 ;(The GRBL STM32 firmware has to be compiled/flashed with the same option)
-//#define AA_AXIS    
+#define AA_AXIS    
 
 // select the version of the TFT board being used ; it can be 1 or 2 (1 uses 4 pins header to connect to GRbl; 2 use RJ45 connector)               
-#define TFT_CARD_VERSION 1
+#define TFT_CARD_VERSION 2
 
-// define size of display : must be 3 (for 3.2) or 4
-#define TFT_SIZE 3        
+// define size of display : must be 3 (for 3.2) or 4 (for 3.5 ou 4.0)
+#define TFT_SIZE 3
+
+// only if you selected 4.0 (or 3.5) display else ignore
+// select the 4.0 (or 3.5) TFT driver version : must be 1 for (ST7796S) or 2 (for ILI9486) or 3 (for ILI9488)
+#define TFT4_0_DRIVER 1                
 
 // Set REPEAT_CAL to true instead of false to run calibration again, otherwise it will only be done once.
 // Repeat calibration if you change the screen rotation.
@@ -69,27 +73,30 @@
 // To delete a button create and execute a file having a name like Cmd3_delete where 3 is the button position (digit 1...9, A or B) to delete. 
 // It is also possible to design you own icons for those commands. See the tutorial on www.makerfr.com
 
-// select color between (or define your own) 
-// TFT_BLACK       0x0000      /*   0,   0,   0 */
-// TFT_NAVY        0x000F      /*   0,   0, 128 */
-// TFT_DARKGREEN   0x03E0      /*   0, 128,   0 */
-// TFT_DARKCYAN    0x03EF      /*   0, 128, 128 */
-// TFT_MAROON      0x7800      /* 128,   0,   0 */
-// TFT_PURPLE      0x780F      /* 128,   0, 128 */
-// TFT_OLIVE       0x7BE0      /* 128, 128,   0 */
-// TFT_LIGHTGREY   0xC618      /* 192, 192, 192 */
-// TFT_DARKGREY    0x7BEF      /* 128, 128, 128 */
-// TFT_BLUE        0x001F      /*   0,   0, 255 */
-// TFT_GREEN       0x07E0      /*   0, 255,   0 */
-// TFT_CYAN        0x07FF      /*   0, 255, 255 */
-// TFT_RED         0xF800      /* 255,   0,   0 */
-// TFT_MAGENTA     0xF81F      /* 255,   0, 255 */
-// TFT_YELLOW      0xFFE0      /* 255, 255,   0 */
-// TFT_WHITE       0xFFFF      /* 255, 255, 255 */
-// TFT_ORANGE      0xFDA0      /* 255, 180,   0 */
-// TFT_GREENYELLOW 0xB7E0      /* 180, 255,   0 */
-// TFT_PINK        0xFC9F 
-
+// select color between (or define your own)
+//													available colors when using :
+//
+// 					|          3.2 or 4.0(ST7796S)     		   								 |                4.0(ILI9486)  										 |           4.0 (or 3.5) (ILI9488)
+// 					|										    							 |																		 |
+// TFT_BLACK      	|	  0x0000		/*   0,   0,   0 */									 |		0xFFFF		/* 255, 255, 255 */									 |		0x0000		/*	 0,   0,   0 */
+// TFT_NAVY        	|	  0x000F		/*   0,   0, 128 */									 |		0x7BE0		/* 128, 128,   0 */									 |		0x000F		/*   0,   0, 128 */
+// TFT_DARKGREEN   	|	  0x03E0		/*   0, 128,   0 */									 |		0x780F		/* 128,   0, 128 */									 |		0x03E0		/*   0, 128,   0 */
+// TFT_DARKCYAN    	|	  0x03EF		/*   0, 128, 128 */									 | 		0x7800		/* 128,   0,   0 */									 |		0x03EF		/*   0, 128, 128 */
+// TFT_MAROON      	|	  0x7800		/* 128,   0,   0 */	 								 |		0x03EF		/*   0, 128, 128 */									 |		0x7800		/* 128,   0,   0 */
+// TFT_PURPLE      	|	  0x780F	    /* 128,   0, 128 */									 |		0x03E0		/*   0, 128,   0 */									 |		0x780F		/* 128,   0, 128 */
+// TFT_OLIVE       	|	  0x7BE0	    /* 128, 128,   0 */	   								 |		0x000F		/*   0,   0, 128 */									 |		0x7BE0		/* 128, 128,   0 */
+// TFT_LIGHTGREY   	|	  0xC618	    /* 192, 192, 192 */									 |		0x7BEF		/* 128, 128, 128 */									 | 	    0xC618		/* 192, 192, 192 */
+// TFT_DARKGREY    	|	  0x7BEF	    /* 128, 128, 128 */									 |		0xC618		/* 192, 192, 192 */									 | 	    0x7BEF		/* 128, 128, 128 */
+// TFT_BLUE        	|	  0x001F	    /*   0,   0, 255 */									 |		0xFFE0		/* 255, 255,   0 */									 | 	    0x001F		/*   0,   0, 255 */
+// TFT_GREEN       	|	  0x07E0	    /*   0, 255,   0 */									 |		0xF81F		/* 255,   0, 255 */									 | 	    0x07E0		/*   0, 255,   0 */
+// TFT_CYAN        	|	  0x07FF	    /*   0, 255, 255 */									 |		0xF800		/* 255,   0,   0 */    								 | 	    0x07FF		/*   0, 255, 255 */
+// TFT_RED         	|	  0xF800	    /* 255,   0,   0 */									 |		0x07FF		/*   0, 255, 255 */	  								 | 	    0xF800		/* 255,   0,   0 */
+// TFT_MAGENTA     	|	  0xF81F	    /* 255,   0, 255 */									 |		0x07E0		/*   0, 255,   0 */	  								 | 	    0xF81F		/* 255,   0, 255 */
+// TFT_YELLOW      	|	  0xFFE0	    /* 255, 255,   0 */									 |		0x001F		/*   0,   0, 255 */									 | 	    0xFFE0		/* 255, 255,   0 */
+// TFT_WHITE       	|	  0xFFFF	    /* 255, 255, 255 */									 |		0x0000		/*   0,   0,   0 */									 | 	    0xFFFF		/* 255, 255, 255 */
+// TFT_ORANGE      	|	  0xFDA0	    /* 255, 180,   0 */									 | 		0xFD20		/* 255, 165,   0 */									 | 	    0xFDA0		/* 255, 180,   0 */
+// TFT_GREENYELLOW 	|	  0xB7E0	    /* 180, 255,   0 */									 |		0xAFE5		/* 173, 255,  47 */									 | 	    0xB7E0		/* 180, 255,   0 */
+// TFT_PINK        	|	  0xFE19	 	/* 255, 192, 203 */ //Lighter pink, was 0xFC9F 		 |		0xFE19		/* 255, 192, 203 */	//Lighter pink, was 0xFC9F	     | 	    0xFC9F		/* 255, 255,  16 */
 
 #define BUTTON_BORDER_NOT_PRESSED TFT_BLACK
 #define BUTTON_BORDER_PRESSED TFT_RED
@@ -142,15 +149,12 @@
 //                  then probe again at low speed ( G38.2Z-3F10\n ) , then wait that command is executed ( G4P0.5\n ) ,
 //                  then save the Z WCS position ( %z )in ESP32, then rise Z up ( G53G21G90G0Z-2\n ) ,
 //                  then goto predefined change tool position ( G28\n ) and restore 2 modal parameters ( M\n )
+
 #define _CAL_STRING "G4P0.0\n $G\n M5\n G53 G21 G90 G00 Z-2\n G30\n G21 G91\n G38.2 Z-70 F100\n G00 Z2\n G38.2 Z-3 F10\n G4P0.5\n %z G53 G21 G90 G00 Z-2\n G28\n %M\n"
-  
 #define _GO_CHANGE_STRING "G4P0.0\n $G\n $#\n M5\n G53 G21 G90 G00 Z-2\n G28\n"
 #define _GO_PROBE_STRING "G4P0.0\n $#\n $G\n M5\n G4P0.5\n G53 G21 G90 G00 Z-2\n G53 G21 G90 G00 X%X Y%Y\n G30\n G21 G91\n G38.2 Z-70 F100\n G00 Z2\n G38.2 Z-3 F10\n G10 L20 P1 Z%Z\n G53 G21 G90 G00 Z-2\n %M\n"
 #define _SET_CHANGE_STRING "G28.1\n G4P0.0\n $#\n $G\n" 
-#define _SET_PROBE_STRING "G30.1\n G4P0.0\n $#\n $G\n" 
-
-
-
+#define _SET_PROBE_STRING "G30.1\n G4P0.0\n $#\n $G\n"
 
 // ********************************************************************************************************
 // *************************************     normally do not change here below ****************************
@@ -244,5 +248,3 @@
 
 
 #endif
-
-
