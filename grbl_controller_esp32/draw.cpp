@@ -1062,7 +1062,7 @@ void drawWposOnMovePage() {
   uint16_t col1 = hCoord(75) ;
   uint16_t col2 = hCoord(75 + 80) ;
   tft.drawString( mText[_WPOS].pLabel , col1  , line );
-  tft.drawString( mText[_MOVE].pLabel , col2  , line  );
+  tft.drawString( mButton[_MOVE].pLabel , col2  , line  );
   line += vCoord(16) ;
   //tft.drawString( "  X  " , col  , line + 80 );
   tft.drawFloat( wposXYZA[0] , 2 , col1 , line ); // affiche la valeur avec 2 décimales 
