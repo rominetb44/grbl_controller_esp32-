@@ -158,7 +158,7 @@ void fCancelGrbl(uint8_t param) {
 }
 
 void fPause(uint8_t param) {
-  if( (statusPrinting == PRINTING_FROM_SD || statusPrinting == PRINTING_FROM_GRBL ) && ( machineStatus[0] == 'R' || machineStatus[0] == 'J' ) ) { // test on J added mainly for test purpose
+  if( (statusPrinting == PRINTING_FROM_SD || statusPrinting == PRINTING_FROM_GRBL )/* && ( machineStatus[0] == 'R' || machineStatus[0] == 'J' ) */) { // test on J added mainly for test purpose
   #define PAUSE_CMD "!" 
     toGrbl(  PAUSE_CMD) ;
     //Serial2.print(PAUSE_CMD) ;
