@@ -937,16 +937,39 @@ void drawWposOnSetXYZPage() {
   tft.setTextSize(1) ;           // char is 2 X magnified => 
   tft.setTextColor(SCREEN_NORMAL_TEXT ,  SCREEN_BACKGROUND ) ; // when oly 1 parameter, background = fond);
   tft.setTextDatum( TR_DATUM ) ; // align rigth ( option la plus pratique pour les float ou le statut GRBL)
-  tft.setTextPadding (80) ;      // expect to clear 70 pixel when drawing text or   
+  tft.setTextPadding (65/*80*/) ;      // expect to clear 70 pixel when drawing text or   
   uint16_t line = vCoord(60) ; // was 60 ;
-  uint16_t col = hCoord(60) ;
+  uint16_t col = hCoord(70) ;
   tft.drawString( mText[_WPOS].pLabel , col , line);
   tft.drawFloat( wposXYZA[0] , 2 , col , line ); // affiche la valeur avec 3 décimales 
   tft.drawFloat( wposXYZA[1] , 2 , col + hCoord(80) , line );
-  tft.drawFloat( wposXYZA[2] , 2 , col + hCoord(160) , line );
-#ifdef AA_AXIS  
-  tft.drawFloat( wposXYZA[3] , 2 , col + hCoord(240) , line );
-#endif  
+  tft.drawFloat( wposXYZA[2] , 2 , col + hCoord(160) , line ); 
+
+#ifdef XYZA
+	tft.drawFloat( wposXYZA[3] , 2 , col + hCoord(80) , line + vCoord(110));
+	tft.setTextPadding (0);
+	tft.drawString( "A" , hCoord(95) , line + vCoord(110) );
+#elif defined(XYZAB)
+	tft.drawFloat( wposXYZA[3] , 2 , col + hCoord(80) , line + vCoord(110));
+	tft.setTextPadding (0);
+	tft.drawString( "A" , hCoord(95) , line + vCoord(110) );
+	tft.setTextPadding (65);
+	tft.drawFloat( wposXYZA[4] , 2 , col + hCoord(80) , line + vCoord(130));
+	tft.setTextPadding (0);
+	tft.drawString( "B" , hCoord(95) , line + vCoord(130) );
+#elif defined(XYZABC)
+	tft.drawFloat( wposXYZA[3] , 2 , col + hCoord(80) , line + vCoord(110));
+	tft.setTextPadding (0);
+	tft.drawString( "A" , hCoord(95) , line + vCoord(110) );
+	tft.setTextPadding (65);
+	tft.drawFloat( wposXYZA[4] , 2 , col + hCoord(80) , line + vCoord(130));
+	tft.setTextPadding (0);
+	tft.drawString( "B" , hCoord(95) , line + vCoord(130) );
+	tft.setTextPadding (65);
+	tft.drawFloat( wposXYZA[5] , 2 , col + hCoord(80) , line + vCoord(150));
+	tft.setTextPadding (0);
+	tft.drawString( "C" , hCoord(95) , line + vCoord(150) );
+#endif
 }
 
 
