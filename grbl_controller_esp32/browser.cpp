@@ -20,6 +20,8 @@
 #include <ESPmDNS.h>
 #include <Update.h>
 
+#define maxCharFileName 47
+
 const char* loginIndex = 
  "<form name='loginForm'>"
     "<table width='20%' bgcolor='A09F9F' align='center'>"
@@ -589,7 +591,7 @@ void sd_dir(){
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 void printDirectory(const char * dirname, uint8_t levels){
   File32 root1 = sd.open(dirname);
-  char fileName[23] ;
+  char fileName[maxCharFileName] ;
   //String fileNameS ;
   if(!root1){
     root1.close() ;
@@ -606,7 +608,7 @@ void printDirectory(const char * dirname, uint8_t levels){
     if (webpage.length() > 1000) {
       SendHTML_Content();
     }
-    file1.getName(fileName , 22);
+    file1.getName(fileName , maxCharFileName - 1);
     //fileNameS = fileName ;
     //P(fileName);
     //if ( file1.isDir()) P("is dir") ;
