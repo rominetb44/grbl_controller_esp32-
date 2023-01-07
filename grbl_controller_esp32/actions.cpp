@@ -197,25 +197,39 @@ void fResumeGrbl(uint8_t param) {
 
 
 void fDist( uint8_t param ) {
-  uint8_t newDist =  mPages[_P_MOVE].boutons[POS_OF_MOVE_D_AUTO] ;       // convertit la position du bouton en type de bouton 
+  uint8_t posOfAutoButton = 0;
+  if (currentPage == _P_MOVE)
+		posOfAutoButton = POS_OF_MOVE_D_AUTO;
+	else if (currentPage == _P_MOVE_ABC)
+		posOfAutoButton = POS_OF_MOVE_D_AUTO_ABC;
+	else
+		return;
+  uint8_t newDist =  mPages[currentPage].boutons[posOfAutoButton] ;       // convertit la position du bouton en type de bouton 
   //Serial.print("newDist=") ; Serial.println(newDist) ;
   if ( ++newDist > _D0_01 ) newDist = _D_AUTO ; // increase and reset to min value if to big
-  mPages[_P_MOVE].boutons[POS_OF_MOVE_D_AUTO ] = newDist ;   // update the button to display
-  mButtonClear(POS_OF_MOVE_D_AUTO + 1 , newDist ) ;  // clear the current button
-  mButtonDraw( POS_OF_MOVE_D_AUTO + 1 , newDist ) ;  // draw  at position (from 1 to 12) a button (newDist)
+  mPages[currentPage].boutons[posOfAutoButton] = newDist ;   // update the button to display
+  mButtonClear(posOfAutoButton + 1 , newDist ) ;  // clear the current button
+  mButtonDraw( posOfAutoButton + 1 , newDist ) ;  // draw  at position (from 1 to 12) a button (newDist)
   //updateFullPage = true ;                     // force a redraw of buttons
   waitReleased = true ;          // discard "pressed" until a release 
 }  
 
 void fMove( uint8_t param ) { // param contains the touch being pressed or the released if no touch has been pressed
+	uint8_t newDist = 0;
+	if (currentPage == _P_MOVE)
+		newDist = mPages[currentPage].boutons[POS_OF_MOVE_D_AUTO];
+	else if (currentPage == _P_MOVE_ABC)
+		newDist = mPages[currentPage].boutons[POS_OF_MOVE_D_AUTO_ABC];
+	else
+		return;
     //Serial.println("running fMove");
     float distance = 0.01 ;
     //uint32_t moveMillis = millis() ;
     //static uint32_t prevMoveMillis ;
-    if ( mPages[_P_MOVE].boutons[POS_OF_MOVE_D_AUTO] == _D_AUTO ) {
+    if ( newDist == _D_AUTO ) {
       handleAutoMove(param) ; // process in a similar way as Nunchuk
     } else if (justPressedBtn) {                      // just pressed in non auto mode
-      switch ( mPages[_P_MOVE].boutons[POS_OF_MOVE_D_AUTO] ) {        
+      switch ( newDist ) {        
       case _D0_01 :
         distance = 0.01;
         break ;
