@@ -179,6 +179,49 @@ const uint8_t setProbeIcon[] = {
 const uint8_t GoProbeIcon[] = {
 #include "icons/bmp74/zprobe_button.h"  
 };
+const uint8_t backXyzIcon[] = {
+#include "icons/bmp74/back_XYZ_button.h"  
+};
+const uint8_t gotoAAxesIcon[] = {
+#include "icons/bmp74/go_to_A_axis_button.h"  
+};
+const uint8_t gotoABAxesIcon[] = {
+#include "icons/bmp74/go_to_AB_axes_button.h"  
+};
+const uint8_t gotoABCAxesIcon[] = {
+#include "icons/bmp74/go_to_ABC_axes_button.h"  
+};
+const uint8_t arrowANegIcon[] = {
+#include "icons/bmp74/arrow_Aneg_button.h"  
+};
+const uint8_t arrowAPosIcon[] = {
+#include "icons/bmp74/arrow_Apos_button.h"  
+};
+const uint8_t arrowBNegIcon[] = {
+#include "icons/bmp74/arrow_Bneg_button.h"  
+};
+const uint8_t arrowBPosIcon[] = {
+#include "icons/bmp74/arrow_Bpos_button.h"  
+};
+const uint8_t arrowCNegIcon[] = {
+#include "icons/bmp74/arrow_Cneg_button.h"  
+};
+const uint8_t arrowCPosIcon[] = {
+#include "icons/bmp74/arrow_Cpos_button.h"  
+};
+const uint8_t deleteIcon[] = {
+#include "icons/bmp74/delete_button.h"  
+};
+const uint8_t setAIcon[] = {
+#include "icons/bmp74/set_A_button.h"  
+};
+const uint8_t setABIcon[] = {
+#include "icons/bmp74/set_AB_button.h"  
+};
+const uint8_t setABCIcon[] = {
+#include "icons/bmp74/set_ABC_button.h"  
+};
+
 
 //********************************************* 4" TFT
 #elif defined(TFT_SIZE) and (TFT_SIZE == 4)
