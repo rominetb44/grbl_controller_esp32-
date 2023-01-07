@@ -779,7 +779,7 @@ void fillAlarmMsg( const char * alarmMsg ) {   //alarmMsg contains "ALARM:xx"
 }
 */
 void fillStringExecuteMsg( uint8_t buttonMessageIdx ) {   // buttonMessageIdx contains the number of the button
-   if ( buttonMessageIdx >= _SETX || buttonMessageIdx <= _GO_PROBE) {
+   if ( buttonMessageIdx >= _SETX && buttonMessageIdx <= _GO_PROBE) {
       fillMsg( buttonMessageIdx - _SETX +  _SETX_EXECUTED , SCREEN_NORMAL_TEXT ) ;
    } else {
       fillMsg( _UNKNOWN_BTN_EXECUTED , SCREEN_NORMAL_TEXT ) ;
