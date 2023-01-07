@@ -60,8 +60,8 @@ extern SdBaseFile aDir[DIR_LEVEL_MAX] ;
 extern char cmdName[11][17] ;          // contains the names of the commands
 
 extern uint8_t statusPrinting ;
-extern float wposXYZA[4] ;
-extern float mposXYZA[4] ;
+extern float wposXYZA[6] ;
+extern float mposXYZA[6] ;
 extern char machineStatus[9];
 extern float feedSpindle[2] ;  
 extern float overwritePercent[3] ; // first is for feedrate, second for rapid (G0...), third is for RPM
@@ -104,7 +104,7 @@ extern uint8_t logBuffer[MAX_BUFFER_SIZE] ;                              // log 
 extern uint8_t * pGet ; // position of the last char to be read for display
 uint8_t * pLastLogLine ; // pointer to the last Log line
 boolean endOfLog = true ;
-float wposMoveInitXYZA[4] ;
+float wposMoveInitXYZA[6] ;
 
 // previous values used to optimise redraw of INFO screen
 uint8_t statusPrintingPrev;
@@ -505,7 +505,7 @@ void updateBtnState( void) {
         prevBt0 = bt0 ;     // if different, only save the new state but do not handel  
     } else {  // traite uniquement si 2 fois le même bouton consécutivement 
       if ( currentBtn != bt0 ) {    // en cas de changement, active justPressedBtn et justReleasedBtn 
-//      Serial.print(" x=") ; Serial.print(x) ; Serial.print("  y=") ; Serial.print(y) ; Serial.print("  bt=") ; Serial.println(bt0) ; 
+      //Serial.print(" x=") ; Serial.print(x) ; Serial.print("  y=") ; Serial.print(y) ; Serial.print("  bt=") ; Serial.println(bt0) ; Serial.print("  bt=") ; Serial.println(currentBtn) ;
          justPressedBtn = bt0 ;
          justReleasedBtn = currentBtn ;
          currentBtn = bt0 ;
@@ -519,12 +519,12 @@ void updateBtnState( void) {
       }
     }
   }
-  //if (justPressedBtn){
-  //  Serial.print( "just pressed") ;   Serial.println( justPressedBtn) ;    
-  //}
-  //if (justReleasedBtn){
-  //  Serial.print( "just released") ;   Serial.println( justReleasedBtn) ;    
-  //}
+  /*if (justPressedBtn){
+    Serial.print( "just pressed") ;   Serial.println( justPressedBtn) ;    
+  }
+  if (justReleasedBtn){
+    Serial.print( "just released") ;   Serial.println( justReleasedBtn) ;    
+  }*/
 }
 
 void drawUpdatedBtn( ) {   // update the color of the buttons on a page (based on currentPage, justPressedBtn , justReleasedBtn, longPressedBtn)
@@ -555,6 +555,7 @@ void executeMainActionBtn( ) {   // find and execute main action for ONE button 
   if ( actionBtn) {
     (*mPages[currentPage].pfNext[actionBtn - 1 ])(mPages[currentPage].parameters[actionBtn - 1 ]) ;// execute the action with the predefined parameter
   }
+  //if (justPressedBtn) Serial.println( justPressedBtn) ;
 }
 
 
@@ -628,6 +629,8 @@ void drawPartPage() {          // update only the data on screen (not the button
     drawDataOnInfoPage() ;
   } else if ( currentPage == _P_MOVE) {
     drawWposOnMovePage() ;
+  } else if ( currentPage == _P_MOVE_ABC) {
+    drawWposOnABCMovePage() ;
   } else if (currentPage == _P_SETUP ){
     drawDataOnSetupPage() ;
   } else if (currentPage == _P_SETXYZ ){
@@ -877,8 +880,20 @@ void fMoveBase(void) {
   wposMoveInitXYZA[0] = wposXYZA[0];             // save the position when entering (so we calculate distance between current pos and init pos on this screen)
   wposMoveInitXYZA[1] = wposXYZA[1];
   wposMoveInitXYZA[2] = wposXYZA[2];
-  wposMoveInitXYZA[3] = wposXYZA[3];
+  //wposMoveInitXYZA[3] = wposXYZA[3];
   drawWposOnMovePage() ;
+  // multiplier = 0.01 ; // à voir si cela sera encore utilisé (si on met à jour le bouton distance au fur et à mesure, on peut l'utiliser pour calculer 
+  // movePosition = 0 ;  à utiliser si on l'affiche 
+  // afficher la position des axes
+}
+
+
+void fMoveABCBase(void) {
+  fillMPage (_P_MOVE , POS_OF_MOVE_D_AUTO , _D_AUTO , _JUST_LONG_PRESSED , fDist , _D_AUTO) ;  // reset the button for autochange of speed
+  wposMoveInitXYZA[3] = wposXYZA[3];             // save the position when entering (so we calculate distance between current pos and init pos on this screen)
+  wposMoveInitXYZA[4] = wposXYZA[4];
+  wposMoveInitXYZA[5] = wposXYZA[5];
+  drawWposOnABCMovePage() ;
   // multiplier = 0.01 ; // à voir si cela sera encore utilisé (si on met à jour le bouton distance au fur et à mesure, on peut l'utiliser pour calculer 
   // movePosition = 0 ;  à utiliser si on l'affiche 
   // afficher la position des axes
@@ -1040,7 +1055,7 @@ void fOverBase(void) {                 //  En principe il n'y a rien à faire;
 }
 
 void drawWposOnMovePage() {
-#ifdef AA_AXIS
+/*#ifdef AA_AXIS
   //  X-    Y+      X+    Z+
   //  X-    Y+      X+    Z+
   //  X-    Y+      X+    Z+
@@ -1112,6 +1127,109 @@ void drawWposOnMovePage() {
   tft.drawFloat( wposXYZA[2] , 2 , col + hCoord(160) , line + vCoord(20) );
   tft.drawFloat( wposXYZA[2] - wposMoveInitXYZA[2] , 2 , col + hCoord(160) , line + vCoord(40) ) ;
 
+#endif*/
+
+
+  tft.setTextFont( 2 ); // use Font2 = 16 pixel X 7 probably
+  tft.setTextSize(1) ;           // char is 2 X magnified => 
+  tft.setTextColor(SCREEN_NORMAL_TEXT ,  SCREEN_BACKGROUND ) ; // when only 1 parameter, background = fond);
+  tft.setTextDatum( TR_DATUM ) ; // align rigth ( option la plus pratique pour les float ou le statut GRBL)
+  tft.setTextPadding (65/*75*/) ;      // expect to clear 70 pixel when drawing text or 
+  
+  uint16_t line1 = vCoord(80) ;
+  uint16_t line2 = vCoord(80 + 80) ;
+  uint16_t col = hCoord(70/*75*/) ;
+  //uint16_t col2 = hCoord(75 + 80) ;
+  tft.drawString( mText[_WPOS].pLabel , 35/*40*//*col*/  , line1 );
+  tft.drawString( /*mText[_MOVE].pLabel*/mButton[_MOVE].pLabel , 45/*40*//*col*/  , line2  );		//_MOVE ???? _MPOS
+  line1 += vCoord(20/*16*/) ;
+  line2 += vCoord(20/*16*/) ;
+
+  tft.drawFloat( wposXYZA[0] , 2 , col , line1 ); // affiche la valeur avec 2 décimales 
+  tft.drawFloat( wposXYZA[0] - wposMoveInitXYZA[0] , 2 , col , line2  ); // affiche la valeur avec 2 décimales 
+  tft.drawString( "X" , 15/*25*/  , line1 );
+  tft.drawString( "X" , 15/*25*/  , line2 );
+  line1 +=vCoord(20/*16*/) ;
+  line2 += vCoord(20/*16*/) ;
+
+  tft.drawFloat( wposXYZA[1] , 2 , col , line1 );
+  tft.drawFloat( wposXYZA[1] - wposMoveInitXYZA[1] , 2 , col , line2 ); //mposXYZA ???
+  tft.drawString( "Y" , 15  , line1 );
+  tft.drawString( "Y" , 15  , line2 );
+  line1 +=vCoord(20/*16*/) ;
+  line2 += vCoord(20/*16*/) ;
+
+  tft.drawFloat( wposXYZA[2] , 2 , col , line1 );
+  tft.drawFloat( wposXYZA[2] - wposMoveInitXYZA[2] , 2 , col , line2 ) ;
+  tft.drawString( "Z" , 15  , line1 );
+  tft.drawString( "Z" , 15  , line2 );
+  /*line1 +=vCoord(16) ;
+  line2 += vCoord(16) ;
+  tft.drawFloat( wposXYZA[3] , 2 , col , line1 );
+  tft.drawFloat( wposXYZA[3] - wposMoveInitXYZA[3] , 2 , col , line2 ) ;*/
+}
+
+
+
+void drawWposOnABCMovePage() {
+  tft.setTextFont( 2 ); // use Font2 = 16 pixel X 7 probably
+  tft.setTextSize(1) ;           // char is 2 X magnified => 
+  tft.setTextColor(SCREEN_NORMAL_TEXT ,  SCREEN_BACKGROUND ) ; // when only 1 parameter, background = fond);
+  tft.setTextDatum( TR_DATUM ) ; // align rigth ( option la plus pratique pour les float ou le statut GRBL)
+  tft.setTextPadding (65) ;      // expect to clear 70 pixel when drawing text or 
+  
+  uint16_t line1 = vCoord(80) ;
+  uint16_t line2 = vCoord(80 + 80) ;
+  uint16_t col = hCoord(70) ;
+  tft.drawString( mText[_WPOS].pLabel , 35  , line1 );
+  tft.drawString( mButton[_MOVE].pLabel , 45  , line2  );
+  line1 += vCoord(20) ;
+  line2 += vCoord(20) ;
+  
+#ifdef XYZA
+  tft.drawFloat( wposXYZA[3] , 2 , col , line1 ); // affiche la valeur avec 2 décimales 
+  tft.drawFloat( wposXYZA[3] - wposMoveInitXYZA[3] , 2 , col , line2  ); // affiche la valeur avec 2 décimales
+  tft.drawString( "A" , 15  , line1 );
+  tft.drawString( "A" , 15  , line2 );
+  line1 +=vCoord(20) ;
+  line2 += vCoord(20) ;
+#endif
+
+#ifdef XYZAB
+  tft.drawFloat( wposXYZA[3] , 2 , col , line1 ); // affiche la valeur avec 2 décimales 
+  tft.drawFloat( wposXYZA[3] - wposMoveInitXYZA[3] , 2 , col , line2  ); // affiche la valeur avec 2 décimales
+  tft.drawString( "A" , 15  , line1 );
+  tft.drawString( "A" , 15  , line2 );
+  line1 +=vCoord(20) ;
+  line2 += vCoord(20) ;
+
+  tft.drawFloat( wposXYZA[4] , 2 , col , line1 );
+  tft.drawFloat( wposXYZA[4] - wposMoveInitXYZA[4] , 2 , col , line2 );
+  tft.drawString( "B" , 15  , line1 );
+  tft.drawString( "B" , 15  , line2 );
+  line1 +=vCoord(20) ;
+  line2 += vCoord(20) ;
+#endif
+
+#ifdef XYZABC
+  tft.drawFloat( wposXYZA[3] , 2 , col , line1 ); // affiche la valeur avec 2 décimales 
+  tft.drawFloat( wposXYZA[3] - wposMoveInitXYZA[3] , 2 , col , line2  ); // affiche la valeur avec 2 décimales
+  tft.drawString( "A" , 15  , line1 );
+  tft.drawString( "A" , 15  , line2 );
+  line1 +=vCoord(20) ;
+  line2 += vCoord(20) ;
+
+  tft.drawFloat( wposXYZA[4] , 2 , col , line1 );
+  tft.drawFloat( wposXYZA[4] - wposMoveInitXYZA[4] , 2 , col , line2 );
+  tft.drawString( "B" , 15  , line1 );
+  tft.drawString( "B" , 15  , line2 );
+  line1 +=vCoord(20) ;
+  line2 += vCoord(20) ;
+
+  tft.drawFloat( wposXYZA[5] , 2 , col , line1 );
+  tft.drawFloat( wposXYZA[5] - wposMoveInitXYZA[5] , 2 , col , line2 ) ;
+  tft.drawString( "C" , 15  , line1 );
+  tft.drawString( "C" , 15  , line2 );
 #endif
 }
 
