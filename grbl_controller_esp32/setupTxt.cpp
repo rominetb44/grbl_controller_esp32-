@@ -308,7 +308,7 @@ fillMPage (_P_MOVE , 10 , _GOTO_AB_AXES , _JUST_PRESSED , fGoToPage , _P_MOVE_AB
 #elif defined(XYZABC)
 fillMPage (_P_MOVE , 10 , _GOTO_ABC_AXES , _JUST_PRESSED , fGoToPage , _P_MOVE_ABC) ;
 #endif
-fillMPage (_P_MOVE , 9/*POS_OF_MOVE_D_AUTO*/ , _D_AUTO , _JUST_PRESSED , fDist, _D_AUTO) ;  // -1 because range here is 0...11 
+fillMPage (_P_MOVE , /*9*/POS_OF_MOVE_D_AUTO , _D_AUTO , _JUST_PRESSED , fDist, _D_AUTO) ;  // -1 because range here is 0...11 
 fillMPage (_P_MOVE , 11 , _SETUP , _JUST_PRESSED , fGoToPage , _P_SETUP) ;
 
 mPages[_P_SETXYZ].titel = "" ;  
@@ -435,7 +435,7 @@ fillMPage (_P_MOVE_ABC , 5 , _ARROW_B_NEG , _JUST_LONG_PRESSED_RELEASED , fMove 
 fillMPage (_P_MOVE_ABC , 3 , _ARROW_C_POS , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_C_POS) ;
 fillMPage (_P_MOVE_ABC , 7 , _ARROW_C_NEG , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_C_NEG) ;
 #endif
-fillMPage (_P_MOVE_ABC , 9 , _D_AUTO , _JUST_PRESSED , fDist, _D_AUTO) ;
+fillMPage (_P_MOVE_ABC , /*9*/POS_OF_MOVE_D_AUTO_ABC , _D_AUTO , _JUST_PRESSED , fDist, _D_AUTO) ;
 fillMPage (_P_MOVE_ABC , 10 , _BACK_XYZ , _JUST_PRESSED , fGoToPage , _P_MOVE) ;
 fillMPage (_P_MOVE_ABC , 11 , _SETUP , _JUST_PRESSED , fGoToPage , _P_SETUP ) ;
 
