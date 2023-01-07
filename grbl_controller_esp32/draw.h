@@ -52,6 +52,7 @@ void fInfoBase(void) ; // fonction pour l'affichage de base de la page info
 void fNoBase(void) ; // Ne fait rien = fonction pour l'affichage d'une page avec uniquement des boutons
 void fSetupBase(void) ; //fonction pour l'affichage de base de la page setup (= adresse IP)
 void fMoveBase(void) ; // fonction pour l'affichage de l'écran Move
+void fMoveABCBase(void) ; // fonction pour l'affichage de l'écran Move ABC
 void fSetXYZBase(void) ; // fonction pour l'affichage de l'écran Set XYZ
 void fSdBase(void) ; // fonction pour l'affichage de l'écran de la carte SD
 void fCmdBase(void) ; // fonction pour l'affichage del'écran Cmd
@@ -72,6 +73,7 @@ void drawLastMsg() ;         // affiche le lastMsg
 void drawLastMsgAt( uint16_t col , uint16_t line ) ; // affiche le lastMsg à partir d'une position donnée
 void drawDataOnInfoPage()  ; // affiche les données sur la page d'info
 void drawWposOnMovePage() ;
+void drawWposOnABCMovePage() ;
 void drawDataOnSetupPage() ;  // affiche wpos et distance since entry on this screen
 void drawDataOnSetXYZPage() ; // affiche wpos
 void drawWposOnSetXYZPage() ; // affiche Wpos
