@@ -2,8 +2,8 @@
 #define _config_h
 
 
-#define ESP32_VERSION "vers.2.1.j dev"
-#define VERSION_TEXT "Firmware vers.2.1.j dev"
+#define ESP32_VERSION "vers.2.1.k"
+#define VERSION_TEXT "Firmware vers.2.1.k dev"
 
 
 // decide if you will use Wifi or not (and how)
@@ -35,7 +35,10 @@
 #define LANGUAGE FR
 
 // uncomment if you want that the firmware handles 4 axes instead of 3 ;(The GRBL STM32 firmware has to be compiled/flashed with the same option)
-#define AA_AXIS    
+//#define AA_AXIS    
+// The firmware can handle until 6 axes.
+// If you are using a 4-axis CNC, replace XYZ by XYZA - If you are using a 5-axis CNC, replace XYZ by XYZAB - If you are using a 6-axis CNC, replace XYZ by XYZABC
+#define XYZABC
 
 // select the version of the TFT board being used ; it can be 1 or 2 (1 uses 4 pins header to connect to GRbl; 2 use RJ45 connector)               
 #define TFT_CARD_VERSION 2
@@ -45,7 +48,7 @@
 
 // only if you selected 4.0 (or 3.5) display else ignore
 // select the 4.0 (or 3.5) TFT driver version : must be 1 for (ST7796S) or 2 (for ILI9486) or 3 (for ILI9488)
-#define TFT4_0_DRIVER 1                
+#define TFT4_0_DRIVER 2                
 
 // Set REPEAT_CAL to true instead of false to run calibration again, otherwise it will only be done once.
 // Repeat calibration if you change the screen rotation.
@@ -241,6 +244,9 @@
 #define _SETA_STRING "G10 L20 P1 A0\n"
 #define _SETXYZ_STRING "G10 L20 P1 X0 Y0 Z0\n"
 #define _SETXYZA_STRING "G10 L20 P1 X0 Y0 Z0 A0\n"
+#define _SETXYZABC_STRING "G10 L20 P1 X0 Y0 Z0 A0 B0 C0\n"
+#define _SETAB_STRING "G10 L20 P1 A0 B0\n"
+#define _SETABC_STRING "G10 L20 P1 A0 B0 C0\n"
 
 
 
