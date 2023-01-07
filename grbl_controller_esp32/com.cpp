@@ -410,17 +410,19 @@ void decodeFloat(char * pSection) { // decode up to 4 float numbers comma delimi
   decodedFloat[1] = 0;
   decodedFloat[2] = 0;
   decodedFloat[3] = 0;
+  decodedFloat[4] = 0;
+  decodedFloat[5] = 0;
   char * pEndNum ;
   int i = 0 ;
   pEndNum = strpbrk ( pSection , ",|>") ; // cherche un dernier caractère valide après le nombre
-  while ( (i < 4) && pEndNum) { // decode max 4 floats
+  while ( (i < 6) && pEndNum) { // decode max 4 floats
       decodedFloat[i] = atof (pSection) ;
       if ( *pEndNum == ',') { // if last char is ',', then we loop
         pSection =  pEndNum + 1;
         i++; 
         pEndNum = strpbrk ( pSection , ",|>") ; // search first char that end the section and return the position of this end
       } else {
-        i=4; // force to exit while when the last char was not a comma
+        i=6; // force to exit while when the last char was not a comma
       }
   }    
 }
