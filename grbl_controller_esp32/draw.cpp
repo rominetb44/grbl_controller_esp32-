@@ -889,7 +889,7 @@ void fMoveBase(void) {
 
 
 void fMoveABCBase(void) {
-  fillMPage (_P_MOVE , POS_OF_MOVE_D_AUTO , _D_AUTO , _JUST_LONG_PRESSED , fDist , _D_AUTO) ;  // reset the button for autochange of speed
+  fillMPage (_P_MOVE_ABC , POS_OF_MOVE_D_AUTO_ABC , _D_AUTO , _JUST_LONG_PRESSED , fDist , _D_AUTO) ;  // reset the button for autochange of speed
   wposMoveInitXYZA[3] = wposXYZA[3];             // save the position when entering (so we calculate distance between current pos and init pos on this screen)
   wposMoveInitXYZA[4] = wposXYZA[4];
   wposMoveInitXYZA[5] = wposXYZA[5];
