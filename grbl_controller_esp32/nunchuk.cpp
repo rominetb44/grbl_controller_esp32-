@@ -165,7 +165,7 @@ void handleNunchuk (void) {
                   moveY =  1 ;
                 }
               } else if ( nunchuk_buttonZ() && nunchuk_buttonC() == 0 ) {   // si le bouton Z est enfoncé mais pas le bouton C
-    #ifdef AA_AXIS
+    #if  (defined XYZA || defined XYZAB || defined XYZABC)
                 if (nunchuk_data[0] < 80 ) {
                   moveA = - 1 ;
                 } else if (nunchuk_data[0] > 170 ) {
