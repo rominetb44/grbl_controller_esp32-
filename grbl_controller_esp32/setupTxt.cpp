@@ -53,8 +53,6 @@ mButton[_YP].pLabel = "Y+" ;
 mButton[_YM].pLabel = "Y-" ;
 mButton[_ZP].pLabel = "Z+" ;
 mButton[_ZM].pLabel = "Z-" ;
-mButton[_AP].pLabel = "A+" ;
-mButton[_AM].pLabel = "A-" ;
 mButton[_D_AUTO].pLabel = __D_AUTO  ;
 mButton[_D100].pLabel = "100" ;
 mButton[_D10].pLabel = "10" ;
@@ -66,6 +64,8 @@ mButton[_SETX].pLabel = __SETX  ;
 mButton[_SETY].pLabel = __SETY  ;
 mButton[_SETZ].pLabel = __SETZ  ;
 mButton[_SETA].pLabel = __SETA  ;
+mButton[_SETAB].pLabel = __SETAB  ;
+mButton[_SETABC].pLabel = __SETABC  ;
 mButton[_SETXYZ].pLabel = __SETXYZ  ;
 mButton[_SETXYZA].pLabel = __SETXYZA  ;
 mButton[_TOOL].pLabel = __TOOL  ;
@@ -119,6 +119,18 @@ mButton[_YES_BTN].pLabel = __YES ;
 mButton[_NO_BTN].pLabel = __NO ;
 mButton[_LOG].pLabel =  __LOG ;
 
+mButton[_BACK_XYZ].pLabel =  __BACK_XYZ ;
+mButton[_GOTO_A_AXES].pLabel =  __GOTO_A_AXES ;
+mButton[_GOTO_AB_AXES].pLabel =  __GOTO_AB_AXES ;
+mButton[_GOTO_ABC_AXES].pLabel =  __GOTO_ABC_AXES ;
+mButton[_ARROW_A_NEG].pLabel =  __ARROW_A_NEG ;
+mButton[_ARROW_A_POS].pLabel =  __ARROW_A_POS ;
+mButton[_ARROW_B_NEG].pLabel =  __ARROW_B_NEG ;
+mButton[_ARROW_B_POS].pLabel =  __ARROW_B_POS ;
+mButton[_ARROW_C_NEG].pLabel =  __ARROW_C_NEG ;
+mButton[_ARROW_C_POS].pLabel =  __ARROW_C_POS ;
+
+
 
 #ifdef USE_ICONS
 mButton[_SETUP].pIcon = setupIcon  ;
@@ -142,10 +154,6 @@ mButton[_YP].pIcon = ypIcon ;
 mButton[_YM].pIcon = ymIcon ;
 mButton[_ZP].pIcon = zpIcon ;
 mButton[_ZM].pIcon = zmIcon ;
-mButton[_AP].pLabel = "A+" ;
-mButton[_AM].pLabel = "A-" ;
-//mButton[_AP].pIcon = "A+" ;
-//mButton[_AM].pIcon = "A-" ;
 mButton[_D_AUTO].pIcon = dAutoIcon  ;
 mButton[_D100].pIcon = d100Icon ;
 mButton[_D10].pIcon = d10Icon ;
@@ -156,17 +164,20 @@ mButton[_SET_WCS].pIcon = setWCSIcon  ;
 mButton[_SETX].pIcon = setXIcon ;
 mButton[_SETY].pIcon = setYIcon ;
 mButton[_SETZ].pIcon = setZIcon ;
-	#if defined(TFT_SIZE) && (TFT_SIZE == 4) 		// because icon for this button is only available on the 4.0" TFT
+/*	#if defined(TFT_SIZE) && (TFT_SIZE == 4) 		// because icon for this button is only available on the 4.0" TFT
 	mButton[_SETA].pIcon = setAIcon ;
 	#else									 		// because icon for this button does not exist on the 3.2" TFT
 	mButton[_SETA].pLabel = __SETA ;
-	#endif
+	#endif*/
 mButton[_SETXYZ].pIcon = setXYZIcon  ;
 	#if defined(TFT_SIZE) && (TFT_SIZE == 4) 		// because icon for this button is only available on the 4.0" TFT
 	mButton[_SETXYZA].pIcon = setXYZAIcon ;
 	#else									 		// because icon for this button does not exist on the 3.2" TFT
 	mButton[_SETXYZA].pLabel = __SETXYZA ;
 	#endif
+mButton[_SETA].pIcon = setAIcon ;
+mButton[_SETAB].pIcon = setABIcon ;
+mButton[_SETABC].pIcon = setABCIcon ;
 mButton[_TOOL].pIcon = toolIcon  ;
 mButton[_SET_CHANGE].pIcon = setChangeIcon  ;
 mButton[_SET_PROBE].pIcon = setProbeIcon  ;
@@ -226,6 +237,19 @@ mButton[_YES_BTN].pIcon = yesIcon ;
 mButton[_NO_BTN].pIcon = noIcon ;
 mButton[_LOG].pIcon = logGrblIcon ;
 
+#if defined(TFT_SIZE) && (TFT_SIZE == 3)
+mButton[_BACK_XYZ].pIcon =  backXyzIcon ;
+mButton[_GOTO_A_AXES].pIcon =  gotoAAxesIcon ;
+mButton[_GOTO_AB_AXES].pIcon =  gotoABAxesIcon ;
+mButton[_GOTO_ABC_AXES].pIcon =  gotoABCAxesIcon ;
+mButton[_ARROW_A_NEG].pIcon =  arrowANegIcon ;
+mButton[_ARROW_A_POS].pIcon =  arrowAPosIcon ;
+mButton[_ARROW_B_NEG].pIcon =  arrowBNegIcon ;
+mButton[_ARROW_B_POS].pIcon =  arrowBPosIcon ;
+mButton[_ARROW_C_NEG].pIcon =  arrowCNegIcon ;
+mButton[_ARROW_C_POS].pIcon =  arrowCPosIcon ;
+#endif
+
 #endif //end of USE_ICONS
 
 // ************** fill the parameters to declare the buttons for each pages
@@ -271,37 +295,34 @@ fillMPage (_P_PAUSE , 11 , _INFO , _JUST_PRESSED , fGoToPage , _P_INFO) ;
 
 mPages[_P_MOVE].titel = "" ;
 mPages[_P_MOVE].pfBase = fMoveBase ;
-#ifdef AA_AXIS
 fillMPage (_P_MOVE , 0 , _XM , _JUST_LONG_PRESSED_RELEASED , fMove , _XM) ;
 fillMPage (_P_MOVE , 1 , _YP , _JUST_LONG_PRESSED_RELEASED , fMove , _YP) ;
 fillMPage (_P_MOVE , 2 , _XP , _JUST_LONG_PRESSED_RELEASED , fMove , _XP) ;
 fillMPage (_P_MOVE , 3 , _ZP , _JUST_LONG_PRESSED_RELEASED , fMove , _ZP) ;
-fillMPage (_P_MOVE , 4 , _AM , _JUST_LONG_PRESSED_RELEASED , fMove , _AM) ;
-fillMPage (_P_MOVE , 5 , _YM , _JUST_LONG_PRESSED_RELEASED , fMove , _YM) ;
-fillMPage (_P_MOVE , 6 , _AP , _JUST_LONG_PRESSED_RELEASED , fMove , _AP) ;
-fillMPage (_P_MOVE , 7 , _ZM , _JUST_LONG_PRESSED_RELEASED , fMove , _ZM) ;
-#else
-fillMPage (_P_MOVE , 1 , _YP , _JUST_LONG_PRESSED_RELEASED , fMove , _YP) ;
-fillMPage (_P_MOVE , 3 , _ZP , _JUST_LONG_PRESSED_RELEASED , fMove , _ZP) ;
 fillMPage (_P_MOVE , 5 , _YM , _JUST_LONG_PRESSED_RELEASED , fMove , _YM) ;
 fillMPage (_P_MOVE , 7 , _ZM , _JUST_LONG_PRESSED_RELEASED , fMove , _ZM) ;
-fillMPage (_P_MOVE , 8 , _XM , _JUST_LONG_PRESSED_RELEASED , fMove , _XM) ;
-fillMPage (_P_MOVE , 10 , _XP , _JUST_LONG_PRESSED_RELEASED , fMove , _XP) ;
+#ifdef XYZA
+fillMPage (_P_MOVE , 10 , _GOTO_A_AXES , _JUST_PRESSED , fGoToPage , _P_MOVE_ABC) ;
+#elif defined(XYZAB)
+fillMPage (_P_MOVE , 10 , _GOTO_AB_AXES , _JUST_PRESSED , fGoToPage , _P_MOVE_ABC) ;
+#elif defined(XYZABC)
+fillMPage (_P_MOVE , 10 , _GOTO_ABC_AXES , _JUST_PRESSED , fGoToPage , _P_MOVE_ABC) ;
 #endif
-fillMPage (_P_MOVE , POS_OF_MOVE_D_AUTO , _D_AUTO , _JUST_PRESSED , fDist, _D_AUTO) ;  // -1 because range here is 0...11 
-fillMPage (_P_MOVE , 11 , _BACK , _JUST_PRESSED , fGoBack , 0) ;
+fillMPage (_P_MOVE , 9/*POS_OF_MOVE_D_AUTO*/ , _D_AUTO , _JUST_PRESSED , fDist, _D_AUTO) ;  // -1 because range here is 0...11 
+fillMPage (_P_MOVE , 11 , _SETUP , _JUST_PRESSED , fGoToPage , _P_SETUP) ;
 
 mPages[_P_SETXYZ].titel = "" ;  
 mPages[_P_SETXYZ].pfBase = fSetXYZBase ;
 fillMPage (_P_SETXYZ , 4 , _SETX , _JUST_PRESSED , fSetXYZ , _SETX) ;
 fillMPage (_P_SETXYZ , 5 , _SETY , _JUST_PRESSED , fSetXYZ , _SETY) ;
 fillMPage (_P_SETXYZ , 6 , _SETZ, _JUST_PRESSED , fSetXYZ , _SETZ) ;
-#ifdef AA_AXIS
-fillMPage (_P_SETXYZ , 7 , _SETA, _JUST_PRESSED , fSetXYZ , _SETA) ;
-fillMPage (_P_SETXYZ , 8 , _SETXYZ , _JUST_PRESSED , fSetXYZ , _SETXYZ) ;
-fillMPage (_P_SETXYZ , 9 , _SETXYZA , _JUST_PRESSED , fSetXYZ , _SETXYZA) ;
-#else
-fillMPage (_P_SETXYZ , 8 , _SETXYZ , _JUST_PRESSED , fSetXYZ , _SETXYZ) ;
+fillMPage (_P_SETXYZ , 7 , _SETXYZ , _JUST_PRESSED , fSetXYZ , _SETXYZ) ;
+#ifdef XYZA
+fillMPage (_P_SETXYZ , 8 , _SETA , _JUST_PRESSED , fSetXYZ , _SETA) ;
+#elif defined(XYZAB)
+fillMPage (_P_SETXYZ , 8 , _SETAB , _JUST_PRESSED , fSetXYZ , _SETAB) ;
+#elif defined(XYZABC)
+fillMPage (_P_SETXYZ , 8 , _SETABC , _JUST_PRESSED , fSetXYZ , _SETABC) ;
 #endif
 fillMPage (_P_SETXYZ , 10 , _SETUP , _JUST_PRESSED , fGoToPage , _P_SETUP ) ;
 fillMPage (_P_SETXYZ , 11 , _INFO , _JUST_PRESSED , fGoToPage , _P_INFO ) ;
@@ -395,6 +416,32 @@ fillMPage (_P_PAUSE_GRBL , 7 , _OVERWRITE , _JUST_PRESSED , fGoToPage , _P_OVERW
 fillMPage (_P_PAUSE_GRBL , 11 , _INFO , _JUST_PRESSED , fGoToPage , _P_INFO) ;
 
 
+// Ajout de la page de déplacements des axes A, B et C
+mPages[_P_MOVE_ABC].titel = "" ;
+mPages[_P_MOVE_ABC].pfBase = fMoveABCBase ;
+#ifdef XYZA
+fillMPage (_P_MOVE_ABC , 0 , _ARROW_A_NEG , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_A_NEG) ;
+fillMPage (_P_MOVE_ABC , 2 , _ARROW_A_POS , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_A_POS) ;
+#elif defined(XYZAB)
+fillMPage (_P_MOVE_ABC , 0 , _ARROW_A_NEG , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_A_NEG) ;
+fillMPage (_P_MOVE_ABC , 2 , _ARROW_A_POS , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_A_POS) ;
+fillMPage (_P_MOVE_ABC , 1 , _ARROW_B_POS , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_B_POS) ;
+fillMPage (_P_MOVE_ABC , 5 , _ARROW_B_NEG , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_B_NEG) ;
+#elif defined(XYZABC)
+fillMPage (_P_MOVE_ABC , 0 , _ARROW_A_NEG , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_A_NEG) ;
+fillMPage (_P_MOVE_ABC , 2 , _ARROW_A_POS , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_A_POS) ;
+fillMPage (_P_MOVE_ABC , 1 , _ARROW_B_POS , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_B_POS) ;
+fillMPage (_P_MOVE_ABC , 5 , _ARROW_B_NEG , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_B_NEG) ;
+fillMPage (_P_MOVE_ABC , 3 , _ARROW_C_POS , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_C_POS) ;
+fillMPage (_P_MOVE_ABC , 7 , _ARROW_C_NEG , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_C_NEG) ;
+#endif
+fillMPage (_P_MOVE_ABC , 9 , _D_AUTO , _JUST_PRESSED , fDist, _D_AUTO) ;
+fillMPage (_P_MOVE_ABC , 10 , _BACK_XYZ , _JUST_PRESSED , fGoToPage , _P_MOVE) ;
+fillMPage (_P_MOVE_ABC , 11 , _SETUP , _JUST_PRESSED , fGoToPage , _P_SETUP ) ;
+
+
+
+
 // ************************** Fill the messages ****************************
 mText[_WPOS].pLabel = __WPOS ;
 mText[_MPOS].pLabel = __MPOS ;
@@ -443,6 +490,8 @@ mText[_SETX_EXECUTED].pLabel = __SETX_EXECUTED ;
 mText[_SETY_EXECUTED].pLabel = __SETY_EXECUTED ;
 mText[_SETZ_EXECUTED].pLabel = __SETZ_EXECUTED ;
 mText[_SETA_EXECUTED].pLabel = __SETA_EXECUTED ;
+mText[_SETAB_EXECUTED].pLabel = __SETAB_EXECUTED ;
+mText[_SETABC_EXECUTED].pLabel = __SETABC_EXECUTED ;
 mText[_SETXYZ_EXECUTED].pLabel = __SETXYZ_EXECUTED ;
 mText[_SETXYZA_EXECUTED].pLabel = __SETXYZA_EXECUTED ;
 mText[_SET_CHANGE_EXECUTED].pLabel = __SET_CHANGE_EXECUTED ;
