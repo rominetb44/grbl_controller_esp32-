@@ -47,6 +47,8 @@ extern int8_t jogDistX ;
 extern int8_t jogDistY ;
 extern int8_t jogDistZ ;
 extern int8_t jogDistA ;
+extern int8_t jogDistB ;
+extern int8_t jogDistC ;
 
 
 extern float moveMultiplier ;
@@ -158,7 +160,7 @@ void fCancelGrbl(uint8_t param) {
 }
 
 void fPause(uint8_t param) {
-  if( (statusPrinting == PRINTING_FROM_SD || statusPrinting == PRINTING_FROM_GRBL ) && ( machineStatus[0] == 'R' || machineStatus[0] == 'J' ) ) { // test on J added mainly for test purpose
+  if( (statusPrinting == PRINTING_FROM_SD || statusPrinting == PRINTING_FROM_GRBL )/* && ( machineStatus[0] == 'R' || machineStatus[0] == 'J' ) */) { // test on J added mainly for test purpose
   #define PAUSE_CMD "!" 
     toGrbl(  PAUSE_CMD) ;
     //Serial2.print(PAUSE_CMD) ;
@@ -251,8 +253,12 @@ void fMove( uint8_t param ) { // param contains the touch being pressed or the r
         case _YM :  bufferise2Grbl("Y-") ;  break ;
         case _ZP :  bufferise2Grbl("Z")  ;  break ;
         case _ZM :  bufferise2Grbl("Z-") ;  break ;
-        case _AP :  bufferise2Grbl("A")  ;  break ;
-        case _AM :  bufferise2Grbl("A-") ;  break ;
+		case _ARROW_A_POS :  bufferise2Grbl("A")  ;  break ;
+        case _ARROW_A_NEG :  bufferise2Grbl("A-") ;  break ;
+		case _ARROW_B_POS :  bufferise2Grbl("B")  ;  break ;
+        case _ARROW_B_NEG :  bufferise2Grbl("B-") ;  break ;
+		case _ARROW_C_POS :  bufferise2Grbl("C")  ;  break ;
+        case _ARROW_C_NEG :  bufferise2Grbl("C-") ;  break ;
       }
       if (distance == 100 && ( typeOfMove == _ZP || typeOfMove == _ZM ) ) distance =10;  
       char sdistance[20];
@@ -302,6 +308,8 @@ void handleAutoMove( uint8_t param) { // in Auto mode, we support long press to 
     jogDistY = 0 ;
     jogDistZ = 0 ;
     jogDistA = 0 ;
+	jogDistB = 0 ;
+	jogDistC = 0 ;
     //switch ( pressedBtn ) {  // fill one direction of move
     //  case 7 :  jogDistX = 1  ;  break ;
     //  case 5 :  jogDistX = -1 ;  break ;
@@ -319,8 +327,12 @@ void handleAutoMove( uint8_t param) { // in Auto mode, we support long press to 
         case _YM :  jogDistY = -1 ;  break ;
         case _ZP :  jogDistZ = 1  ;  break ;
         case _ZM :  jogDistZ = -1  ;  break ;
-        case _AP :  jogDistA = 1  ;  break ;
-        case _AM :  jogDistA = -1  ;  break ;
+		case _ARROW_A_POS :  jogDistA = 1  ;  break ;
+        case _ARROW_A_NEG :  jogDistA = -1 ;  break ;
+		case _ARROW_B_POS :  jogDistB = 1  ;  break ;
+        case _ARROW_B_NEG :  jogDistB = -1 ;  break ;
+		case _ARROW_C_POS :  jogDistC = 1  ;  break ;
+        case _ARROW_C_NEG :  jogDistC = -1 ;  break ;
         
     }
     //Serial.print("type of move=");Serial.println(typeOfMove);
@@ -407,6 +419,8 @@ void fSetXYZ(uint8_t param) {     // param contient le n° de la commande
   case _SETA :   memccpy ( printString , _SETA_STRING , '\0' , 249); break ;
   case _SETXYZ : memccpy ( printString , _SETXYZ_STRING , '\0' , 249); break ;
   case _SETXYZA : memccpy ( printString , _SETXYZA_STRING , '\0' , 249); break ;
+  case _SETAB : memccpy ( printString , _SETAB_STRING , '\0' , 249); break ;
+  case _SETABC : memccpy ( printString , _SETABC_STRING , '\0' , 249); break ;
   case _SET_CHANGE : memccpy ( printString , _SET_CHANGE_STRING , '\0' , 249); break ;
   case _SET_PROBE :  memccpy ( printString , _SET_PROBE_STRING , '\0' , 249);  break ;  
   case _SET_CAL :    memccpy ( printString , _CAL_STRING , '\0' , 249);    break ;  
@@ -653,6 +667,10 @@ void fStartSdGrblPrinting(uint8_t param){ // param is the index of the file butt
 
 void fConfirmedYes(uint8_t param ) { // called when Yes btn is pressed; based on parameter call different function 
   //Serial.print("fileToExecuteIdx="); Serial.println(fileToExecuteIdx);
+  if ( machineStatus[0] != 'I' ) {	// On vérifie que GRBL est prêt à imprimer : pas d'alarme ou autre
+	  fGoToPage(_P_INFO);
+	  return;
+  }
   if ( fileToExecuteIdx <=3) { // it is a file from sd card attached to tft
     fStartSdPrinting(fileToExecuteIdx) ;
   } else if ( fileToExecuteIdx >= 10 &&  fileToExecuteIdx <=13) {// it is a file from sd card attached to grbl
