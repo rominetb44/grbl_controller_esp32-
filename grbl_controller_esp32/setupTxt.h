@@ -97,11 +97,9 @@ enum { _UNKNOWN_ALARM = 0 , _HARD_LIMIT_REACHED, _MOTION_EXCEED_CNC, _RESET_IN_M
     _PROBE_TRAVEL_FAIL, _RESET_DURING_HOMING, _DOOR_OPEN_HOMING, _LIMIT_ON_HOMING, _LIMIT_MISSING_HOMING,
     _MAX_ALARMS } ; // keep _MAX_ALARMS latest
 
-#ifdef AA_AXIS
-#define POS_OF_MOVE_D_AUTO 10  // sequence number of definition D_AUTO on MOVE (in range 0...11)
-#else
+
 #define POS_OF_MOVE_D_AUTO 9  // sequence number of definition D_AUTO on MOVE (in range 0...11)
-#endif
+#define POS_OF_MOVE_D_AUTO_ABC 9
 #define POS_OF_SD_SHOW_PG_NEXT 7
 #define POS_OF_SD_SHOW_PG_PREV 3
 #define POS_OF_LOG_PG_NEXT 7
