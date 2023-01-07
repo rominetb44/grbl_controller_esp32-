@@ -653,6 +653,10 @@ void fStartSdGrblPrinting(uint8_t param){ // param is the index of the file butt
 
 void fConfirmedYes(uint8_t param ) { // called when Yes btn is pressed; based on parameter call different function 
   //Serial.print("fileToExecuteIdx="); Serial.println(fileToExecuteIdx);
+  if ( machineStatus[0] != 'I' ) {	// On vérifie que GRBL est prêt à imprimer : pas d'alarme ou autre
+	  fGoToPage(_P_INFO);
+	  return;
+  }
   if ( fileToExecuteIdx <=3) { // it is a file from sd card attached to tft
     fStartSdPrinting(fileToExecuteIdx) ;
   } else if ( fileToExecuteIdx >= 10 &&  fileToExecuteIdx <=13) {// it is a file from sd card attached to grbl
