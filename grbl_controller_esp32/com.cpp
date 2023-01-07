@@ -477,7 +477,7 @@ void sendToGrbl( void ) {
        toGrbl('?') ; 
     }
   }
-  if( statusPrinting != PRINTING_FROM_TELNET ) {               // clear the telnet buffer when not in use
+  if( statusPrinting != PRINTING_FROM_TELNET && grblLink != GRBL_LINK_TELNET) {               // clear the telnet buffer when not in use
     while ( telnetClient.available() && statusPrinting != PRINTING_FROM_TELNET ) {
       sdChar = telnetClient.read() ;
     } // end while  
