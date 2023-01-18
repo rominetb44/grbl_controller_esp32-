@@ -176,12 +176,27 @@ void handleNunchuk (void) {
                   moveZ = - 1 ;
                 } else if (nunchuk_data[1] > 170 ) {
                   moveZ =  1 ;
-                } 
+                }
+	#if  (defined XYZAB || defined XYZABC)
+			  } else if ( nunchuk_buttonZ() && nunchuk_buttonC()) {   // si le bouton Z et le bouton C sont enfoncés
+				if (nunchuk_data[0] < 80 ) {
+                  moveB = - 1 ;
+                } else if (nunchuk_data[0] > 170 ) {
+                  moveB =  1 ;
+                }
+		#if  (defined XYZABC)            
+                if (nunchuk_data[1] < 80 ) {
+                  moveC = - 1 ;
+                } else if (nunchuk_data[1] > 170 ) {
+                  moveC =  1 ;
+                }
+		#endif
+	#endif
               } // end test on button
               if ( (machineStatus[0] == 'J' || machineStatus[0] == 'I' ) && ( prevMoveX != moveX || prevMoveY != moveY  || prevMoveZ != moveZ || prevMoveA != moveA || prevMoveB != moveB || prevMoveC != moveC) ) { // cancel Jog if jogging and at least one direction change       
                   jogCancelFlag = true ;
               } 
-              if ( moveX || moveY || moveZ || moveA ) {    // if at least one move is asked
+              if ( moveX || moveY || moveZ || moveA || moveB || moveC) {    // if at least one move is asked
                   if ( ( prevMoveX != moveX || prevMoveY != moveY  || prevMoveZ != moveZ || prevMoveA != moveA || prevMoveB != moveB || prevMoveC != moveC) ) { 
                     startMoveMillis = millis() ; // used to calculate step and feedrate based on delay between 2 jog commands 
                   } 
