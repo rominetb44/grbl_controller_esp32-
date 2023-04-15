@@ -14,7 +14,7 @@ extern M_pLabel mText[_MAX_TEXT];
 //IPAddress grblIp(192,168,1,5);
 //char grblName[]  = "grblesp.local";
 
-uint32_t wifiGrblMillis = millis() ;
+//uint32_t wifiGrblMillis = millis() ;
 bool telnetConnected = false ;
 
 /*
@@ -102,7 +102,8 @@ void toTelnet(char c) {
 
 void toTelnet(const char * data) {
   //Serial.print("In toTelnet data=") ; Serial.println(data) ;
-  grblClient.print(data);
+  //grblClient.print(data);
+  grblClient.write(data, strlen(data));		// Cette fonction envoi l'ensemble des données en un seul paquet IP au lieu de un paquet par caractère
   /*
   if ( (millis() - wifiGrblMillis) > 2000){
     Serial.print("connection lost, trying to reconnect at ");Serial.println(millis());
@@ -128,7 +129,7 @@ bool fromTelnetAvailable( ){
 }  
 
 int fromTelnetRead( ){
-  wifiGrblMillis = millis() ;
+  //wifiGrblMillis = millis() ;
   int val = grblClient.read();
   return val;
   //return grblClient.read();  
