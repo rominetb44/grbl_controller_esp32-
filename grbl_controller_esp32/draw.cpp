@@ -1425,18 +1425,19 @@ void drawDataOnOverwritePage() {                                // to do : text 
   tft.setFreeFont (LABELS12_FONT) ;
   tft.setTextSize(1) ;           // char is 2 X magnified => 
   tft.setTextColor( SCREEN_HEADER_TEXT ,  SCREEN_BACKGROUND ) ; // when only 1 parameter, background = fond);
-  tft.setTextDatum( TL_DATUM ) ; // align left 
+  tft.setTextDatum( TC_DATUM ) ; // align left 
   tft.setTextPadding (239) ;      // expect to clear 230 pixel when drawing text (there is a button on the right) 
   uint16_t line = vCoord(15) ;
-  uint16_t col = hCoord(2) ;
+  //uint16_t col = hCoord(2) ;
+  uint16_t col = hCoord(115) ;
   if ( mPages[_P_OVERWRITE].boutons[POS_OF_OVERWRITE_OVERWRITE] == _OVER_SWITCH_TO_SPINDLE ) {
     tft.drawString( mText[_CHANGING_FEEDRATE1].pLabel , col  , line );
-    tft.setTextDatum( TR_DATUM ) ; // align rigth 
-    tft.drawString( mText[_CHANGING_FEEDRATE2].pLabel , col  + hCoord(230) , line + vCoord(30) );  
+    tft.setTextDatum( TC_DATUM ) ; // align rigth 
+    tft.drawString( mText[_CHANGING_FEEDRATE2].pLabel , /*col  + hCoord(230)*/ col , line + vCoord(30) );  
   } else {
     tft.drawString( mText[_CHANGING_SPINDLE1].pLabel , col  , line );
-    tft.setTextDatum( TR_DATUM ) ; // align rigth 
-    tft.drawString( mText[_CHANGING_SPINDLE2].pLabel , col + hCoord(230) , line + vCoord(30) );
+    tft.setTextDatum( TC_DATUM ) ; // align rigth 
+    tft.drawString( mText[_CHANGING_SPINDLE2].pLabel , /*col + hCoord(230)*/col , line + vCoord(30) );
   }
 
   tft.setTextFont( 2 );
