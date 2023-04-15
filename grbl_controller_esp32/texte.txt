@@ -29,8 +29,7 @@
 19=__SETY         "Set Y" 
 20=__SETZ         "Set Z"
 21=__SETA         "Set A"
-22=__SETXYZ       
-"Set*XYZ"
+22=__SETXYZ       "Set*XYZ"
 23=__SETXYZA "Set*XYZA"
 24=__TOOL "Tool" 
 25=__SET_CHANGE "D\x80" "f.*change"
@@ -59,6 +58,8 @@
 48=__BLUETOOTH "Blue*tooth"
 49=__TELNET "Telnet"
 50=__SD_GRBL "SD*Grbl"
+51=__SETAB   "Set*AB"
+52=__SETABC  "Set*ABC"
 
 
 
@@ -124,6 +125,8 @@
 53=__CHANGING_FEEDRATE2 "Feedrate"
 54=__CHANGING_SPINDLE1 "Changement du"
 55=__CHANGING_SPINDLE2 "Spindle (Rpm)"
+56=__SETAB_EXECUTED  "AB set dans G54"
+57=__SETABC_EXECUTED  "ABC set dans G54"
 
 
 
