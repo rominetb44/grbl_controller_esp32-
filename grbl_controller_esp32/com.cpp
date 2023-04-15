@@ -31,6 +31,7 @@
   
 #define WAIT_OK_SD_TIMEOUT 120000
 
+#define MAX_LINE_LENGTH_TO_GRBL 200
 
 
 uint8_t grblLink = GRBL_LINK_SERIAL ;
@@ -493,6 +494,9 @@ void sendToGrbl( void ) {
 
 void sendFromSd() {        // send next char from SD; close file at the end
       int sdChar ;
+	  char dataToSendBuffer[MAX_LINE_LENGTH_TO_GRBL];
+	  uint8_t bufferPos = 0;
+	  dataToSendBuffer[bufferPos] = '\0';
       waitOkWhenSdMillis = millis()  + WAIT_OK_SD_TIMEOUT ;  // set time out on 
       while ( aDir[dirLevel+1].available() > 0 && (! waitOk) && statusPrinting == PRINTING_FROM_SD && ( (grblLink == GRBL_LINK_SERIAL)?Serial2.availableForWrite() > 2: true) ) {
           sdChar = aDir[dirLevel+1].read() ;
@@ -501,14 +505,25 @@ void sendFromSd() {        // send next char from SD; close file at the end
             updateFullPage = true ;           // force to redraw the whole page because the buttons haved changed
           } else {
             sdNumberOfCharSent++ ;
-            if( sdChar != 13 && sdChar != ' ' ){             // 13 = carriage return; do not send the space.
+            if( sdChar != 0x0D && sdChar != ' ' ){             // 13 = carriage return; do not send the space.
                                                              // to do : skip the comments
-              toGrbl((char) sdChar ) ;
-              //Serial2.print( (char) sdChar ) ;
+              //toGrbl((char) sdChar ) ;
+			  dataToSendBuffer[bufferPos++] = (char) sdChar;
             }
             if ( sdChar == '\n' ) {        // n= new line = line feed = 10 decimal
                waitOk = true ;
-            }
+			   dataToSendBuffer[bufferPos] = '\0';
+			   toGrbl(dataToSendBuffer);
+			   Serial.print(dataToSendBuffer) ; Serial.print('\r');
+			   bufferPos = 0;
+			   dataToSendBuffer[bufferPos] = '\0';
+            } else if ( bufferPos >= MAX_LINE_LENGTH_TO_GRBL - 2 ) {
+				dataToSendBuffer[bufferPos] = '\0';
+				toGrbl(dataToSendBuffer);
+				Serial.print(dataToSendBuffer) ;
+			    bufferPos = 0;
+				dataToSendBuffer[bufferPos] = '\0';
+			}
           }
       } // end while
       if ( aDir[dirLevel+1].available() == 0 ) { 
