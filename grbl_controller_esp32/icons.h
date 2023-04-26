@@ -71,6 +71,12 @@ const uint8_t zpIcon[] = {
 const uint8_t zmIcon[] = {
 #include "icons/bmp74/arrow_Zdown_button.h"  
 };
+const uint8_t apIcon[] = {
+#include "icons/bmp74/arrow_Apos_button.h"		//added by HTheatre
+};
+const uint8_t amIcon[] = {
+#include "icons/bmp74/arrow_Aneg_button.h"  	//added by HTheatre
+};						  
 const uint8_t dAutoIcon[] = {
 #include "icons/bmp74/pitch_auto_button.h"  
 };
@@ -101,9 +107,15 @@ const uint8_t setYIcon[] = {
 const uint8_t setZIcon[] = {
 #include "icons/bmp74/setZ_button.h"  
 };
+const uint8_t setAIcon[] = {					//added by HTheatre
+#include "icons/bmp74/setA_button.h"			//added by HTheatre
+};
 const uint8_t setXYZIcon[] = {
 #include "icons/bmp74/setXYZ_button.h"  
 };
+const uint8_t setXYZAIcon[] = {					//added by HTheatre
+#include "icons/bmp74/setXYZA_button.h"			//added by HTheatre
+};					 
 const uint8_t toolIcon[] = {
 #include "icons/bmp74/tool_button.h"  
 };
@@ -114,7 +126,7 @@ const uint8_t backIcon[] = {
 //#include "icons/bmp74/.h"  
 //};
 //const uint8_t rightIcon[] = {
-//#include "icons/bmp74/ .h"  
+//#include "icons/bmp74/.h"  
 //};
 const uint8_t upIcon[] = {
 #include "icons/bmp74/up_button.h"  
@@ -248,6 +260,12 @@ const uint8_t zpIcon[] = {
 };
 const uint8_t zmIcon[] = {
 #include "icons/bmp100/arrow_Zdown_button.h"  
+};
+const uint8_t apIcon[] = {							//added by HTheatre
+#include "icons/bmp100/arrow_Apos_button.h"			//added by HTheatre  
+};
+const uint8_t amIcon[] = {							//added by HTheatre
+#include "icons/bmp100/arrow_Aneg_button.h"			//added by HTheatre  
 };
 const uint8_t dAutoIcon[] = {
 #include "icons/bmp100/pitch_auto_button.h"  
