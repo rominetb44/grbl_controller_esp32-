@@ -176,8 +176,13 @@ mButton[_SETXYZ].pIcon = setXYZIcon  ;
 	mButton[_SETXYZA].pLabel = __SETXYZA ;
 	#endif
 mButton[_SETA].pIcon = setAIcon ;
+#if defined(TFT_SIZE) && (TFT_SIZE == 3)
 mButton[_SETAB].pIcon = setABIcon ;
 mButton[_SETABC].pIcon = setABCIcon ;
+#else              
+mButton[_SETAB].pLabel = __SETAB ;
+mButton[_SETABC].pLabel = __SETABC ;
+#endif
 mButton[_TOOL].pIcon = toolIcon  ;
 mButton[_SET_CHANGE].pIcon = setChangeIcon  ;
 mButton[_SET_PROBE].pIcon = setProbeIcon  ;
