@@ -2,8 +2,8 @@
 #define _config_h
 
 
-#define ESP32_VERSION "vers.2.1.j dev"
-#define VERSION_TEXT "Firmware vers.2.1.j dev"
+#define ESP32_VERSION "vers.2.1.jOTA"
+#define VERSION_TEXT "Firmware vers.2.1.jOTA (17 april 2023)"
 
 
 // decide if you will use Wifi or not (and how)
@@ -35,7 +35,7 @@
 #define LANGUAGE FR
 
 // uncomment if you want that the firmware handles 4 axes instead of 3 ;(The GRBL STM32 firmware has to be compiled/flashed with the same option)
-#define AA_AXIS    
+//#define AA_AXIS    
 
 // select the version of the TFT board being used ; it can be 1 or 2 (1 uses 4 pins header to connect to GRbl; 2 use RJ45 connector)               
 #define TFT_CARD_VERSION 2
