@@ -599,7 +599,7 @@ void drawLineText( const char * text, uint16_t x, uint16_t y, uint8_t font , uin
 }
 
 void clearLine( uint16_t y , uint8_t font , uint8_t fontSize , uint16_t color) { // clear a line based on font and font Size.
-  tft.fillRect( 0, y, 320, tft.fontHeight(font)* fontSize , color);
+  tft.fillRect( 0, y, hCoord(320), tft.fontHeight(font)* fontSize , color);
 }
 
 void printTft(const char * text ) {     // print a text on screen
