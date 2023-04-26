@@ -142,10 +142,8 @@ mButton[_YP].pIcon = ypIcon ;
 mButton[_YM].pIcon = ymIcon ;
 mButton[_ZP].pIcon = zpIcon ;
 mButton[_ZM].pIcon = zmIcon ;
-mButton[_AP].pLabel = "A+" ;
-mButton[_AM].pLabel = "A-" ;
-//mButton[_AP].pIcon = "A+" ;
-//mButton[_AM].pIcon = "A-" ;
+mButton[_AP].pIcon = apIcon ; 			//added by HTheatre
+mButton[_AM].pIcon = amIcon ; 			//added by HTheatre
 mButton[_D_AUTO].pIcon = dAutoIcon  ;
 mButton[_D100].pIcon = d100Icon ;
 mButton[_D10].pIcon = d10Icon ;
@@ -156,17 +154,9 @@ mButton[_SET_WCS].pIcon = setWCSIcon  ;
 mButton[_SETX].pIcon = setXIcon ;
 mButton[_SETY].pIcon = setYIcon ;
 mButton[_SETZ].pIcon = setZIcon ;
-	#if defined(TFT_SIZE) && (TFT_SIZE == 4) 		// because icon for this button is only available on the 4.0" TFT
-	mButton[_SETA].pIcon = setAIcon ;
-	#else									 		// because icon for this button does not exist on the 3.2" TFT
-	mButton[_SETA].pLabel = __SETA ;
-	#endif
+mButton[_SETA].pIcon = setAIcon ;
 mButton[_SETXYZ].pIcon = setXYZIcon  ;
-	#if defined(TFT_SIZE) && (TFT_SIZE == 4) 		// because icon for this button is only available on the 4.0" TFT
-	mButton[_SETXYZA].pIcon = setXYZAIcon ;
-	#else									 		// because icon for this button does not exist on the 3.2" TFT
-	mButton[_SETXYZA].pLabel = __SETXYZA ;
-	#endif
+mButton[_SETXYZA].pIcon = setXYZAIcon ;
 mButton[_TOOL].pIcon = toolIcon  ;
 mButton[_SET_CHANGE].pIcon = setChangeIcon  ;
 mButton[_SET_PROBE].pIcon = setProbeIcon  ;
