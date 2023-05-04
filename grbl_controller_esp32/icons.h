@@ -345,16 +345,16 @@ const uint8_t over_switch_to_SpindleIcon[] = {
 #include "icons/bmp100/rpm_button.h"  
 };
 const uint8_t plus10per100Icon[] = {
-#include "icons/bmp100/+10per100.h"  
+#include "icons/bmp100/plus10per100.h"  
 };
 const uint8_t minus10per100Icon[] = {
-#include "icons/bmp100/-10per100.h"  
+#include "icons/bmp100/minus10per100.h"  
 };
 const uint8_t plus1per100Icon[] = {
-#include "icons/bmp100/+1per100.h"  
+#include "icons/bmp100/plus1per100.h"  
 };
 const uint8_t minus1per100Icon[] = {
-#include "icons/bmp100/-1per100.h"  
+#include "icons/bmp100/minus1per100.h"  
 };
 const uint8_t set100per100Icon[] = {
 #include "icons/bmp100/set100per100.h"  

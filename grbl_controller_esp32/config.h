@@ -2,8 +2,8 @@
 #define _config_h
 
 
-#define ESP32_VERSION "vers.2.1.jOTA"
-#define VERSION_TEXT "Firmware vers.2.1.jOTA (17 april 2023)"
+#define ESP32_VERSION "vers.2.1.j.aOTA"
+#define VERSION_TEXT "Firmware vers.2.1.j.aOTA (04 May 2023)"
 
 
 // decide if you will use Wifi or not (and how)
