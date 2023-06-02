@@ -164,11 +164,6 @@ mButton[_SET_WCS].pIcon = setWCSIcon  ;
 mButton[_SETX].pIcon = setXIcon ;
 mButton[_SETY].pIcon = setYIcon ;
 mButton[_SETZ].pIcon = setZIcon ;
-/*	#if defined(TFT_SIZE) && (TFT_SIZE == 4) 		// because icon for this button is only available on the 4.0" TFT
-	mButton[_SETA].pIcon = setAIcon ;
-	#else									 		// because icon for this button does not exist on the 3.2" TFT
-	mButton[_SETA].pLabel = __SETA ;
-	#endif*/
 mButton[_SETXYZ].pIcon = setXYZIcon  ;
 	#if defined(TFT_SIZE) && (TFT_SIZE == 4) 		// because icon for this button is only available on the 4.0" TFT
 	mButton[_SETXYZA].pIcon = setXYZAIcon ;
@@ -176,13 +171,13 @@ mButton[_SETXYZ].pIcon = setXYZIcon  ;
 	mButton[_SETXYZA].pLabel = __SETXYZA ;
 	#endif
 mButton[_SETA].pIcon = setAIcon ;
-#if defined(TFT_SIZE) && (TFT_SIZE == 3)
-mButton[_SETAB].pIcon = setABIcon ;
-mButton[_SETABC].pIcon = setABCIcon ;
-#else              
-mButton[_SETAB].pLabel = __SETAB ;
-mButton[_SETABC].pLabel = __SETABC ;
-#endif
+	#if defined(TFT_SIZE) && (TFT_SIZE == 3)
+	mButton[_SETAB].pIcon = setABIcon ;
+	mButton[_SETABC].pIcon = setABCIcon ;
+	#else              
+	mButton[_SETAB].pLabel = __SETAB ;
+	mButton[_SETABC].pLabel = __SETABC ;
+	#endif
 mButton[_TOOL].pIcon = toolIcon  ;
 mButton[_SET_CHANGE].pIcon = setChangeIcon  ;
 mButton[_SET_PROBE].pIcon = setProbeIcon  ;
@@ -242,7 +237,6 @@ mButton[_YES_BTN].pIcon = yesIcon ;
 mButton[_NO_BTN].pIcon = noIcon ;
 mButton[_LOG].pIcon = logGrblIcon ;
 
-#if defined(TFT_SIZE) && (TFT_SIZE == 3)
 mButton[_BACK_XYZ].pIcon =  backXyzIcon ;
 mButton[_GOTO_A_AXES].pIcon =  gotoAAxesIcon ;
 mButton[_GOTO_AB_AXES].pIcon =  gotoABAxesIcon ;
@@ -253,7 +247,7 @@ mButton[_ARROW_B_NEG].pIcon =  arrowBNegIcon ;
 mButton[_ARROW_B_POS].pIcon =  arrowBPosIcon ;
 mButton[_ARROW_C_NEG].pIcon =  arrowCNegIcon ;
 mButton[_ARROW_C_POS].pIcon =  arrowCPosIcon ;
-#endif
+
 
 #endif //end of USE_ICONS
 
