@@ -370,16 +370,16 @@ const uint8_t over_switch_to_SpindleIcon[] = {
 #include "icons/bmp100/rpm_button.h"  
 };
 const uint8_t plus10per100Icon[] = {
-#include "icons/bmp100/+10per100.h"  
+#include "icons/bmp100/plus10per100.h"  
 };
 const uint8_t minus10per100Icon[] = {
-#include "icons/bmp100/-10per100.h"  
+#include "icons/bmp100/minus10per100.h"  
 };
 const uint8_t plus1per100Icon[] = {
-#include "icons/bmp100/+1per100.h"  
+#include "icons/bmp100/plus1per100.h"  
 };
 const uint8_t minus1per100Icon[] = {
-#include "icons/bmp100/-1per100.h"  
+#include "icons/bmp100/minus1per100.h"  
 };
 const uint8_t set100per100Icon[] = {
 #include "icons/bmp100/set100per100.h"  
@@ -422,6 +422,37 @@ const uint8_t setProbeIcon[] = {
 };
 const uint8_t GoProbeIcon[] = {
 #include "icons/bmp100/zprobe_button.h"  
+};
+
+const uint8_t backXyzIcon[] = {
+#include "icons/bmp100/back_XYZ_button.h"  
+};
+const uint8_t gotoAAxesIcon[] = {
+#include "icons/bmp100/go_to_A_axis_button.h"  
+};
+const uint8_t gotoABAxesIcon[] = {
+#include "icons/bmp100/go_to_AB_axes_button.h"  
+};
+const uint8_t gotoABCAxesIcon[] = {
+#include "icons/bmp100/go_to_ABC_axes_button.h"  
+};
+const uint8_t arrowANegIcon[] = {
+#include "icons/bmp100/arrow_Aneg_button.h"  
+};
+const uint8_t arrowAPosIcon[] = {
+#include "icons/bmp100/arrow_Apos_button.h"  
+};
+const uint8_t arrowBNegIcon[] = {
+#include "icons/bmp100/arrow_Bneg_button.h"  
+};
+const uint8_t arrowBPosIcon[] = {
+#include "icons/bmp100/arrow_Bpos_button.h"  
+};
+const uint8_t arrowCNegIcon[] = {
+#include "icons/bmp100/arrow_Cneg_button.h"  
+};
+const uint8_t arrowCPosIcon[] = {
+#include "icons/bmp100/arrow_Cpos_button.h"  
 };
 
 
