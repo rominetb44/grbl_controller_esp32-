@@ -2,7 +2,7 @@
 #define _config_h
 
 
-#define ESP32_VERSION "vers.2.1.j.aOTA"
+#define ESP32_VERSION "v.2.1.j.aOTA"
 #define VERSION_TEXT "Firmware vers.2.1.j.aOTA (04 May 2023)"
 
 
