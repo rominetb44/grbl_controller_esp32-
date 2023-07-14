@@ -67,7 +67,6 @@ mButton[_SETA].pLabel = __SETA  ;
 mButton[_SETAB].pLabel = __SETAB  ;
 mButton[_SETABC].pLabel = __SETABC  ;
 mButton[_SETXYZ].pLabel = __SETXYZ  ;
-mButton[_SETXYZA].pLabel = __SETXYZA  ;
 mButton[_TOOL].pLabel = __TOOL  ;
 mButton[_SET_CHANGE].pLabel = __SET_CHANGE  ;
 mButton[_SET_PROBE].pLabel = __SET_PROBE  ;
@@ -165,19 +164,9 @@ mButton[_SETX].pIcon = setXIcon ;
 mButton[_SETY].pIcon = setYIcon ;
 mButton[_SETZ].pIcon = setZIcon ;
 mButton[_SETXYZ].pIcon = setXYZIcon  ;
-	#if defined(TFT_SIZE) && (TFT_SIZE == 4) 		// because icon for this button is only available on the 4.0" TFT
-	mButton[_SETXYZA].pIcon = setXYZAIcon ;
-	#else									 		// because icon for this button does not exist on the 3.2" TFT
-	mButton[_SETXYZA].pLabel = __SETXYZA ;
-	#endif
 mButton[_SETA].pIcon = setAIcon ;
-	#if defined(TFT_SIZE) && (TFT_SIZE == 3)
-	mButton[_SETAB].pIcon = setABIcon ;
-	mButton[_SETABC].pIcon = setABCIcon ;
-	#else              
-	mButton[_SETAB].pLabel = __SETAB ;
-	mButton[_SETABC].pLabel = __SETABC ;
-	#endif
+mButton[_SETAB].pIcon = setABIcon ;
+mButton[_SETABC].pIcon = setABCIcon ;
 mButton[_TOOL].pIcon = toolIcon  ;
 mButton[_SET_CHANGE].pIcon = setChangeIcon  ;
 mButton[_SET_PROBE].pIcon = setProbeIcon  ;
@@ -492,7 +481,6 @@ mText[_SETA_EXECUTED].pLabel = __SETA_EXECUTED ;
 mText[_SETAB_EXECUTED].pLabel = __SETAB_EXECUTED ;
 mText[_SETABC_EXECUTED].pLabel = __SETABC_EXECUTED ;
 mText[_SETXYZ_EXECUTED].pLabel = __SETXYZ_EXECUTED ;
-mText[_SETXYZA_EXECUTED].pLabel = __SETXYZA_EXECUTED ;
 mText[_SET_CHANGE_EXECUTED].pLabel = __SET_CHANGE_EXECUTED ;
 mText[_SET_PROBE_EXECUTED].pLabel = __SET_PROBE_EXECUTED ;
 mText[_SET_CAL_EXECUTED].pLabel = __SET_CAL_EXECUTED ;
