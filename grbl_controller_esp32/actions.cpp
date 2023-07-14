@@ -432,7 +432,6 @@ void fSetXYZ(uint8_t param) {     // param contient le n° de la commande
   case _SETZ :   memccpy ( printString , _SETZ_STRING , '\0' , 249); break ;
   case _SETA :   memccpy ( printString , _SETA_STRING , '\0' , 249); break ;
   case _SETXYZ : memccpy ( printString , _SETXYZ_STRING , '\0' , 249); break ;
-  case _SETXYZA : memccpy ( printString , _SETXYZA_STRING , '\0' , 249); break ;
   case _SETAB : memccpy ( printString , _SETAB_STRING , '\0' , 249); break ;
   case _SETABC : memccpy ( printString , _SETABC_STRING , '\0' , 249); break ;
   case _SET_CHANGE : memccpy ( printString , _SET_CHANGE_STRING , '\0' , 249); break ;
