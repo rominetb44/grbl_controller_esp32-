@@ -23,7 +23,7 @@
 #define maxCharFileName 47
 
 const char* loginIndex = 
- "<form name='loginForm'>"
+ "<form name='loginForm' id='loginForm'>"
     "<table width='20%' bgcolor='A09F9F' align='center'>"
         "<tr>"
             "<td colspan=2>"
@@ -34,44 +34,45 @@ const char* loginIndex =
             "<br>"
         "</tr>"
         "<td>Username:</td>"
-        "<td><input type='text' size=25 name='userid'><br></td>"
+        "<td><input type='text' size=25 name='userid' id='userid'><br></td>"
         "</tr>"
         "<br>"
         "<br>"
         "<tr>"
             "<td>Password:</td>"
-            "<td><input type='Password' size=25 name='pwd'><br></td>"
+            "<td><input type='Password' size=25 name='pwd' id='pwd'><br></td>"
             "<br>"
             "<br>"
         "</tr>"
         "<tr>"
-            "<td><input type='submit' onclick='check(this.form)' value='Login'></td>"
+            "<td><input type='submit' value='Login'></td>"
         "</tr>"
     "</table>"
 "</form>"
 "<script>"
-    "function check(form)"
-    "{"
-    "if(form.userid.value=='admin' && form.pwd.value=='admin')" // can change USER and Password for OTA here
-    "{"
-    "window.open('/serverIndex')"
-    "}"
-    "else"
-    "{"
-    " alert('Error Password or Username')/*displays error message*/"
-    "}"
-    "}"
+	"const form = document.getElementById('loginForm');"
+    "form.addEventListener('submit', function(event) {"
+		"event.preventDefault();"
+		"if (document.getElementById('userid').value=='admin' && document.getElementById('pwd').value=='admin') {"
+			"window.location.href='serverIndex'"
+		"} else {"
+		"alert('Error Password or Username')"
+		"}"
+    "});"
 "</script>";
  
 /*
  * Server Index Page
  */
- 
 const char* serverIndex = 
-"<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>"
+//"<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>"
+//  "<script src='/jquery.min.js'></script>"
+  "<h3>Select file to update firmware</h3>"
   "<form method='POST' action='#' enctype='multipart/form-data' id='upload_form'>"
-    "<input type='file' name='update'>"
+    "<input type='file' name='update'  class='buttons' style='width:80%'>"
+	"<br><br>"
     "<input type='submit' value='Update'>"
+	"<br><br>"
   "</form>"
  "<div id='prg'>progress: 0%</div>"
  "<script>"
@@ -197,16 +198,45 @@ void initWifi() {
     server.on("/dir",      sd_dir);
     server.on("/confirmDelete",      confirmDelete);
     server.on("/confirmDownload",      confirmDownload);
+	
+	server.on("/jquery.min.js", HTTP_GET, []() {	// Récupération du fichier jquery.min.js en local
+		String path = "/jquery.min.js";
+		
+		// Vérification dans mémoire SPIFF
+		if (SPIFFS.begin() && SPIFFS.exists(path)) {
+			fs::File jqueryFile = SPIFFS.open(path, FILE_READ);
+			server.streamFile(jqueryFile, "application/javascript");
+			jqueryFile.close();
+		}
+		
+		// Verification sur carte SD
+		/*if (checkSd() ) { 
+			if (sd.exists( path.c_str() ) ) {
+			  //Serial.println("Open file") ;
+			  File32 jqueryFile ;
+			  jqueryFile = sd.open( path.c_str() );
+			  if (jqueryFile) {
+				//Serial.println("File open successfully") ;
+				server.streamFile(jqueryFile, "application/javascript");
+				jqueryFile.close(); 
+			  }
+			  jqueryFile.close() ;
+			}
+		}*/
+	});
 
 // **************************ADD by SMARTELECTRONIC ************************************************************
-      server.on("/OTA", HTTP_GET, []() {
+  /*server.on("/OTA", HTTP_GET, []() {
     server.sendHeader("Connection", "close");
     server.send(200, "text/html", loginIndex);
-  });
-  server.on("/serverIndex", HTTP_GET, []() {
+  });*/
+  //server.on("/OTA", loginIndexPage);
+  /*server.on("/serverIndex", HTTP_GET, []() {
     server.sendHeader("Connection", "close");
     server.send(200, "text/html", serverIndex);
-  });
+  });*/
+  //server.on("/serverIndex", serverIndexPage);
+  server.on("/OTA", serverIndexPage);
   /*handling uploading firmware file */
   server.on("/update", HTTP_POST, []() {
     server.sendHeader("Connection", "close");
@@ -232,6 +262,7 @@ void initWifi() {
       }
     }
   });
+
 ///**************************end of ADD*************************************************************************
     
     ///////////////////////////// End of Request commands
@@ -767,6 +798,7 @@ void append_page_header() {
   webpage += F("<a href='/upload'><button>Upload</button></a>");
 //  webpage += F("<a href='/stream'><button>Stream</button></a>");
   //webpage += F("<a href='/delete'><button>Delete</button></a>");
+  webpage += F("<a href='/OTA'><button>OTA</button></a>");
   
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -777,4 +809,48 @@ void append_page_footer(){ // Saves repeating many lines of code for HTML page f
  // webpage += String(char((0x84>>1)))+String(char(byte(0xd2>>1)))+String(char(0xe4>>1))+String(char(0xc8>>1))+String(char(byte(0x40>>1)));
  // webpage += String(char(byte(0x64/2)))+String(char(byte(0x60>>1)))+String(char(byte(0x62>>1)))+String(char(0x70>>1))+"</footer>";
   webpage += F("</body></html>");
+}
+
+
+// ---------------------------------------------------------------------------
+// --------------------------- OTA Function ----------------------------------
+// Affiche la page de login pour la MAJ via OTA
+/*void loginIndexPage() {
+	SendHTML_Header();
+	webpage += loginIndex;
+    SendHTML_Content(); 
+    append_page_footer();
+    SendHTML_Content();
+    SendHTML_Stop();   // Stop is needed because no content length was sent
+	
+}*/
+
+// Affiche la page de MAJ via OTA
+void serverIndexPage() {
+	SendHTML_Header();
+	// Vérification de la présence du fichier jquery.min.js sur la SD sinon téléchargement
+	/*if (checkSd() ) { 
+		String path = "/jquery.min.js";
+		if (sd.exists( path.c_str() ) ) {
+			webpage += "<script src='/jquery.min.js'></script>";
+		} else {
+			webpage += "<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>";
+		}
+	}*/
+	// Vérification de la présence du fichier jquery.min.js dans la mémoire SPIFF sinon téléchargement
+	if (SPIFFS.begin()) {
+		String path = "/jquery.min.js";
+		if (SPIFFS.exists(path)) {
+			webpage += "<script src='/jquery.min.js'></script>";
+		} else {
+			webpage += "<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>";
+		}
+
+	}
+	webpage += serverIndex;
+    SendHTML_Content(); 
+    append_page_footer();
+    SendHTML_Content();
+    SendHTML_Stop();   // Stop is needed because no content length was sent
+	
 }

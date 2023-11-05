@@ -26,6 +26,11 @@ boolean getWifiIp( char * ipBuf ) ;
 void confirmDelete();
 void confirmDownload() ;
 void retrieveWifiParam(void) ;
-boolean checkWifiOnSD(void) ; 
+boolean checkWifiOnSD(void) ;
+boolean checkSd(void) ; 
+/// Page de Login pour la MAJ OTA
+//void loginIndexPage(void) ;
+/// Page de MAJ via OTA
+void serverIndexPage(void) ;
 #endif                                       
 
