@@ -58,6 +58,7 @@ char G30SavedY[12] = "0.0" ; // store the value of G30 Y offset in a message rec
 char printString[250] = {0} ;       // contains a command to be send from a string; wait for OK after each 0x13 char
 char * pPrintString = printString ;
 uint8_t lastStringCmd ;
+char actualReadDir[250] = {0};		// Repertoire de lecture des fichiers de la carte SD sous FluidNC
 
 char strGrblBuf[STR_GRBL_BUF_MAX_SIZE] ; // this buffer is used to store a few char received from GRBL before decoding them
 uint8_t strGrblIdx ;
@@ -234,19 +235,16 @@ void parseMsgLine(char * line) {  // parse Msg line from GRBL
      char * pSearch ;
      char * pEndNumber1 ;
      char * pEndNumber2 ;
-     if ( strncmp(line, "[FILE:", strlen("[FILE:")) == 0 ) {
+	 if ( strncmp(line, "[DIR:", strlen("[DIR:")) == 0 ) {
+        parseDirLine( line + strlen("[DIR:"));
+        return; // do not log the Dir lines
+     } else if ( strncmp(line, "[FILE:", strlen("[FILE:")) == 0 ) {
         parseFileLine( line + strlen("[FILE:"));
         return; // do not log the File lines
      
-     } else if ( strncmp(line , "[SD Free:", strlen("[SD Free:")) == 0 ) {
+     } else if ( strncmp(line , "[SD Free:", strlen("[SD Free:")) == 0 || strncmp(line , "[/sd/ Free:", strlen("[/sd/ Free:")) == 0 ) {
         if ( parseGrblFilesStatus == PARSING_FILE_NAMES_RUNNING ) {
           parseGrblFilesStatus = PARSING_FILE_NAMES_DONE ; // mark that all lines have been read ; it allows main loop to handle the received list
-          //Serial.println("End of lile list");
-          //Serial.print("Nr of entries=");Serial.println(grblFileIdx);
-          //int i = 0; 
-          //for ( i  ; i < grblFileIdx ; i++) {
-            //Serial.print("file ="); Serial.println(grblFileNames[i]);
-          //}
           
         }
         return; // do not log the SD lines
@@ -278,14 +276,46 @@ void parseMsgLine(char * line) {  // parse Msg line from GRBL
 
   
 void parseFileLine(char * line ){  // parse file line from GRBL; "[FILE:" is alredy removed
-  // line looks like [FILE:/dir1/TestDir3.nc|SIZE:5]  [FILE: is alredy removed
-  // grblDirFilter is supposed to contains "/" or "/abc/" or "/abc/de/" (so last char = "/"
-  char * sizePtr ;
-  char * fileNameOrDirPtr ;
-  char * firstNextDirPtr ;
-  int grblDirFilterLen = strlen(grblDirFilter) ; 
-  sizePtr = strchr(line , '|' );  // search for | to separate name from to size
-  //if (parseGrblFilesStatus == PARSING_FILE_NAMES_RUNNING) {      // process line only if requested
+	// line looks like [FILE:/dir1/TestDir3.nc|SIZE:5]  [FILE: is alredy removed
+	// grblDirFilter is supposed to contains "/" or "/abc/" or "/abc/de/" (so last char = "/"
+	char * sizePtr ;
+	char * fileNameOrDirPtr ;
+	char * firstNextDirPtr ;
+	int grblDirFilterLen = strlen(grblDirFilter) ; 
+	//if (parseGrblFilesStatus == PARSING_FILE_NAMES_RUNNING) {      // process line only if requested
+  
+    //Adaptation de la fonction pour FluidNC : modifie le nom des fichiers
+	//au format GRBL
+	if (*actualReadDir != '\0') {	//Adaptation FLuidNC
+		char tempStr[512] = {0} ;
+		uint8_t i = 0;
+		
+		//Calcule du nombre de sous repertoire actuel en comptant les espaces
+		while (*(line + i) == ' ') {	
+			i++; 
+		}
+		
+		// Il ne doit pas y avoir 0 espaces dans un nom de fichier
+		if (i == 0)  i=1;
+
+		//Modification du nom des fihiers pour remplacer les espaces par le nom des repertoires
+		strcpy(tempStr, actualReadDir);
+		char *tempSlashStr = tempStr;
+		for (int j = 0 ; j < i ; j++) {
+			tempSlashStr = strchr(tempSlashStr, '/');
+			if (!tempSlashStr) return;
+			tempSlashStr++;
+		}
+		tempSlashStr[0] = '\0';
+		strcat(tempStr, line + i);
+		strcpy(line, tempStr);
+		
+		/*for (int j = 0 ; j < strlen(line) ; j++)
+			Serial.print(line[j]);
+		Serial.println("");*/
+	}
+	
+	sizePtr = strchr(line , '|' );  // search for | to separate name from to size
     if ( sizePtr == NULL) return ; // discard the line if it does not contains | separator between name and size
     *sizePtr = '\0' ;  //Replace | with string terminator
     if ( strncmp(line , grblDirFilter , grblDirFilterLen ) != 0 )  { // discard the line if it does not contains the dirFilter
@@ -315,6 +345,46 @@ void parseFileLine(char * line ){  // parse file line from GRBL; "[FILE:" is alr
         grblFileNames[grblFileIdx] [39] = '\0' ;     // add end of string for safety 
         grblFileIdx++ ;
     }
+}
+
+
+// Fonction spécifique à FluidNC qui permet de stocker le repertoire en cours dans une variable - actualReadDir -
+// au format de GRBL
+void parseDirLine(char * line ){
+	uint8_t i = 0;
+	char * strTemp;
+	
+	//Initialisation de actualReadDir
+	if (actualReadDir[0] != '/') {
+		actualReadDir[0] = '/';
+		actualReadDir[1] = '\0';
+	}
+	
+	//Compatbilise le nombre d'espaces devant le nom du repetoire
+	while (*(line + i) == ' ') {	//Calcule du nombre de sous repertoire actuel en comptant les espaces
+		i++; 
+	}
+	
+	// On se positionne sur le bon nom de repertoire en fonction du nombre d'espacces
+	strTemp = actualReadDir;
+	//Serial.println(strTemp);
+	for (int j = 0 ; j <= i ; j++) {
+		/*char * strPosSlash;
+		strPosSlash = strchr(strTemp, '/');
+		if (strPosSlash == NULL)
+			break;
+		strTemp = strPosSlash;*/
+		strTemp = strchr(strTemp, '/');
+		if (!strTemp) return;
+		strTemp++;
+	}
+	
+	//Ajoute le nom du nouveau repertoire
+	strncpy(strTemp, line + i , strlen(line) - 2 - i);
+	strTemp[strlen(line) - 1 - i - 1] = '/';
+	strTemp[strlen(line) - i - 1] = '\0';
+	
+	//Serial.println(actualReadDir);
 }
 
 
