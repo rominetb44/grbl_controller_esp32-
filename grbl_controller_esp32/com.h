@@ -17,6 +17,7 @@ void getFromGrblAndForward2( void ) ;
 void decodeGrblLine(char * line) ;
 void parseMsgLine( char * line );
 void parseFileLine(char * line );
+void parseDirLine(char * line );
 void parseSatusLine(char * line);
 void decodeFloat(char * pSection);
 void parseErrorLine(const char * line);
