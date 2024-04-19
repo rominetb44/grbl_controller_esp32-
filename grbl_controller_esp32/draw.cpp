@@ -812,7 +812,7 @@ void drawDataOnInfoPage() { // to do : affiche les données sur la page d'info
   tft.setTextColor(SCREEN_NORMAL_TEXT ,  SCREEN_BACKGROUND ) ;
   tft.setTextPadding (120) ;      // expect to clear 120 pixel when drawing text or float
   uint16_t c1 = hCoord(120), c2 =  c1 + hCoord(120) ;
-#ifdef AA_AXIS
+#ifndef XYZ
   uint16_t lineSpacing1 = vCoord(24) ;
 #else 
   uint16_t lineSpacing1 = vCoord(34) ; // we have more space for 3 axis
@@ -820,7 +820,7 @@ void drawDataOnInfoPage() { // to do : affiche les données sur la page d'info
   line += vCoord(20)           ; tft.drawFloat( wposXYZA[0] , 2 , c1 , line ); tft.drawFloat( mposXYZA[0] , 2 , c2 , line ); 
   line += lineSpacing1 ; tft.drawFloat( wposXYZA[1] , 2 , c1 , line ); tft.drawFloat( mposXYZA[1] , 2 , c2 , line );
   line += lineSpacing1 ; tft.drawFloat( wposXYZA[2] , 2 , c1 , line ); tft.drawFloat( mposXYZA[2] , 2 , c2 , line  ); 
-#ifdef AA_AXIS
+#ifndef XYZ
   line += lineSpacing1 ; tft.drawFloat( wposXYZA[3] , 2 , c1 , line ); tft.drawFloat( mposXYZA[3] , 2 , c2 , line  );
 #endif  
   tft.setTextFont( 2 );
