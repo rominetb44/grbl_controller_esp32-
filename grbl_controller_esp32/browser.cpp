@@ -368,7 +368,7 @@ boolean checkWifiOnSD(void){
           //Serial.println( __CHDIR_ERROR  ) ;
           return false;  
       }
-      if ( ! wifiFile.open("/wifi.cfg" ) ) { // try to open wifi.cfg 
+      if ( ! wifiFile.open("/config.cfg" ) ) { // try to open wifi.cfg 
           //Serial.println("failed to open calibrate.txt" ) ;
           return false;  
       }
