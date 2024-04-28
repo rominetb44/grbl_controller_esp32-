@@ -23,6 +23,8 @@ extern boolean cmdIconExist[11];       // store a flag to say if an icon exist o
 extern char fileNames[4][23] ; // 22 car per line + "\0"
 extern char grblFileNamesTft[4][40]; // contains only the 4 names to be displayed on TFT (needed because name is altered during btn drawing 
 
+extern uint8_t NbAxes ; // can be XYZ(= 0), XYZA(= 1), XYZAB(= 2), XYZABC(= 3)
+
 // rempli le paramÃ©trage d'un boutons d'une page 
 void fillMPage (uint8_t _page , uint8_t _btnPos , uint8_t _boutons, uint8_t _actions , void (*_pfNext)(uint8_t) , uint8_t _parameters ) {
   mPages[_page].boutons[_btnPos] =  _boutons ;
@@ -289,13 +291,13 @@ fillMPage (_P_MOVE , 2 , _XP , _JUST_LONG_PRESSED_RELEASED , fMove , _XP) ;
 fillMPage (_P_MOVE , 3 , _ZP , _JUST_LONG_PRESSED_RELEASED , fMove , _ZP) ;
 fillMPage (_P_MOVE , 5 , _YM , _JUST_LONG_PRESSED_RELEASED , fMove , _YM) ;
 fillMPage (_P_MOVE , 7 , _ZM , _JUST_LONG_PRESSED_RELEASED , fMove , _ZM) ;
-#ifdef XYZA
-fillMPage (_P_MOVE , 10 , _GOTO_A_AXES , _JUST_PRESSED , fGoToPage , _P_MOVE_ABC) ;
-#elif defined(XYZAB)
-fillMPage (_P_MOVE , 10 , _GOTO_AB_AXES , _JUST_PRESSED , fGoToPage , _P_MOVE_ABC) ;
-#elif defined(XYZABC)
-fillMPage (_P_MOVE , 10 , _GOTO_ABC_AXES , _JUST_PRESSED , fGoToPage , _P_MOVE_ABC) ;
-#endif
+if (NbAxes == XYZA) {
+	fillMPage (_P_MOVE , 10 , _GOTO_A_AXES , _JUST_PRESSED , fGoToPage , _P_MOVE_ABC) ;
+} else if (NbAxes == XYZAB) {
+	fillMPage (_P_MOVE , 10 , _GOTO_AB_AXES , _JUST_PRESSED , fGoToPage , _P_MOVE_ABC) ;
+} else if (NbAxes == XYZABC) {
+	fillMPage (_P_MOVE , 10 , _GOTO_ABC_AXES , _JUST_PRESSED , fGoToPage , _P_MOVE_ABC) ;
+}
 fillMPage (_P_MOVE , /*9*/POS_OF_MOVE_D_AUTO , _D_AUTO , _JUST_PRESSED , fDist, _D_AUTO) ;  // -1 because range here is 0...11 
 fillMPage (_P_MOVE , 11 , _SETUP , _JUST_PRESSED , fGoToPage , _P_SETUP) ;
 
@@ -305,13 +307,13 @@ fillMPage (_P_SETXYZ , 4 , _SETX , _JUST_PRESSED , fSetXYZ , _SETX) ;
 fillMPage (_P_SETXYZ , 5 , _SETY , _JUST_PRESSED , fSetXYZ , _SETY) ;
 fillMPage (_P_SETXYZ , 6 , _SETZ, _JUST_PRESSED , fSetXYZ , _SETZ) ;
 fillMPage (_P_SETXYZ , 7 , _SETXYZ , _JUST_PRESSED , fSetXYZ , _SETXYZ) ;
-#ifdef XYZA
-fillMPage (_P_SETXYZ , 8 , _SETA , _JUST_PRESSED , fSetXYZ , _SETA) ;
-#elif defined(XYZAB)
-fillMPage (_P_SETXYZ , 8 , _SETAB , _JUST_PRESSED , fSetXYZ , _SETAB) ;
-#elif defined(XYZABC)
-fillMPage (_P_SETXYZ , 8 , _SETABC , _JUST_PRESSED , fSetXYZ , _SETABC) ;
-#endif
+if (NbAxes == XYZA) {
+	fillMPage (_P_SETXYZ , 8 , _SETA , _JUST_PRESSED , fSetXYZ , _SETA) ;
+} else if (NbAxes == XYZAB) {
+	fillMPage (_P_SETXYZ , 8 , _SETAB , _JUST_PRESSED , fSetXYZ , _SETAB) ;
+} else if (NbAxes == XYZABC) {
+	fillMPage (_P_SETXYZ , 8 , _SETABC , _JUST_PRESSED , fSetXYZ , _SETABC) ;
+}
 fillMPage (_P_SETXYZ , 10 , _SETUP , _JUST_PRESSED , fGoToPage , _P_SETUP ) ;
 fillMPage (_P_SETXYZ , 11 , _INFO , _JUST_PRESSED , fGoToPage , _P_INFO ) ;
 
@@ -407,22 +409,22 @@ fillMPage (_P_PAUSE_GRBL , 11 , _INFO , _JUST_PRESSED , fGoToPage , _P_INFO) ;
 // Ajout de la page de déplacements des axes A, B et C
 mPages[_P_MOVE_ABC].titel = "" ;
 mPages[_P_MOVE_ABC].pfBase = fMoveABCBase ;
-#ifdef XYZA
-fillMPage (_P_MOVE_ABC , 0 , _ARROW_A_NEG , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_A_NEG) ;
-fillMPage (_P_MOVE_ABC , 2 , _ARROW_A_POS , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_A_POS) ;
-#elif defined(XYZAB)
-fillMPage (_P_MOVE_ABC , 0 , _ARROW_A_NEG , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_A_NEG) ;
-fillMPage (_P_MOVE_ABC , 2 , _ARROW_A_POS , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_A_POS) ;
-fillMPage (_P_MOVE_ABC , 1 , _ARROW_B_POS , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_B_POS) ;
-fillMPage (_P_MOVE_ABC , 5 , _ARROW_B_NEG , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_B_NEG) ;
-#elif defined(XYZABC)
-fillMPage (_P_MOVE_ABC , 0 , _ARROW_A_NEG , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_A_NEG) ;
-fillMPage (_P_MOVE_ABC , 2 , _ARROW_A_POS , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_A_POS) ;
-fillMPage (_P_MOVE_ABC , 1 , _ARROW_B_POS , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_B_POS) ;
-fillMPage (_P_MOVE_ABC , 5 , _ARROW_B_NEG , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_B_NEG) ;
-fillMPage (_P_MOVE_ABC , 3 , _ARROW_C_POS , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_C_POS) ;
-fillMPage (_P_MOVE_ABC , 7 , _ARROW_C_NEG , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_C_NEG) ;
-#endif
+if (NbAxes == XYZA) {
+	fillMPage (_P_MOVE_ABC , 0 , _ARROW_A_NEG , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_A_NEG) ;
+	fillMPage (_P_MOVE_ABC , 2 , _ARROW_A_POS , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_A_POS) ;
+} else if (NbAxes == XYZAB) {
+	fillMPage (_P_MOVE_ABC , 0 , _ARROW_A_NEG , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_A_NEG) ;
+	fillMPage (_P_MOVE_ABC , 2 , _ARROW_A_POS , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_A_POS) ;
+	fillMPage (_P_MOVE_ABC , 1 , _ARROW_B_POS , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_B_POS) ;
+	fillMPage (_P_MOVE_ABC , 5 , _ARROW_B_NEG , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_B_NEG) ;
+} else if (NbAxes == XYZABC) {
+	fillMPage (_P_MOVE_ABC , 0 , _ARROW_A_NEG , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_A_NEG) ;
+	fillMPage (_P_MOVE_ABC , 2 , _ARROW_A_POS , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_A_POS) ;
+	fillMPage (_P_MOVE_ABC , 1 , _ARROW_B_POS , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_B_POS) ;
+	fillMPage (_P_MOVE_ABC , 5 , _ARROW_B_NEG , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_B_NEG) ;
+	fillMPage (_P_MOVE_ABC , 3 , _ARROW_C_POS , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_C_POS) ;
+	fillMPage (_P_MOVE_ABC , 7 , _ARROW_C_NEG , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_C_NEG) ;
+}
 fillMPage (_P_MOVE_ABC , /*9*/POS_OF_MOVE_D_AUTO_ABC , _D_AUTO , _JUST_PRESSED , fDist, _D_AUTO) ;
 fillMPage (_P_MOVE_ABC , 10 , _BACK_XYZ , _JUST_PRESSED , fGoToPage , _P_MOVE) ;
 fillMPage (_P_MOVE_ABC , 11 , _SETUP , _JUST_PRESSED , fGoToPage , _P_SETUP ) ;

@@ -59,6 +59,8 @@ boolean nunchukOK ;  // keep flag to detect a nunchuk at startup
 extern char machineStatus[9];
 //extern char lastMsg[80] ;
 
+extern uint8_t NbAxes ; // can be XYZ(= 0), XYZA(= 1), XYZAB(= 2), XYZABC(= 3)
+
 /**
  * Initializes the Nunchuk communication by sending a sequence of bytes
  */
@@ -165,33 +167,34 @@ void handleNunchuk (void) {
                   moveY =  1 ;
                 }
               } else if ( nunchuk_buttonZ() && nunchuk_buttonC() == 0 ) {   // si le bouton Z est enfoncé mais pas le bouton C
-    #if  (defined XYZA || defined XYZAB || defined XYZABC)
-                if (nunchuk_data[0] < 80 ) {
-                  moveA = - 1 ;
-                } else if (nunchuk_data[0] > 170 ) {
-                  moveA =  1 ;
-                }
-    #endif            
+
+				if (NbAxes == XYZA || NbAxes == XYZAB || NbAxes == XYZABC) {
+					if (nunchuk_data[0] < 80 ) {
+					  moveA = - 1 ;
+					} else if (nunchuk_data[0] > 170 ) {
+					  moveA =  1 ;
+					}
+				}            
                 if (nunchuk_data[1] < 80 ) {
                   moveZ = - 1 ;
                 } else if (nunchuk_data[1] > 170 ) {
                   moveZ =  1 ;
                 }
-	#if  (defined XYZAB || defined XYZABC)
 			  } else if ( nunchuk_buttonZ() && nunchuk_buttonC()) {   // si le bouton Z et le bouton C sont enfoncés
-				if (nunchuk_data[0] < 80 ) {
-                  moveB = - 1 ;
-                } else if (nunchuk_data[0] > 170 ) {
-                  moveB =  1 ;
-                }
-		#if  (defined XYZABC)            
-                if (nunchuk_data[1] < 80 ) {
-                  moveC = - 1 ;
-                } else if (nunchuk_data[1] > 170 ) {
-                  moveC =  1 ;
-                }
-		#endif
-	#endif
+				if (NbAxes == XYZAB || NbAxes == XYZABC) {
+					if (nunchuk_data[0] < 80 ) {
+					  moveB = - 1 ;
+					} else if (nunchuk_data[0] > 170 ) {
+					  moveB =  1 ;
+					}
+					if (NbAxes == XYZABC) {
+						if (nunchuk_data[1] < 80 ) {
+						  moveC = - 1 ;
+						} else if (nunchuk_data[1] > 170 ) {
+						  moveC =  1 ;
+						}
+					}
+				}
               } // end test on button
               if ( (machineStatus[0] == 'J' || machineStatus[0] == 'I' ) && ( prevMoveX != moveX || prevMoveY != moveY  || prevMoveZ != moveZ || prevMoveA != moveA || prevMoveB != moveB || prevMoveC != moveC) ) { // cancel Jog if jogging and at least one direction change       
                   jogCancelFlag = true ;

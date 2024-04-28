@@ -11,6 +11,9 @@
 #include "com.h"
 #include "log.h"
 #include "bt.h"
+#include <Preferences.h>
+#include "browser.h"
+#include "SdFat.h"
 
 // create for touchscreeen
 extern TFT_eSPI tft ;
@@ -67,6 +70,12 @@ extern char grblDirFilter[100]  ; // contains the name of the directory to be fi
 extern char grblFileNames[GRBLFILEMAX][40]; // contain max n filename or directory name with max 40 char.
 extern uint8_t firstGrblFileToDisplay ;   // 0 = first file in the directory
 extern int grblFileIdx ; // index in the array where next file name being parse would be written
+
+extern Preferences preferences ; // object from ESP32 lib used to save/get data in flash 
+
+extern SdFat32 sd;
+
+extern uint8_t NbAxes ; // can be XYZ(= 0), XYZA(= 1), XYZAB(= 2), XYZABC(= 3)
 
 
 uint8_t fileToExecuteIdx ; // save the idex (0...3) of the file to be executed after confimation; 0/3 = sd on tft, 10/3 = sd on GRBL card
@@ -694,6 +703,129 @@ void fConfirmedYes(uint8_t param ) { // called when Yes btn is pressed; based on
 }
 void fConfirmedNo(uint8_t param ) { // called when No btn is pressed; should do the same as back btn in principe
   fGoBack(0);
+}
+
+
+// Fonction qui permet de récuperer les paramètres depuis un fichier de configuration sur la carte SD
+boolean retrieveConfigFileParam() {
+	String path = "/config.cfg";
+	SdBaseFile configFile ;
+	char line[100] ;  //buffer to get a line from SD
+	//File32 configFile ;
+	uint8_t n; // number of bytes in a line
+    char * pBeginValue ;
+    char * pEndValue ;
+    uint8_t sizeValue ;
+	bool nbAxesOk = false;
+	/*if (checkSd() ) { 
+		if (sd.exists( path.c_str() ) ) {
+		  //Serial.println("Open file") ;
+		  File32 configFile ;
+		  configFile = sd.open( path.c_str() );
+		  if (configFile) {
+			//Serial.println("File open successfully") ;
+			configFile.close(); 
+		  }
+		  //configFile.close() ;
+		}
+	}*/
+	
+	char wifiTypeString[30] ;
+    char local_IPChar[50] = {0} ;
+    char gatewayChar[50] = {0} ;
+    char subnetChar[50] = {0} ;
+    char grbl_Telnet_IPChar[50] = {0};
+	char nb_axes[50] = {0};
+	
+	if ( ! sd.begin(SD_CHIPSELECT_PIN , SD_SCK_MHZ(5)) ) {  
+        //Serial.println( __CARD_MOUNT_FAILED  ) ;
+        return false;       
+	}
+	//if ( ! SD.exists( "/" ) ) { // check if root exist
+	if ( ! sd.exists( "/" ) ) { // check if root exist   
+		//Serial.println( __ROOT_NOT_FOUND  ) ;
+		return false;  
+	}
+	if ( ! sd.chdir( "/" ) ) {
+		//Serial.println( __CHDIR_ERROR  ) ;
+		return false;  
+	}
+	if ( ! configFile.open(path.c_str()) ) { // try to open wifi.cfg 
+		//Serial.println("failed to open calibrate.txt" ) ;
+		return false;  
+	}
+	while ( (n = configFile.fgets(line, sizeof(line)-2)) > 0) {
+        //Serial.print("line=");  Serial.println(line) ;
+        line[n+1] = 0;  // add a end of string code in order to use strrchr
+        pBeginValue = strchr(line,'"'); //search first "
+        pEndValue = strrchr(line,'"'); //search last "
+        if ( (pBeginValue !=NULL) && ( pEndValue != NULL) ) {
+          if ( pEndValue > pBeginValue) {
+            *pEndValue = 0 ;
+            sizeValue = pEndValue - pBeginValue -1;  // number of char between the ""
+			
+			
+			/*if ( memcmp ( "WIFI=", line, sizeof("WIFI=")-1) == 0){
+              wifiTypeOk = true;
+              memcpy(wifiTypeString , pBeginValue+1 , sizeValue) ;
+              if (memcmp ( "NO_WIFI", wifiTypeString ,sizeof("NO_WIFI")-1  )== 0) {
+                wifiType = NO_WIFI ; 
+              } else if (memcmp ( "ESP32_ACT_AS_STATION", wifiTypeString ,sizeof("ESP32_ACT_AS_STATION")-1  )== 0) {
+                wifiType = ESP32_ACT_AS_STATION ; 
+              } else if (memcmp ( "ESP32_ACT_AS_AP", wifiTypeString ,sizeof("ESP32_ACT_AS_AP")-1  )== 0) {
+                wifiType = ESP32_ACT_AS_AP ; 
+              } else {
+                wifiTypeOk = false;
+              }
+            } else if ( memcmp ( "PASSWORD=", line, sizeof("PASSWORD=")-1) == 0){
+              memcpy(wifiPassword , pBeginValue+1 , sizeValue) ; 
+              wifiPasswordOk = true;
+            } else if ( memcmp ( "SSID=", line, sizeof("SSID=")-1) == 0){
+              memcpy(wifiSsid , pBeginValue+1 , sizeValue) ;
+              wifiSsidOk = true ;
+            } else if ( memcmp ( "LOCAL_IP=", line, sizeof("LOCAL_IP=")-1) == 0){
+              memcpy(local_IPChar , pBeginValue+1 , sizeValue) ;
+              local_IPStr = local_IPChar ;
+              //local_IPOk = true ;
+            } else if ( memcmp ( "GATEWAY=", line, sizeof("GATEWAY=")-1) == 0){
+              memcpy(gatewayChar , pBeginValue+1 , sizeValue) ;
+              gatewayStr = gatewayChar ;
+              //gatewayOk = true ;
+            } else if ( memcmp ( "SUBNET=", line, sizeof("SUBNET=")-1) == 0){
+              memcpy(subnetChar , pBeginValue+1 , sizeValue) ;
+              subnetStr = subnetChar ;
+              //subnetOk = true ;
+            } else if ( memcmp ( "GRBL_TELNET_IP=", line, sizeof("GRBL_TELNET_IP=")-1) == 0){
+              memcpy(grbl_Telnet_IPChar , pBeginValue+1 , sizeValue) ;
+              grbl_Telnet_IPStr = grbl_Telnet_IPChar ;
+              //grbl_Telnet_IPOk = true ;
+            } else*/ if  ( memcmp ( "NB_AXES=", line, sizeof("NB_AXES=")-1) == 0){
+				memcpy(nb_axes , pBeginValue+1 , sizeValue) ;
+				nbAxesOk = true;
+				if (memcmp ( "XYZ", nb_axes ,sizeof("XYZ")-1  )== 0) {
+					NbAxes = XYZ ;		
+				} else if (memcmp ( "XYZA", nb_axes ,sizeof("XYZA")-1  )== 0) {
+					NbAxes = XYZA ;					
+				} else if (memcmp ( "XYZAB", nb_axes ,sizeof("XYZAB")-1  )== 0) {
+					NbAxes = XYZAB ;
+				} else if (memcmp ( "XYZABC", nb_axes ,sizeof("XYZABC")-1  )== 0) {
+					NbAxes = XYZABC ;
+				} else {
+					nbAxesOk = false;
+				}
+				
+			}  else if  ( memcmp ( "LANGUAGE=", line, sizeof("LANGUAGE=")-1) == 0){
+				
+			}
+		  }
+		}
+	}
+	configFile.close();
+	
+	if (nbAxesOk)
+		preferences.putChar("NB_AXES", NbAxes ) ;
+
+	return true;
 }
 
 

@@ -33,12 +33,10 @@
 
 // select your language between EN, FR, DE
 #define LANGUAGE FR
-
-// uncomment if you want that the firmware handles 4 axes instead of 3 ;(The GRBL STM32 firmware has to be compiled/flashed with the same option)
-//#define AA_AXIS    
+   
 // The firmware can handle until 6 axes.
 // If you are using a 4-axis CNC, replace XYZ by XYZA - If you are using a 5-axis CNC, replace XYZ by XYZAB - If you are using a 6-axis CNC, replace XYZ by XYZABC
-#define XYZABC
+#define NB_AXIS XYZ //XYZ or XYZA or XYZAB or XYZABC
 
 // select the version of the TFT board being used ; it can be 1 or 2 (1 uses 4 pins header to connect to GRbl; 2 use RJ45 connector)               
 #define TFT_CARD_VERSION 2
@@ -232,6 +230,11 @@
 #define NO_WIFI 0               // code used to identify the wifi mode
 #define ESP32_ACT_AS_STATION 1
 #define ESP32_ACT_AS_AP 2
+
+#define XYZ 0               // code used to identify the number of axes
+#define XYZA 1
+#define XYZAB 2
+#define XYZABC 3
 
 // This is the file name used to store the touch coordinate in the SPIFFS from ESP32 (in es32 flash memory)
 // calibration data. Cahnge the name to start a new calibration.

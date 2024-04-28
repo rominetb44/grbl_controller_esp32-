@@ -132,6 +132,8 @@ extern uint8_t fileToExecuteIdx ; // save the idex (0...3) of the file to be exe
 extern float runningPercent ; // contains the percentage of char being sent to GRBL from SD card on GRBL_ESP32; to check if it is valid
 extern boolean runningFromGrblSd  ; // indicator saying that we are running a job from the GRBL Sd card ; is set to true when status line contains SD:
 
+extern uint8_t NbAxes ; // can be XYZ(= 0), XYZA(= 1), XYZAB(= 2), XYZABC(= 3)
+
 
 //**************** normal screen definition.
 #if defined( TFT_SIZE) and (TFT_SIZE == 3)
@@ -488,7 +490,7 @@ void updateBtnState( void) {
   justReleasedBtn = 0 ;  
   if ( touchMillis > nextMillis ) {    // s'il n'y a pas assez longtemps depuis la dernière lecture, on fait juste un reset des justPressedBtn et justReleasedBtn
     touchPressed = touchscreen.getTouch( &x,  &y, 600);   // read the touch screen; // later perhaps exit immediately if IrqPin is HIGH (not touched)
-                                                // false = key not pressed
+                                                // false = key not pressed											
     nextMillis = touchMillis + WAIT_TIME_BETWEEN_TOUCH ;
     if ( touchPressed)  {
       if ( currentPage == _P_SD || currentPage == _P_SD_GRBL ) {             // conversion depend on current screen.
@@ -812,17 +814,14 @@ void drawDataOnInfoPage() { // to do : affiche les données sur la page d'info
   tft.setTextColor(SCREEN_NORMAL_TEXT ,  SCREEN_BACKGROUND ) ;
   tft.setTextPadding (120) ;      // expect to clear 120 pixel when drawing text or float
   uint16_t c1 = hCoord(120), c2 =  c1 + hCoord(120) ;
-#ifndef XYZ
   uint16_t lineSpacing1 = vCoord(24) ;
-#else 
-  uint16_t lineSpacing1 = vCoord(34) ; // we have more space for 3 axis
-#endif   
+  if (NbAxes == XYZ )
+	lineSpacing1 = vCoord(34) ;
   line += vCoord(20)           ; tft.drawFloat( wposXYZA[0] , 2 , c1 , line ); tft.drawFloat( mposXYZA[0] , 2 , c2 , line ); 
   line += lineSpacing1 ; tft.drawFloat( wposXYZA[1] , 2 , c1 , line ); tft.drawFloat( mposXYZA[1] , 2 , c2 , line );
   line += lineSpacing1 ; tft.drawFloat( wposXYZA[2] , 2 , c1 , line ); tft.drawFloat( mposXYZA[2] , 2 , c2 , line  ); 
-#ifndef XYZ
-  line += lineSpacing1 ; tft.drawFloat( wposXYZA[3] , 2 , c1 , line ); tft.drawFloat( mposXYZA[3] , 2 , c2 , line  );
-#endif  
+  if (NbAxes != XYZ )
+	line += lineSpacing1 ; tft.drawFloat( wposXYZA[3] , 2 , c1 , line ); tft.drawFloat( mposXYZA[3] , 2 , c2 , line  );
   tft.setTextFont( 2 );
   tft.setTextSize(1) ;
   tft.setTextPadding (0) ;
@@ -945,31 +944,31 @@ void drawWposOnSetXYZPage() {
   tft.drawFloat( wposXYZA[1] , 2 , col + hCoord(80) , line );
   tft.drawFloat( wposXYZA[2] , 2 , col + hCoord(160) , line ); 
 
-#ifdef XYZA
-	tft.drawFloat( wposXYZA[3] , 2 , col + hCoord(80) , line + vCoord(110));
-	tft.setTextPadding (0);
-	tft.drawString( "A" , hCoord(95) , line + vCoord(110) );
-#elif defined(XYZAB)
-	tft.drawFloat( wposXYZA[3] , 2 , col + hCoord(80) , line + vCoord(110));
-	tft.setTextPadding (0);
-	tft.drawString( "A" , hCoord(95) , line + vCoord(110) );
-	tft.setTextPadding (65);
-	tft.drawFloat( wposXYZA[4] , 2 , col + hCoord(80) , line + vCoord(130));
-	tft.setTextPadding (0);
-	tft.drawString( "B" , hCoord(95) , line + vCoord(130) );
-#elif defined(XYZABC)
-	tft.drawFloat( wposXYZA[3] , 2 , col + hCoord(80) , line + vCoord(110));
-	tft.setTextPadding (0);
-	tft.drawString( "A" , hCoord(95) , line + vCoord(110) );
-	tft.setTextPadding (65);
-	tft.drawFloat( wposXYZA[4] , 2 , col + hCoord(80) , line + vCoord(130));
-	tft.setTextPadding (0);
-	tft.drawString( "B" , hCoord(95) , line + vCoord(130) );
-	tft.setTextPadding (65);
-	tft.drawFloat( wposXYZA[5] , 2 , col + hCoord(80) , line + vCoord(150));
-	tft.setTextPadding (0);
-	tft.drawString( "C" , hCoord(95) , line + vCoord(150) );
-#endif
+	if (NbAxes == XYZA) {
+		tft.drawFloat( wposXYZA[3] , 2 , col + hCoord(80) , line + vCoord(110));
+		tft.setTextPadding (0);
+		tft.drawString( "A" , hCoord(95) , line + vCoord(110) );
+	} else if (NbAxes == XYZAB) {
+		tft.drawFloat( wposXYZA[3] , 2 , col + hCoord(80) , line + vCoord(110));
+		tft.setTextPadding (0);
+		tft.drawString( "A" , hCoord(95) , line + vCoord(110) );
+		tft.setTextPadding (65);
+		tft.drawFloat( wposXYZA[4] , 2 , col + hCoord(80) , line + vCoord(130));
+		tft.setTextPadding (0);
+		tft.drawString( "B" , hCoord(95) , line + vCoord(130) );
+	} else if (NbAxes == XYZABC) {
+		tft.drawFloat( wposXYZA[3] , 2 , col + hCoord(80) , line + vCoord(110));
+		tft.setTextPadding (0);
+		tft.drawString( "A" , hCoord(95) , line + vCoord(110) );
+		tft.setTextPadding (65);
+		tft.drawFloat( wposXYZA[4] , 2 , col + hCoord(80) , line + vCoord(130));
+		tft.setTextPadding (0);
+		tft.drawString( "B" , hCoord(95) , line + vCoord(130) );
+		tft.setTextPadding (65);
+		tft.drawFloat( wposXYZA[5] , 2 , col + hCoord(80) , line + vCoord(150));
+		tft.setTextPadding (0);
+		tft.drawString( "C" , hCoord(95) , line + vCoord(150) );
+	}
 }
 
 
@@ -1209,51 +1208,47 @@ void drawWposOnABCMovePage() {
   line1 += vCoord(20) ;
   line2 += vCoord(20) ;
   
-#ifdef XYZA
-  tft.drawFloat( wposXYZA[3] , 2 , col , line1 ); // affiche la valeur avec 2 décimales 
-  tft.drawFloat( wposXYZA[3] - wposMoveInitXYZA[3] , 2 , col , line2  ); // affiche la valeur avec 2 décimales
-  tft.drawString( "A" , 15  , line1 );
-  tft.drawString( "A" , 15  , line2 );
-  line1 +=vCoord(20) ;
-  line2 += vCoord(20) ;
-#endif
+  if (NbAxes == XYZA) {
+	  tft.drawFloat( wposXYZA[3] , 2 , col , line1 ); // affiche la valeur avec 2 décimales 
+	  tft.drawFloat( wposXYZA[3] - wposMoveInitXYZA[3] , 2 , col , line2  ); // affiche la valeur avec 2 décimales
+	  tft.drawString( "A" , 15  , line1 );
+	  tft.drawString( "A" , 15  , line2 );
+	  line1 +=vCoord(20) ;
+	  line2 += vCoord(20) ;
+  } else if (NbAxes == XYZAB) {
+	  tft.drawFloat( wposXYZA[3] , 2 , col , line1 ); // affiche la valeur avec 2 décimales 
+	  tft.drawFloat( wposXYZA[3] - wposMoveInitXYZA[3] , 2 , col , line2  ); // affiche la valeur avec 2 décimales
+	  tft.drawString( "A" , 15  , line1 );
+	  tft.drawString( "A" , 15  , line2 );
+	  line1 +=vCoord(20) ;
+	  line2 += vCoord(20) ;
 
-#ifdef XYZAB
-  tft.drawFloat( wposXYZA[3] , 2 , col , line1 ); // affiche la valeur avec 2 décimales 
-  tft.drawFloat( wposXYZA[3] - wposMoveInitXYZA[3] , 2 , col , line2  ); // affiche la valeur avec 2 décimales
-  tft.drawString( "A" , 15  , line1 );
-  tft.drawString( "A" , 15  , line2 );
-  line1 +=vCoord(20) ;
-  line2 += vCoord(20) ;
+	  tft.drawFloat( wposXYZA[4] , 2 , col , line1 );
+	  tft.drawFloat( wposXYZA[4] - wposMoveInitXYZA[4] , 2 , col , line2 );
+	  tft.drawString( "B" , 15  , line1 );
+	  tft.drawString( "B" , 15  , line2 );
+	  line1 +=vCoord(20) ;
+	  line2 += vCoord(20) ;
+  } else if (NbAxes == XYZABC) {
+	  tft.drawFloat( wposXYZA[3] , 2 , col , line1 ); // affiche la valeur avec 2 décimales 
+	  tft.drawFloat( wposXYZA[3] - wposMoveInitXYZA[3] , 2 , col , line2  ); // affiche la valeur avec 2 décimales
+	  tft.drawString( "A" , 15  , line1 );
+	  tft.drawString( "A" , 15  , line2 );
+	  line1 +=vCoord(20) ;
+	  line2 += vCoord(20) ;
 
-  tft.drawFloat( wposXYZA[4] , 2 , col , line1 );
-  tft.drawFloat( wposXYZA[4] - wposMoveInitXYZA[4] , 2 , col , line2 );
-  tft.drawString( "B" , 15  , line1 );
-  tft.drawString( "B" , 15  , line2 );
-  line1 +=vCoord(20) ;
-  line2 += vCoord(20) ;
-#endif
+	  tft.drawFloat( wposXYZA[4] , 2 , col , line1 );
+	  tft.drawFloat( wposXYZA[4] - wposMoveInitXYZA[4] , 2 , col , line2 );
+	  tft.drawString( "B" , 15  , line1 );
+	  tft.drawString( "B" , 15  , line2 );
+	  line1 +=vCoord(20) ;
+	  line2 += vCoord(20) ;
 
-#ifdef XYZABC
-  tft.drawFloat( wposXYZA[3] , 2 , col , line1 ); // affiche la valeur avec 2 décimales 
-  tft.drawFloat( wposXYZA[3] - wposMoveInitXYZA[3] , 2 , col , line2  ); // affiche la valeur avec 2 décimales
-  tft.drawString( "A" , 15  , line1 );
-  tft.drawString( "A" , 15  , line2 );
-  line1 +=vCoord(20) ;
-  line2 += vCoord(20) ;
-
-  tft.drawFloat( wposXYZA[4] , 2 , col , line1 );
-  tft.drawFloat( wposXYZA[4] - wposMoveInitXYZA[4] , 2 , col , line2 );
-  tft.drawString( "B" , 15  , line1 );
-  tft.drawString( "B" , 15  , line2 );
-  line1 +=vCoord(20) ;
-  line2 += vCoord(20) ;
-
-  tft.drawFloat( wposXYZA[5] , 2 , col , line1 );
-  tft.drawFloat( wposXYZA[5] - wposMoveInitXYZA[5] , 2 , col , line2 ) ;
-  tft.drawString( "C" , 15  , line1 );
-  tft.drawString( "C" , 15  , line2 );
-#endif
+	  tft.drawFloat( wposXYZA[5] , 2 , col , line1 );
+	  tft.drawFloat( wposXYZA[5] - wposMoveInitXYZA[5] , 2 , col , line2 ) ;
+	  tft.drawString( "C" , 15  , line1 );
+	  tft.drawString( "C" , 15  , line2 );
+  }
 }
 
 

@@ -161,6 +161,9 @@ extern boolean nunchukOK ;  // keep flag to detect a nunchuk at startup
 uint8_t wifiType ; // can be NO_WIFI(= 0), ESP32_ACT_AS_STATION(= 1), ESP32_ACT_AS_AP(= 2)
 extern uint8_t grblLink ;
 
+// Nb Axes
+uint8_t NbAxes ;
+
 // status pour telnet
 boolean statusTelnetIsConnected = false ; 
 
@@ -211,13 +214,24 @@ void setup() {
       fillMsg(_CMD_NOT_LOADED ) ;
     }
   }
+  
+//  listSpiffsDir( "/", 0 );   // uncomment to see the SPIFFS content
+  preferences.begin("savedData") ; //define the namespace for saving preferences (used for saving WIFI parameters, and z coord for change tool and nb axis)
+  grblLink = preferences.getChar("grblLink", GRBL_LINK_SERIAL) ; // retrieve the last used way of communication with GRBL
+  dirLevel = -1 ;   // negative value means that SD card has to be uploaded
+  
+  // Récupère les données de paramétrage si elles sont présentes sur la SD
+  //TODO
+  NbAxes = preferences.getChar("NB_AXES", NB_AXIS) ;
+  retrieveConfigFileParam();
+  
   initButtons() ; //initialise les noms des boutons et les boutons pour chaque page.
   tftInit() ; // init screen and touchscreen, set rotation and calibrate
   
 //  listSpiffsDir( "/", 0 );   // uncomment to see the SPIFFS content
-  preferences.begin("savedData") ; //define the namespace for saving preferences (used for saving WIFI parameters, and z coord for change tool)
-  grblLink = preferences.getChar("grblLink", GRBL_LINK_SERIAL) ; // retrieve the last used way of communication with GRBL
-  dirLevel = -1 ;   // negative value means that SD card has to be uploaded
+  //preferences.begin("savedData") ; //define the namespace for saving preferences (used for saving WIFI parameters, and z coord for change tool and nb axis)
+  //grblLink = preferences.getChar("grblLink", GRBL_LINK_SERIAL) ; // retrieve the last used way of communication with GRBL
+  //dirLevel = -1 ;   // negative value means that SD card has to be uploaded
 
   nunchuk_init() ; 
   prevPage = _P_NULL ;     
@@ -225,6 +239,12 @@ void setup() {
   updateFullPage = true ;
   // en principe les données pour les buttons sont initialisés automatiquement à 0
   //drawFullPage( ) ;
+  
+  // Récupère les données de paramétrage si elles sont présentes sur la SD
+  //TODO
+  //NbAxes = preferences.getChar("NB_AXES", NB_AXIS) ;
+  //retrieveConfigFileParam();
+  
   initWifi() ;
   if ( (wifiType == ESP32_ACT_AS_STATION ) || (wifiType == ESP32_ACT_AS_AP ) ) {
     telnetInit() ;

@@ -291,7 +291,6 @@ void retrieveWifiParam(void){  // get the wifi parameters (type, SSID, password)
       preferences.putString("LOCAL_IP", local_IPStr ) ;
       preferences.putString("GATEWAY", gatewayStr ) ;
       preferences.putString("SUBNET", subnetStr ) ;
-      preferences.putString("SUBNET", subnetStr ) ;
       preferences.putString("GRBL_TELNET_IP", grbl_Telnet_IPStr ) ;
       preferences.putChar("wifiDef", 1); // 1 is used to say that a set of wifi preferences is saved
       Serial.println("[MSG:using SD param for Wifi]") ;
