@@ -369,8 +369,9 @@ boolean checkWifiOnSD(void){
           return false;  
       }
       if ( ! wifiFile.open("/config.cfg" ) ) { // try to open wifi.cfg 
-          //Serial.println("failed to open calibrate.txt" ) ;
-          return false;  
+          //Serial.println("failed to open calibrate.txt" ) 
+		  if ( ! wifiFile.open("/wifi.cfg" ))
+			return false;  
       }
       //Serial.println("wifi.cfg exist on SD" ) ;
       //Serial.print("sizeof line=") ; Serial.println(sizeof(line));      
