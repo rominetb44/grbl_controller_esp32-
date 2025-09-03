@@ -93,16 +93,16 @@ const uint8_t setWCSIcon[] = {
 #include "icons/bmp74/set_WCS_button.h"  
 };
 const uint8_t setXIcon[] = {
-#include "icons/bmp74/setX_button.h"  
+#include "icons/bmp74/set_X_button.h"  
 };
 const uint8_t setYIcon[] = {
-#include "icons/bmp74/setY_button.h"  
+#include "icons/bmp74/set_Y_button.h"  
 };
 const uint8_t setZIcon[] = {
-#include "icons/bmp74/setZ_button.h"  
+#include "icons/bmp74/set_Z_button.h"  
 };
 const uint8_t setXYZIcon[] = {
-#include "icons/bmp74/setXYZ_button.h"  
+#include "icons/bmp74/set_XYZ_button.h"  
 };
 const uint8_t toolIcon[] = {
 #include "icons/bmp74/tool_button.h"  
@@ -314,16 +314,16 @@ const uint8_t setWCSIcon[] = {
 #include "icons/bmp100/set_WCS_button.h"  
 };
 const uint8_t setXIcon[] = {
-#include "icons/bmp100/setX_button.h"  
+#include "icons/bmp100/set_X_button.h"  
 };
 const uint8_t setYIcon[] = {
-#include "icons/bmp100/setY_button.h"  
+#include "icons/bmp100/set_Y_button.h"  
 };
 const uint8_t setZIcon[] = {
-#include "icons/bmp100/setZ_button.h"  
+#include "icons/bmp100/set_Z_button.h"  
 };
 const uint8_t setXYZIcon[] = {
-#include "icons/bmp100/setXYZ_button.h"  
+#include "icons/bmp100/set_XYZ_button.h"  
 };
 const uint8_t toolIcon[] = {
 #include "icons/bmp100/tool_button.h"  
@@ -449,7 +449,7 @@ const uint8_t arrowCPosIcon[] = {
 #include "icons/bmp100/arrow_Cpos_button.h"  
 };
 const uint8_t setAIcon[] = {
-#include "icons/bmp100/setA_button.h"  
+#include "icons/bmp100/set_A_button.h"  
 };
 const uint8_t setABIcon[] = {
 #include "icons/bmp100/set_AB_button.h"  
