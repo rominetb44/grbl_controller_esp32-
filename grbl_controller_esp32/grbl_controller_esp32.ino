@@ -89,6 +89,7 @@ Sur l'écran de base, prévoir l'affichage des infos
 #include "touch.h"
 #include "telnetgrbl.h"
 #include "bt.h"
+#include "actions.h"
 
 
 //uart_dev_t * dev = (volatile uart_dev_t *)(DR_REG_UART_BASE) ;
