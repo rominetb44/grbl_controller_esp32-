@@ -5,6 +5,9 @@
 #define ESP32_VERSION "vers.2.2"
 #define VERSION_TEXT "Firmware vers.2.2 dev"
 
+// For more parameters
+#define ADVANCED_PARAMETERS
+
 
 // decide if you will use Wifi or not (and how)
 #define WIFI ESP32_ACT_AS_STATION              // select between NO_WIFI, ESP32_ACT_AS_STATION, ESP32_ACT_AS_AP 
@@ -246,8 +249,6 @@
 #define _SETZ_STRING "G10 L20 P1 Z0\n"
 #define _SETA_STRING "G10 L20 P1 A0\n"
 #define _SETXYZ_STRING "G10 L20 P1 X0 Y0 Z0\n"
-#define _SETXYZA_STRING "G10 L20 P1 X0 Y0 Z0 A0\n"
-#define _SETXYZABC_STRING "G10 L20 P1 X0 Y0 Z0 A0 B0 C0\n"
 #define _SETAB_STRING "G10 L20 P1 A0 B0\n"
 #define _SETABC_STRING "G10 L20 P1 A0 B0 C0\n"
 

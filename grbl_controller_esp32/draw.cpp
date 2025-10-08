@@ -134,6 +134,8 @@ extern boolean runningFromGrblSd  ; // indicator saying that we are running a jo
 
 extern uint8_t NbAxes ; // can be XYZ(= 0), XYZA(= 1), XYZAB(= 2), XYZABC(= 3)
 
+extern uint8_t screenRotation ; //Rotation of the screen 1 or 3 ; //Rotation of the screen 1 or 3
+
 
 //**************** normal screen definition.
 #if defined( TFT_SIZE) and (TFT_SIZE == 3)
@@ -239,7 +241,7 @@ void tftInit() {
                 //#define TFT_RST  -1  // Set TFT_RST to -1 if display RESET is connected to ESP32 board RST
                 //Cette fonction met les pins en mode input/output; elle envoie aussi les commandes d'initialisation
   // Set the rotation before we calibrate
-  tft.setRotation(1); // normally, this is already done in tft.int() but it is not clear how is rotation set (probably 0); so it can be usefull to change it here
+  tft.setRotation(screenRotation); // normally, this is already done in tft.int() but it is not clear how is rotation set (probably 0); so it can be usefull to change it here
   
   //spiTouch.begin( TOUCH_SCLK , TOUCH_MISO ,TOUCH_MOSI , TOUCH_CS_PIN );
   touchscreen.begin(spiTouch , TOUCH_CS_PIN ) ; // specify the SPI being used (we do not use "SPI" = default from Arduino = HVSPI) and the pin used for touchscreen Chip select 
@@ -1651,11 +1653,11 @@ void fConfirmYesNoBase() { // should display the name of the file to be printed 
 // ********************************************************************************************
 // ******************************** touch calibrate ********************************************
 //#define DEBUG_CALIBRATION
-void touch_calibrate() {
+void touch_calibrate(bool bForce) {
   uint16_t calData[5]; // contains calibration parameters 
   uint8_t calDataOK = 0;
   bool repeatCal = REPEAT_CAL;  // parameter in the config.h file (true when calibration is requested)
-  if (checkCalibrateOnSD()) { // to do todo MS to remove
+  if (checkCalibrateOnSD() || bForce) { // to do todo MS to remove
     repeatCal = true ; // force a recalibration if a file "calibrate.txt" exist on SD card
   }
   // check file system exists

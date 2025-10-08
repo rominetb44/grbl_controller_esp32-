@@ -131,6 +131,22 @@ mButton[_ARROW_B_POS].pLabel =  __ARROW_B_POS ;
 mButton[_ARROW_C_NEG].pLabel =  __ARROW_C_NEG ;
 mButton[_ARROW_C_POS].pLabel =  __ARROW_C_POS ;
 
+#ifdef ADVANCED_PARAMETERS
+mButton[_ADVANCED_PARAM].pLabel =  __ADVANCED_PARAM ;
+mButton[_REBOOT_SCREEN].pLabel =  __REBOOT_SCREEN ;
+mButton[_REBOOT_GRBL].pLabel =  __REBOOT_GRBL ;
+mButton[_RECONNECT_GRBL].pLabel =  __RECONNECT_GRBL ;
+mButton[_RECONNECT_WIFI].pLabel =  __RECONNECT_WIFI ;
+mButton[_SCREEEN_CAL].pLabel =  __SCREEEN_CAL ;
+mButton[_AXIS_XYZ].pLabel =  __AXIS_XYZ ;
+mButton[_AXIS_XYZA].pLabel =  __AXIS_XYZA ;
+mButton[_AXIS_XYZAB].pLabel =  __AXIS_XYZAB ;
+mButton[_AXIS_XYZABC].pLabel =  __AXIS_XYZABC ;
+mButton[_CHANGE_ROTATION].pLabel =  __CHANGE_ROTATION ;
+
+mButton[_NB_AXIS].pLabel =  __NB_AXIS ;
+#endif
+
 
 
 #ifdef USE_ICONS
@@ -239,6 +255,9 @@ mButton[_ARROW_B_POS].pIcon =  arrowBPosIcon ;
 mButton[_ARROW_C_NEG].pIcon =  arrowCNegIcon ;
 mButton[_ARROW_C_POS].pIcon =  arrowCPosIcon ;
 
+#ifdef ADVANCED_PARAMETERS
+mButton[_ADVANCED_PARAM].pIcon =  advParameters ;
+#endif
 
 #endif //end of USE_ICONS
 
@@ -428,6 +447,38 @@ if (NbAxes == XYZA) {
 fillMPage (_P_MOVE_ABC , /*9*/POS_OF_MOVE_D_AUTO_ABC , _D_AUTO , _JUST_PRESSED , fDist, _D_AUTO) ;
 fillMPage (_P_MOVE_ABC , 10 , _BACK_XYZ , _JUST_PRESSED , fGoToPage , _P_MOVE) ;
 fillMPage (_P_MOVE_ABC , 11 , _SETUP , _JUST_PRESSED , fGoToPage , _P_SETUP ) ;
+
+//Ajout de la page paramètres avancés
+#ifdef ADVANCED_PARAMETERS
+fillMPage (_P_PRINT , 9 , _ADVANCED_PARAM , _JUST_PRESSED , fGoToPage , _P_ADVANCED_PARAM) ;
+mPages[_P_ADVANCED_PARAM].titel = "" ;
+mPages[_P_ADVANCED_PARAM].pfBase = fNoBase ; //fAdvParamBase ;
+fillMPage (_P_ADVANCED_PARAM , 0 , _REBOOT_SCREEN , _JUST_PRESSED , fAdvParam , _REBOOT_SCREEN) ;
+fillMPage (_P_ADVANCED_PARAM , 1 , _REBOOT_GRBL , _JUST_PRESSED , fAdvParam , _REBOOT_GRBL) ;
+fillMPage (_P_ADVANCED_PARAM , 2 , _RECONNECT_WIFI , _JUST_PRESSED , fAdvParam , _RECONNECT_WIFI) ;
+//Zfficher les infos du nunchuck
+//Calibrage écran + debug écran ?
+fillMPage (_P_ADVANCED_PARAM , 3 , _NB_AXIS , _JUST_PRESSED , fGoToPage , _P_NB_AXIS) ;
+fillMPage (_P_ADVANCED_PARAM , 4 , _CHANGE_ROTATION , _JUST_PRESSED , fAdvParam , _CHANGE_ROTATION) ;
+#ifdef SCREEEN_DEBUG
+fillMPage (_P_ADVANCED_PARAM , 5 , _SCREEEN_CAL , _JUST_PRESSED , fAdvParam , _SCREEEN_CAL) ;
+fillMPage (_P_ADVANCED_PARAM , 6 , _RECONNECT_GRBL , _JUST_PRESSED , fAdvParam , _RECONNECT_GRBL) ;
+#endif
+fillMPage (_P_ADVANCED_PARAM , 11 , _PRINT , _JUST_PRESSED , fGoToPage , _P_PRINT ) ;
+//Debug Nunchuk
+
+
+// Ajout de la page pour choisir le nombre d'axes
+mPages[_P_NB_AXIS].titel = "" ;
+mPages[_P_NB_AXIS].pfBase = fNoBase ; //fAdvParamBase ;
+fillMPage (_P_NB_AXIS , 0 , _AXIS_XYZ , _JUST_PRESSED , fAdvParam , _AXIS_XYZ) ;
+fillMPage (_P_NB_AXIS , 1 , _AXIS_XYZA , _JUST_PRESSED , fAdvParam , _AXIS_XYZA) ;
+fillMPage (_P_NB_AXIS , 2 , _AXIS_XYZAB , _JUST_PRESSED , fAdvParam , _AXIS_XYZAB) ;
+fillMPage (_P_NB_AXIS , 3 , _AXIS_XYZABC , _JUST_PRESSED , fAdvParam , _AXIS_XYZABC) ;
+
+fillMPage (_P_NB_AXIS , 11 , _ADVANCED_PARAM , _JUST_PRESSED , fGoToPage , _P_ADVANCED_PARAM ) ;
+
+#endif
 
 
 

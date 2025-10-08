@@ -705,6 +705,74 @@ void fConfirmedNo(uint8_t param ) { // called when No btn is pressed; should do 
   fGoBack(0);
 }
 
+void fAdvParam(uint8_t param ) { // called for advanced actions
+  
+  if ( param == _REBOOT_SCREEN ) {
+	  ESP.restart();
+  } else if ( param == _REBOOT_GRBL) {
+	  toGrbl("$System/Control=RESTART\n\r");
+  } else if ( param == _RECONNECT_GRBL) {
+	  //startGrblCom(grblLink, true);
+	  startGrblCom(preferences.getChar("grblLink", GRBL_LINK_SERIAL), true); //Vérifier fct
+  } else if ( param == _RECONNECT_WIFI) {
+	  //initWifi() ;
+	  telnetInit();
+	  //checkTelnetConnection();	//Ne marche pas
+  } else if ( param == _SCREEEN_CAL) {
+	  /*touch_calibrate(true);
+	  clearScreen();
+	  prevPage = _P_NULL ;     
+	  currentPage = _P_INFO ;
+	  updateFullPage = true ;*/
+	  
+	  /*SdBaseFile calibrateFile ;
+	  if (calibrateFile.open("/calibrate.txt" )) calibrateFile.remove();
+	  calibrateFile.close() ;*/
+	  
+	  //SPIFFS.remove(CALIBRATION_FILE);
+	  //ESP.restart();
+	  
+	  touch_calibrate(true);
+	  updateFullPage = true ;
+	  
+	  /*uint16_t x_tmp, y_tmp , z_tmp ;
+	  while ( !touchscreen.getTouchRaw( &x_tmp, &y_tmp, &z_tmp )) ;
+	  Serial.print("Tutu"); Serial.print(x_tmp);Serial.print(","); Serial.print(y_tmp);*/
+  } else if ( param == _AXIS_XYZ) {
+	  NbAxes = XYZ;
+	  preferences.putChar("NB_AXES", NbAxes ) ;
+	  //initButtons();
+  } else if ( param == _AXIS_XYZA) {
+	  NbAxes = XYZA;
+	  preferences.putChar("NB_AXES", NbAxes ) ;
+	  //initButtons();
+  } else if ( param == _AXIS_XYZAB) {
+	  NbAxes = XYZAB;
+	  preferences.putChar("NB_AXES", NbAxes ) ;
+	  //initButtons();
+  } else if ( param == _AXIS_XYZABC) {
+	  NbAxes = XYZABC;
+	  preferences.putChar("NB_AXES", NbAxes ) ;
+	  //initButtons();
+  } else if ( param == _CHANGE_ROTATION) {
+	  if (screenRotation == 1)
+		  screenRotation = 3;
+	  else
+		  screenRotation = 1;
+	  //(screenRotation == 1)?screenRotation=3:screenRotation=1;
+	  preferences.putChar("SCREEN_ROTATION", screenRotation ) ;
+	  tft.setRotation(screenRotation);
+	  //tftInit() ;
+	  updateFullPage = true ;
+	  touch_calibrate(true);
+	  //SPIFFS.remove(CALIBRATION_FILE);
+	  //ESP.restart();
+  }
+  
+  
+  
+  waitReleased = true ; 
+}
 
 // Fonction qui permet de récuperer les paramètres depuis un fichier de configuration sur la carte SD
 boolean retrieveConfigFileParam() {

@@ -7,7 +7,7 @@ uint16_t vCoord(uint16_t y) ;
 
 void tftInit(void) ;
 void testTft(void);
-void  touch_calibrate();
+void  touch_calibrate(bool bForce = false);
 void perform_calibration(uint16_t *parameters, uint32_t color_fg, uint32_t color_bg, uint8_t size, int16_t _width, int16_t _height);
 boolean checkCalibrateOnSD();
 #include <stdint.h>

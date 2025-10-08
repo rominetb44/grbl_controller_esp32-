@@ -165,6 +165,9 @@ extern uint8_t grblLink ;
 // Nb Axes
 uint8_t NbAxes ;
 
+// Rotation de l'écran
+uint8_t screenRotation ; //Rotation of the screen 1 or 3
+
 // status pour telnet
 boolean statusTelnetIsConnected = false ; 
 
@@ -224,6 +227,7 @@ void setup() {
   // Récupère les données de paramétrage si elles sont présentes sur la SD
   //TODO
   NbAxes = preferences.getChar("NB_AXES", NB_AXIS) ;
+  screenRotation = preferences.getChar("SCREEN_ROTATION", 1) ;
   retrieveConfigFileParam();
   
   initButtons() ; //initialise les noms des boutons et les boutons pour chaque page.

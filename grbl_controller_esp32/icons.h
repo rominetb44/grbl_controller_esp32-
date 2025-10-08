@@ -221,6 +221,9 @@ const uint8_t setABIcon[] = {
 const uint8_t setABCIcon[] = {
 #include "icons/bmp74/set_ABC_button.h"  
 };
+const uint8_t advParameters[] = {
+#include "icons/bmp74/adv_parameters_button.h"  
+};
 
 
 //********************************************* 4" TFT
