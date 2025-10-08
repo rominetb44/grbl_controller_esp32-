@@ -77,6 +77,8 @@ extern SdFat32 sd;
 
 extern uint8_t NbAxes ; // can be XYZ(= 0), XYZA(= 1), XYZAB(= 2), XYZABC(= 3)
 
+extern uint8_t screenRotation ; //Rotation of the screen 1 or 3
+
 
 uint8_t fileToExecuteIdx ; // save the idex (0...3) of the file to be executed after confimation; 0/3 = sd on tft, 10/3 = sd on GRBL card
 uint32_t prevAutoMoveMillis ;
