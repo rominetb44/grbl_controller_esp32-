@@ -460,7 +460,7 @@ fillMPage (_P_ADVANCED_PARAM , 2 , _RECONNECT_WIFI , _JUST_PRESSED , fAdvParam ,
 //Calibrage écran + debug écran ?
 fillMPage (_P_ADVANCED_PARAM , 3 , _NB_AXIS , _JUST_PRESSED , fGoToPage , _P_NB_AXIS) ;
 fillMPage (_P_ADVANCED_PARAM , 4 , _CHANGE_ROTATION , _JUST_PRESSED , fAdvParam , _CHANGE_ROTATION) ;
-#ifdef SCREEEN_DEBUG
+#ifdef SCREEN_DEBUG
 fillMPage (_P_ADVANCED_PARAM , 5 , _SCREEEN_CAL , _JUST_PRESSED , fAdvParam , _SCREEEN_CAL) ;
 fillMPage (_P_ADVANCED_PARAM , 6 , _RECONNECT_GRBL , _JUST_PRESSED , fAdvParam , _RECONNECT_GRBL) ;
 #endif
