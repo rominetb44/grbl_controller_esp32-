@@ -255,9 +255,11 @@ mButton[_ARROW_B_POS].pIcon =  arrowBPosIcon ;
 mButton[_ARROW_C_NEG].pIcon =  arrowCNegIcon ;
 mButton[_ARROW_C_POS].pIcon =  arrowCPosIcon ;
 
-#ifdef ADVANCED_PARAMETERS
-mButton[_ADVANCED_PARAM].pIcon =  advParameters ;
-#endif
+	#ifdef ADVANCED_PARAMETERS
+		#if defined( TFT_SIZE) and (TFT_SIZE == 3)
+			mButton[_ADVANCED_PARAM].pIcon =  advParameters ;
+		#endif
+	#endif
 
 #endif //end of USE_ICONS
 
