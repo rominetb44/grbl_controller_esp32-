@@ -221,8 +221,20 @@ const uint8_t setABIcon[] = {
 const uint8_t setABCIcon[] = {
 #include "icons/bmp74/set_ABC_button.h"  
 };
-const uint8_t advParameters[] = {
+const uint8_t advParametersIcon[] = {
 #include "icons/bmp74/adv_parameters_button.h"  
+};
+const uint8_t setAxisNumberIcon[] = {
+#include "icons/bmp74/change_axes_nber_button.h"  
+};
+const uint8_t rotateTFTIcon[] = {
+#include "icons/bmp74/rotate_tft_button.h"  
+};
+const uint8_t rebootTFTIcon[] = {
+#include "icons/bmp74/reboot_TFT_button.h"  
+};
+const uint8_t rebootGRBLIcon[] = {
+#include "icons/bmp74/reboot_grbl_fluid_button.h"  
 };
 
 

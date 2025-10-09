@@ -257,7 +257,11 @@ mButton[_ARROW_C_POS].pIcon =  arrowCPosIcon ;
 
 	#ifdef ADVANCED_PARAMETERS
 		#if defined( TFT_SIZE) and (TFT_SIZE == 3)
-			mButton[_ADVANCED_PARAM].pIcon =  advParameters ;
+			mButton[_ADVANCED_PARAM].pIcon =  advParametersIcon ;
+			mButton[_NB_AXIS].pIcon =  setAxisNumberIcon ;
+			mButton[_CHANGE_ROTATION].pIcon =  rotateTFTIcon ;
+			mButton[_REBOOT_SCREEN].pIcon =  rebootTFTIcon ;
+			mButton[_REBOOT_GRBL].pIcon =  rebootGRBLIcon ;
 		#endif
 	#endif
 
