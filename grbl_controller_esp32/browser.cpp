@@ -876,10 +876,12 @@ void spiff_dir() {
     fs::File root = SPIFFS.open("/");
     if(!root){
         Serial.println("- failed to open directory");
+		root.close();
         return;
     }
     if(!root.isDirectory()){
         Serial.println(" - not a directory");
+		root.close();
         return;
     }
 	
@@ -918,6 +920,7 @@ void spiff_dir() {
 	append_page_footer();
     SendHTML_Content();
     SendHTML_Stop();   // Stop is needed because no content length was sent
+	root.close();
   
 }
 
@@ -959,6 +962,7 @@ void printSPIFFDirectory(const char * dirname, uint8_t levels){
     file1.close();   
   }
   file1.close();
+  root1.close() ;
 }
 
 // -------------- Page qui permet de télécharger un fichier de la SPIFF ----------------------
@@ -997,16 +1001,18 @@ void DownloadFileSPIFF(String filename) {
     if (SPIFFS.exists( filename.c_str() ) ) {
       fs::File download ;
       download = SPIFFS.open( filename.c_str() );
+	  filename.remove(0,1);
       if (download) {
         server.sendHeader("Content-Type", "text/text");
         server.sendHeader("Content-Disposition", "attachment; filename="+filename);
+		//server.sendHeader("Content-Disposition", "attachment; filename="+(filename.c_str()[1]));
         server.sendHeader("Connection", "close");
         server.streamFile(download, "application/octet-stream");
         download.close(); 
       } else {
         reportError("Error : could not open file to download"); 
       }
-      download.close() ;
+      download.close();
     } else reportError( "Error: file to download did not exist");
   //} 
 }
@@ -1016,42 +1022,53 @@ void DownloadFileSPIFF(String filename) {
 void DeleteFileSPIFF(String filename) {
     //if (checkSd() ) { 
     SendHTML_Header();  
-    fs::File dataFile = SPIFFS.open( filename.c_str() ); //  
+    fs::File dataFile = SPIFFS.open( filename.c_str() );
     if (dataFile) {
       if (SPIFFS.remove( filename.c_str() )) {
         webpage += "<h3>File '" +filename+ "' has been erased</h3>"; 
       } else { 
         webpage += "<h3>File '"  +filename+ "' could not be erased !!!!!</h3>";
       }
+	  dataFile.close();
     } else {
       webpage += "<h3>File '" +filename+ "' does not exist !!!!!</h3>";
+	  dataFile.close();
     }
     append_page_footer(); 
     SendHTML_Content();
     SendHTML_Stop();
-  //} 
+  //}
 }
 
 
 // ---------------------------- Fonction qui permet d'uploader un fichier dans la SPIFF -------------------------------
 fs::File UploadFileSPIFF;
 boolean errorWhileUploadingSPIFF; 
+boolean errorEmptyFile;
 void handleFileUploadSPIFF() {
 
       HTTPUpload& uploadfile = server.upload(); // See https://github.com/esp8266/Arduino/tree/master/libraries/ESP8266WebServer/srcv
                                                 // For further information on 'status' structure, there are other reasons such as a failed transfer that could be used
       if(uploadfile.status == UPLOAD_FILE_START) {
         errorWhileUploadingSPIFF = false ;
+		errorEmptyFile = false;
         String filename = "/" + uploadfile.filename;	// Contrairement à la SD, les fichiers doivent commencer par "\"
-        sd.remove(filename.c_str());                  // Remove a previous version, otherwise data is appended the file again
-        UploadFileSPIFF.close() ;
-		if ( ! SPIFFS.begin() ) {
-            reportError("Fail to mount SPIFF" );
-            errorWhileUploadingSPIFF = true ;
-        } else {     
-          UploadFileSPIFF = SPIFFS.open(filename.c_str() , "w+");  // Open the file for writing (create it, if doesn't exist)
-          if ( ! UploadFileSPIFF ) errorWhileUploadingSPIFF = true ;
-        }  
+		
+		// On vérifie que le fichier n'est pas un répertoire ni la racine / sinon la SPIFF devient illisible lors de l'ouverture en w+
+		UploadFileSPIFF.close() ;
+		UploadFileSPIFF = SPIFFS.open(filename.c_str());
+		if(/*UploadFileSPIFF.isDirectory() || */!filename.compareTo("/")){	//isDirectory renvoie true même pour des fichiers...
+			errorWhileUploadingSPIFF = true;
+			errorEmptyFile = true;
+			return;
+		}
+		UploadFileSPIFF.close() ;
+		
+		// Supression du fichier s'il existe déjà, sinon append...
+		SPIFFS.remove( filename.c_str() );
+
+	    UploadFileSPIFF = SPIFFS.open(filename.c_str() , "w+");  // Open the file for writing (create it, if doesn't exist)
+	    if ( ! UploadFileSPIFF ) errorWhileUploadingSPIFF = true ;
       } else if (uploadfile.status == UPLOAD_FILE_WRITE)  {
         if(UploadFileSPIFF) { 
           int32_t bytesWritten = UploadFileSPIFF.write(uploadfile.buf, uploadfile.currentSize); // Write the received bytes to the file
@@ -1074,7 +1091,10 @@ void handleFileUploadSPIFF() {
         else
         {
           UploadFileSPIFF.close(); // close for safety ; not sure it is really needed
-          reportError("<h3>Could Not Create Uploaded File (write-protected?)</h3>");
+		  if (errorEmptyFile)
+			reportError("<h3>Please select valid file (no directory and no empty name)</h3>");
+		  else
+			reportError("<h3>Could Not Create Uploaded File (write-protected?)</h3>");
         }
       }
 }
