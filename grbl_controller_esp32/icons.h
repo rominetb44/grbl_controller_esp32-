@@ -236,6 +236,9 @@ const uint8_t rebootTFTIcon[] = {
 const uint8_t rebootGRBLIcon[] = {
 #include "icons/bmp74/reboot_grbl_fluid_button.h"  
 };
+const uint8_t reconnectWifiScreenIcon[] = {
+#include "icons/bmp74/reconnect_wifi_screen_button.h" 
+};
 
 
 //********************************************* 4" TFT
@@ -471,6 +474,39 @@ const uint8_t setABIcon[] = {
 };
 const uint8_t setABCIcon[] = {
 #include "icons/bmp100/set_ABC_button.h"  
+};
+const uint8_t advParametersIcon[] = {
+#include "icons/bmp100/adv_parameters_button.h"
+};
+const uint8_t setAxisNumberIcon[] = {
+#include "icons/bmp100/change_axes_nber_button.h"
+};
+const uint8_t rotateTFTIcon[] = {
+#include "icons/bmp100/rotate_tft_button.h" 
+};
+const uint8_t rebootTFTIcon[] = {
+#include "icons/bmp100/reboot_TFT_button.h"
+};
+const uint8_t rebootGRBLIcon[] = {
+#include "icons/bmp100/reboot_grbl_fluid_button.h"  
+};
+const uint8_t reconnectWifiScreenIcon[] = {
+#include "icons/bmp100/reconnect_wifi_screen_button.h"
+};
+const uint8_t set2axesCNCIcon[] = {
+#include "icons/bmp100/set_2axes_cnc_button.h"
+};
+const uint8_t set3axesCNCIcon[] = {
+#include "icons/bmp100/set_3axes_cnc_button.h"
+};
+const uint8_t set4axesCNCIcon[] = {
+#include "icons/bmp100/set_4axes_cnc_button.h"
+};
+const uint8_t set5axesCNCIcon[] = {
+#include "icons/bmp100/set_5axes_cnc_button.h"
+};
+const uint8_t set6axesCNCIcon[] = {
+#include "icons/bmp100/set_6axes_cnc_button.h"
 };
 
 

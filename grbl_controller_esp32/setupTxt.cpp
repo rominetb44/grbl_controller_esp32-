@@ -138,7 +138,7 @@ mButton[_REBOOT_GRBL].pLabel =  __REBOOT_GRBL ;
 mButton[_RECONNECT_GRBL].pLabel =  __RECONNECT_GRBL ;
 mButton[_RECONNECT_WIFI].pLabel =  __RECONNECT_WIFI ;
 mButton[_SCREEEN_CAL].pLabel =  __SCREEEN_CAL ;
-mButton[_AXIS_XYZ].pLabel =  __AXIS_XYZ ;
+//mButton[_AXIS_XYZ].pLabel =  __AXIS_XYZ ;
 mButton[_AXIS_XYZA].pLabel =  __AXIS_XYZA ;
 mButton[_AXIS_XYZAB].pLabel =  __AXIS_XYZAB ;
 mButton[_AXIS_XYZABC].pLabel =  __AXIS_XYZABC ;
@@ -256,12 +256,18 @@ mButton[_ARROW_C_NEG].pIcon =  arrowCNegIcon ;
 mButton[_ARROW_C_POS].pIcon =  arrowCPosIcon ;
 
 	#ifdef ADVANCED_PARAMETERS
-		#if defined( TFT_SIZE) and (TFT_SIZE == 3)
 			mButton[_ADVANCED_PARAM].pIcon =  advParametersIcon ;
 			mButton[_NB_AXIS].pIcon =  setAxisNumberIcon ;
 			mButton[_CHANGE_ROTATION].pIcon =  rotateTFTIcon ;
 			mButton[_REBOOT_SCREEN].pIcon =  rebootTFTIcon ;
 			mButton[_REBOOT_GRBL].pIcon =  rebootGRBLIcon ;
+			mButton[_RECONNECT_WIFI].pIcon =  reconnectWifiScreenIcon ;
+		#if defined( TFT_SIZE) and (TFT_SIZE == 4)
+			//mButton[_AXIS_XY].pIcon = set2axesCNCIcon ;
+			mButton[_AXIS_XYZ].pIcon = set3axesCNCIcon ;
+			mButton[_AXIS_XYZA].pIcon = set4axesCNCIcon ;
+			mButton[_AXIS_XYZAB].pIcon = set5axesCNCIcon ;
+			mButton[_AXIS_XYZABC].pIcon = set6axesCNCIcon ;
 		#endif
 	#endif
 
