@@ -203,7 +203,7 @@ void decodeGrblLine(char * line){  // decode a full line when CR or LF is receiv
 }
 
 void parseErrorLine(const char * line){ // extract error code, convert it in txt
-  int errorNum = atoi( &line[6]) ;
+  /*int errorNum = atoi( &line[6]) ;
   int errorNumCorr;
   errorNumCorr = errorNum ;
   if (errorNum < 1 || errorNum > 70 ) errorNumCorr = 0 ;
@@ -215,7 +215,14 @@ void parseErrorLine(const char * line){ // extract error code, convert it in txt
   if ( errorNum >= 60 && errorNum <= 69 ) {
     errorGrblFileReading = errorNum +20; // save the grbl error (original value)
     parseGrblFilesStatus = PARSING_FILE_NAMES_DONE ; // inform main loop that callback function must be executed
-  }
+  }*/
+  
+  //Le nombre d'erreurs dans FluidNC est supérieur à 70.
+  int errorNum = atoi( &line[6]) ;
+  if (errorNum < 1 || errorNum > _MAX_GRBL_ERRORS - 1 ) errorNum = 0 ;
+  memccpy ( lastMsg , mGrblErrors[errorNum].pLabel , '\0' , 79); // fill Message ; note: it is also added to Log
+  lastMsgColor = SCREEN_ALERT_TEXT ;
+  lastMsgChanged = true ;
 }
 
 void parseAlarmLine(const char * line){
