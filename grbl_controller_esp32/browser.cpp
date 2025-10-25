@@ -545,14 +545,17 @@ void DownloadFile(String filename){
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 void File_Upload(){
-  append_page_header();
-  webpage += F("<h3>Select File to Upload</h3>"); 
-  webpage += F("<FORM action='/fupload' method='post' enctype='multipart/form-data'>");
-  webpage += F("<input class='buttons' style='width:80%' type='file' name='fupload' id = 'fupload' value=''><br>");
-  webpage += F("<br><button class='buttons' style='width:20%' type='submit'>Upload File</button><br>");
-  webpage += F("<a href='/'>[Back]</a><br><br>");
-  append_page_footer();
-  server.send(200, "text/html",webpage);
+  if (checkSd() ) { 
+    append_page_header();
+    webpage += F("<h3>Select File to Upload</h3>"); 
+    webpage += F("<form action='/fupload' method='post' enctype='multipart/form-data'>");
+    webpage += F("<input class='buttons' style='width:80%' type='file' name='fupload' id = 'fupload' value=''><br>");
+    webpage += F("<br><button class='buttons' style='width:20%' type='submit'>Upload File</button><br>");
+    webpage += F("</form>");
+    //webpage += F("<a href='/'>[Back]</a><br><br>");
+    append_page_footer();
+    server.send(200, "text/html",webpage);
+  }
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 File32 UploadFile;
@@ -892,12 +895,10 @@ void spiff_dir() {
 	//append_page_header();
 	SendHTML_Header();
     webpage += F("<h3>Select File to Upload</h3>"); 
-    webpage += F("<FORM action='/fuploadSPIFF' method='post' enctype='multipart/form-data'>");
+    webpage += F("<form action='/fuploadSPIFF' method='post' enctype='multipart/form-data'>");
     webpage += F("<input class='buttons' style='width:80%' type='file' name='fupload' id = 'fupload' value=''><br>");
     webpage += F("<br><button class='buttons' style='width:20%' type='submit'>Upload File</button><br>");
-    //webpage += F("<a href='/'>[Back]</a><br><br>");
-    //append_page_footer();
-    //server.send(200, "text/html",webpage);
+	webpage += F("</form>");
 
 	if (root) {
       //root.rewind();
