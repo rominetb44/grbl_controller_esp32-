@@ -420,7 +420,7 @@ void parseSatusLine(char * line) {
    //Serial.print("line="); Serial.println(line);
    //Serial.print("line len") ; Serial.println(strlen(line)); 
    //Serial.print("line[len-2]= "); Serial.println(line[strlen(line) -2]);
-   if ( line[strlen(line) -2] != '>' ) return ; // discard if last char is not '>'
+   if ( line[strlen(line) -1] != '>' && line[strlen(line) -2] != '>' ) return ; // discard if last char is not '>'
       pBegin = line + 1;
       pEndType = strchr( pBegin , '|' ) ;
       *pEndType = '\0' ; // replace | by 0 in order to let memccpy copy end of string too 
