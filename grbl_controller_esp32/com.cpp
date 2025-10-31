@@ -664,7 +664,7 @@ void sendFromString(){
          case 'Z' : // Put some char in the flow
             savedWposXYZA[2] = preferences.getFloat("wposZ" , 0 ) ; // if wposZ does not exist in preferences, the function returns 0
             char floatToString[20] ;
-            gcvt(savedWposXYZA[2], 3, floatToString); // convert float to string
+            dtostrf(savedWposXYZA[2], 15, 4, floatToString);  // convert float to string
             toGrbl(floatToString) ;
             //Serial2.print(floatToString) ;
             //Serial.print( "wpos Z is retrieved with value = ") ; Serial.println( floatToString ) ; // to debug
