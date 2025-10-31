@@ -21,7 +21,7 @@ int grblFileIdx ; // index in the array where next file name being parse would b
 int grblTotalFilesCount ; // total number of files on grbl sd card; used to avoid reading when no files in current dir
 
 extern uint8_t parseGrblFilesStatus ; 
-//extern SdBaseFile aDir[DIR_LEVEL_MAX] ;
+//extern File32 aDir[DIR_LEVEL_MAX] ;
 
 extern M_Button mButton[_MAX_BTN] ;
 extern uint8_t statusPrinting ;

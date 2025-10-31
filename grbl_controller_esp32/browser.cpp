@@ -347,7 +347,7 @@ void retrieveWifiParam(void){  // get the wifi parameters (type, SSID, password)
 // return true if correct parameters are found
 boolean checkWifiOnSD(void){
       // return true if a valid file wifi.cfg exist on the SD card; if so we use those values
-      SdBaseFile wifiFile ;
+      File32 wifiFile ;
       char line[100] ;  //buffer to get a line from SD
       bool wifiTypeOk = false;
       bool wifiPasswordOk = false;

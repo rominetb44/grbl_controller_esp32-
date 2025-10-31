@@ -97,7 +97,7 @@ extern boolean updateFullPage ;
 
 //        Pour sendToGrbl
 //extern File fileToRead ;
-extern SdBaseFile aDir[DIR_LEVEL_MAX] ; 
+extern File32 aDir[DIR_LEVEL_MAX] ; 
 extern int8_t dirLevel ;
 extern uint8_t cmdToSend ; // cmd to be send
 extern uint32_t sdNumberOfCharSent ;

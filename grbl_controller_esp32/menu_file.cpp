@@ -25,9 +25,9 @@ extern SdFat32 sd;
 //extern File workDirParents[DIR_LEVEL_MAX] ;
 //extern File aDir[DIR_LEVEL_MAX] ;
 //extern File fileToRead ;
-extern SdBaseFile aDir[DIR_LEVEL_MAX] ;
-//extern SdBaseFile fileToRead ;
-SdBaseFile sdFileIcon ;
+extern File32 aDir[DIR_LEVEL_MAX] ;
+//extern File32 fileToRead ;
+File32 sdFileIcon ;
 
 extern M_Button mButton[_MAX_BTN] ;
 extern uint8_t statusPrinting ;
