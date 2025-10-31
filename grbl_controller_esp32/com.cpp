@@ -421,7 +421,7 @@ void parseSatusLine(char * line) {
    //Serial.print("line="); Serial.println(line);
    //Serial.print("line len") ; Serial.println(strlen(line)); 
    //Serial.print("line[len-2]= "); Serial.println(line[strlen(line) -2]);
-   if ( line[strlen(line) -1] != '>' && line[strlen(line) -2] != '>' ) return ; // discard if last char is not '>'
+   if ( line[strlen(line) -1] != '>') return ; // discard if last char is not '>'
       pBegin = line + 1;
       pEndType = strchr( pBegin , '|' ) ;
       *pEndType = '\0' ; // replace | by 0 in order to let memccpy copy end of string too 
@@ -571,9 +571,11 @@ void sendToGrbl( void ) {
 }  
 
 void sendFromSd() {        // send next char from SD; close file at the end
-      int sdChar ;
+    int sdChar ;
 	  char dataToSendBuffer[MAX_LINE_LENGTH_TO_GRBL];
 	  uint8_t bufferPos = 0;
+    bool skip = false; // skip comment, anything after and included ';' is not sent
+    
 	  dataToSendBuffer[bufferPos] = '\0';
       waitOkWhenSdMillis = millis()  + WAIT_OK_SD_TIMEOUT ;  // set time out on 
       while ( aDir[dirLevel+1].available() > 0 && (! waitOk) && statusPrinting == PRINTING_FROM_SD && ( (grblLink == GRBL_LINK_SERIAL)?Serial2.availableForWrite() > 2: true) ) {
@@ -583,12 +585,15 @@ void sendFromSd() {        // send next char from SD; close file at the end
             updateFullPage = true ;           // force to redraw the whole page because the buttons haved changed
           } else {
             sdNumberOfCharSent++ ;
-            if( sdChar != 0x0D && sdChar != ' ' ){             // 13 = carriage return; do not send the space.
-                                                             // to do : skip the comments
-              //toGrbl((char) sdChar ) ;
-			  dataToSendBuffer[bufferPos++] = (char) sdChar;
+            if( !skip && sdChar != 0x0D && sdChar != 0x0A && sdChar != ' ' ){                                                          
+			        dataToSendBuffer[bufferPos++] = (char) sdChar;
+            }
+            if (sdChar == ';') {
+              skip = true;
+              continue;
             }
             if ( sdChar == '\n' ) {        // n= new line = line feed = 10 decimal
+               skip = false;
                waitOk = true ;
 			   dataToSendBuffer[bufferPos] = '\0';
 			   toGrbl(dataToSendBuffer);
@@ -608,9 +613,7 @@ void sendFromSd() {        // send next char from SD; close file at the end
         aDir[dirLevel+1].close() ; // close the file when all bytes have been sent.
         statusPrinting = PRINTING_STOPPED  ; 
         updateFullPage = true ;           // force to redraw the whole page because the buttons haved changed
-        //Serial2.print( (char) 0x18 ) ; //0x85) ;   // cancel jog (just for testing); must be removed
-        toGrbl( (char) 10 ) ;
-        //Serial2.print( (char) 10 ) ; // sent a new line to be sure that Grbl handle last line.
+        toGrbl(0x0A) ;
       }
 } 
 
@@ -989,7 +992,11 @@ int fromGrblRead(){       // return the first character in the read buffer
   int firstChar = -1;
   switch (grblLink) {
     case GRBL_LINK_SERIAL:
-      firstChar = Serial2.read();
+      // For FluidNC >= v3.9.6 remove CR is mandatory for UART1 support
+      // https://github.com/bdring/FluidNC/issues/1598
+      do {
+        firstChar = Serial2.read();
+      } while (firstChar  == 0xD);
       break;
     case GRBL_LINK_BT :
       //Serial.println("read BT"); 
