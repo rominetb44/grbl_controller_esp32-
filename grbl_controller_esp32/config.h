@@ -8,6 +8,8 @@
 // For more parameters
 #define ADVANCED_PARAMETERS
 
+// For CNC board V3, to have all current FluidNC alarms and errors in English
+//#define FLUIDNC
 
 // decide if you will use Wifi or not (and how)
 #define WIFI ESP32_ACT_AS_STATION              // select between NO_WIFI, ESP32_ACT_AS_STATION, ESP32_ACT_AS_AP 

@@ -14,6 +14,9 @@
 #include "telnetgrbl.h"
 #include "BluetoothSerial.h"
 #include "bt.h"
+#ifdef FLUIDNC
+#include "error.h"
+#endif
 
 // we can also get messages: They are enclosed between [....] ; they are currently discarded but stored in the log. 
 // used to decode the status and position sent by GRBL
@@ -203,39 +206,37 @@ void decodeGrblLine(char * line){  // decode a full line when CR or LF is receiv
 }
 
 void parseErrorLine(const char * line){ // extract error code, convert it in txt
-  /*int errorNum = atoi( &line[6]) ;
-  int errorNumCorr;
-  errorNumCorr = errorNum ;
-  if (errorNum < 1 || errorNum > 70 ) errorNumCorr = 0 ;
-  if (errorNum >=40 && errorNum <= 59 ) errorNumCorr = 0 ; //there are no num in range 40/59
-  if (errorNum >=60) errorNumCorr -= 20;  // there are no num in range 40/59; so we avoided those in the 
-  memccpy ( lastMsg , mGrblErrors[errorNumCorr].pLabel , '\0' , 79); // fill Message ; note: it is also added to Log
-  lastMsgColor = SCREEN_ALERT_TEXT ;
-  lastMsgChanged = true ;
-  if ( errorNum >= 60 && errorNum <= 69 ) {
-    errorGrblFileReading = errorNum +20; // save the grbl error (original value)
-    parseGrblFilesStatus = PARSING_FILE_NAMES_DONE ; // inform main loop that callback function must be executed
-  }*/
-  
-  //Le nombre d'erreurs dans FluidNC est supérieur à 70.
   int errorNum = atoi( &line[6]) ;
+#ifndef FLUIDNC
   if (errorNum < 1 || errorNum > _MAX_GRBL_ERRORS - 1 ) errorNum = 0 ;
   memccpy ( lastMsg , mGrblErrors[errorNum].pLabel , '\0' , 79); // fill Message ; note: it is also added to Log
   lastMsgColor = SCREEN_ALERT_TEXT ;
   lastMsgChanged = true ;
+#else
+  const char *str = errorString((Error)errorNum);
+  if (str) {
+    memccpy(lastMsg, str, '\0', 79);
+    lastMsgColor = SCREEN_ALERT_TEXT;
+    lastMsgChanged = true;
+  }
+#endif
 }
 
 void parseAlarmLine(const char * line){
-  int alarmNum = atoi( &line[6]) ; // search from pos 6 
+  int alarmNum = atoi( &line[6]) ; // search from pos 6
+#ifndef FLUIDNC  
   if (alarmNum < 1 || alarmNum > 9 ) alarmNum = 0 ;
-  // char alarmTxt[80] ;
-  //int lenLine = strlen(line) ;
-  //memcpy(alarmTxt, line , lenLine);
-  //strncpy(alarmTxt + lenLine , alarmArrayMsg[alarmNum] , 79-lenLine) ;
-  //alarmTxt[79] = 0 ; // for safety we add a end of string  
   memccpy ( lastMsg , mAlarms[alarmNum].pLabel , '\0' , 79); // fill Message ; note: it is also added to Log
   lastMsgColor = SCREEN_ALERT_TEXT ;
   lastMsgChanged = true ;
+#else
+  const char *str = alarmString((ExecAlarm)alarmNum);
+  if (str) {
+    memccpy(lastMsg, str, '\0', 79);
+    lastMsgColor = SCREEN_ALERT_TEXT;
+    lastMsgChanged = true;
+  }
+#endif
 }
 
 void parseMsgLine(char * line) {  // parse Msg line from GRBL
