@@ -239,6 +239,18 @@ const uint8_t rebootGRBLIcon[] = {
 const uint8_t reconnectWifiScreenIcon[] = {
 #include "icons/bmp74/reconnect_wifi_screen_button.h" 
 };
+const uint8_t set3axesCNCIcon[] = {
+#include "icons/bmp74/set_3axes_cnc_button.h"
+};
+const uint8_t set4axesCNCIcon[] = {
+#include "icons/bmp74/set_4axes_cnc_button.h"
+};
+const uint8_t set5axesCNCIcon[] = {
+#include "icons/bmp74/set_5axes_cnc_button.h"
+};
+const uint8_t set6axesCNCIcon[] = {
+#include "icons/bmp74/set_6axes_cnc_button.h"
+};
 
 
 //********************************************* 4" TFT
