@@ -2,8 +2,8 @@
 #define _config_h
 
 
-#define ESP32_VERSION "v.2.2.OTA" 
-#define VERSION_TEXT "Firmware v.2.2.OTA (1st Nov. 2025)"
+#define ESP32_VERSION "v.2.2.1.OTA Dev" 
+#define VERSION_TEXT "Firmware v.2.2.1.OTA (Dev)"
 
 // For more parameters
 #define ADVANCED_PARAMETERS
