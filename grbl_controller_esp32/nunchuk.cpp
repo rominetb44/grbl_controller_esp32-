@@ -38,10 +38,14 @@ int8_t prevMoveX = 0;
 int8_t prevMoveY = 0;
 int8_t prevMoveZ = 0;
 int8_t prevMoveA = 0;
+int8_t prevMoveB = 0;
+int8_t prevMoveC = 0;
 int8_t jogDistX = 0;
 int8_t jogDistY = 0;
 int8_t jogDistZ = 0;
 int8_t jogDistA = 0;
+int8_t jogDistB = 0;
+int8_t jogDistC = 0;
 float moveMultiplier ;
 uint32_t cntSameMove = 0 ;
 uint32_t startMoveMillis = 0;
@@ -54,6 +58,8 @@ boolean nunchukOK ;  // keep flag to detect a nunchuk at startup
 
 extern char machineStatus[9];
 //extern char lastMsg[80] ;
+
+extern uint8_t NbAxes ; // can be XYZ(= 0), XYZA(= 1), XYZAB(= 2), XYZABC(= 3)
 
 /**
  * Initializes the Nunchuk communication by sending a sequence of bytes
@@ -142,6 +148,8 @@ void handleNunchuk (void) {
   int8_t moveY = 0 ; //static int8 prevMoveY = 0;
   int8_t moveZ = 0 ; //static int8 prevMoveZ = 0;
   int8_t moveA = 0 ; //static int8 prevMoveZ = 0;
+  int8_t moveB = 0 ; //static int8 prevMoveZ = 0;
+  int8_t moveC = 0 ; //static int8 prevMoveZ = 0;
     if  ( ( nunchukMillis - lastNunchukMillis ) > NUNCHUK_READ_DELAY  )    {                // we can not read to fast
           lastNunchukMillis = nunchukMillis  ;
           if (nunchuk_read() ) {
@@ -159,24 +167,40 @@ void handleNunchuk (void) {
                   moveY =  1 ;
                 }
               } else if ( nunchuk_buttonZ() && nunchuk_buttonC() == 0 ) {   // si le bouton Z est enfoncé mais pas le bouton C
-    #ifdef AA_AXIS
-                if (nunchuk_data[0] < 80 ) {
-                  moveA = - 1 ;
-                } else if (nunchuk_data[0] > 170 ) {
-                  moveA =  1 ;
-                }
-    #endif            
+
+				if (NbAxes == XYZA || NbAxes == XYZAB || NbAxes == XYZABC) {
+					if (nunchuk_data[0] < 80 ) {
+					  moveA = - 1 ;
+					} else if (nunchuk_data[0] > 170 ) {
+					  moveA =  1 ;
+					}
+				}            
                 if (nunchuk_data[1] < 80 ) {
                   moveZ = - 1 ;
                 } else if (nunchuk_data[1] > 170 ) {
                   moveZ =  1 ;
-                } 
+                }
+			  } else if ( nunchuk_buttonZ() && nunchuk_buttonC()) {   // si le bouton Z et le bouton C sont enfoncés
+				if (NbAxes == XYZAB || NbAxes == XYZABC) {
+					if (nunchuk_data[0] < 80 ) {
+					  moveB = - 1 ;
+					} else if (nunchuk_data[0] > 170 ) {
+					  moveB =  1 ;
+					}
+					if (NbAxes == XYZABC) {
+						if (nunchuk_data[1] < 80 ) {
+						  moveC = - 1 ;
+						} else if (nunchuk_data[1] > 170 ) {
+						  moveC =  1 ;
+						}
+					}
+				}
               } // end test on button
-              if ( (machineStatus[0] == 'J' || machineStatus[0] == 'I' ) && ( prevMoveX != moveX || prevMoveY != moveY  || prevMoveZ != moveZ || prevMoveA != moveA) ) { // cancel Jog if jogging and at least one direction change       
+              if ( (machineStatus[0] == 'J' || machineStatus[0] == 'I' ) && ( prevMoveX != moveX || prevMoveY != moveY  || prevMoveZ != moveZ || prevMoveA != moveA || prevMoveB != moveB || prevMoveC != moveC) ) { // cancel Jog if jogging and at least one direction change       
                   jogCancelFlag = true ;
               } 
-              if ( moveX || moveY || moveZ || moveA ) {    // if at least one move is asked
-                  if ( ( prevMoveX != moveX || prevMoveY != moveY  || prevMoveZ != moveZ || prevMoveA != moveA) ) { 
+              if ( moveX || moveY || moveZ || moveA || moveB || moveC) {    // if at least one move is asked
+                  if ( ( prevMoveX != moveX || prevMoveY != moveY  || prevMoveZ != moveZ || prevMoveA != moveA || prevMoveB != moveB || prevMoveC != moveC) ) { 
                     startMoveMillis = millis() ; // used to calculate step and feedrate based on delay between 2 jog commands 
                   } 
                   jogCmdFlag = true ;
@@ -184,11 +208,15 @@ void handleNunchuk (void) {
                   jogDistY = moveY;
                   jogDistZ = moveZ;
                   jogDistA = moveA;
+				  jogDistB = moveB;
+				  jogDistC = moveC;
               } 
               prevMoveX = moveX ;
               prevMoveY = moveY ;
               prevMoveZ = moveZ ;
               prevMoveA = moveA ;
+			  prevMoveB = moveB ;
+			  prevMoveC = moveC ;
               //Serial.print("cnt= ") ; Serial.println( cntSameMove ) ;
            }  // end of nunchukRead is true
     }  //end of test on delay  

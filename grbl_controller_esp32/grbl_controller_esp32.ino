@@ -89,6 +89,7 @@ Sur l'écran de base, prévoir l'affichage des infos
 #include "touch.h"
 #include "telnetgrbl.h"
 #include "bt.h"
+#include "actions.h"
 
 
 //uart_dev_t * dev = (volatile uart_dev_t *)(DR_REG_UART_BASE) ;
@@ -161,6 +162,12 @@ extern boolean nunchukOK ;  // keep flag to detect a nunchuk at startup
 uint8_t wifiType ; // can be NO_WIFI(= 0), ESP32_ACT_AS_STATION(= 1), ESP32_ACT_AS_AP(= 2)
 extern uint8_t grblLink ;
 
+// Nb Axes
+uint8_t NbAxes ;
+
+// Rotation de l'écran
+uint8_t screenRotation ; //Rotation of the screen 1 or 3
+
 // status pour telnet
 boolean statusTelnetIsConnected = false ; 
 
@@ -197,7 +204,7 @@ void setup() {
                                       // this increase the number of interrupts but it allows to forward the char to Serial2 faster
   //Serial.print(" setup: rxfifo size before interrupt="); Serial.println(dev->conf1.rxfifo_full_thrhd) ;
   
-    // initialise le port série vers grbl
+  // initialise le port série vers grbl, si pas initialisé, lors d'un reboot, plantage de l'écran
   //Serial2.begin(115200, SERIAL_8N1, SERIAL2_RXPIN, SERIAL2_TXPIN); // initialise le port série vers grbl
   //Serial2.setRxBufferSize(1024);
   //pinMode (SERIAL2_RXPIN, INPUT_PULLUP ); // added to force a level when serial wire is not connected
@@ -211,13 +218,25 @@ void setup() {
       fillMsg(_CMD_NOT_LOADED ) ;
     }
   }
+  
+//  listSpiffsDir( "/", 0 );   // uncomment to see the SPIFFS content
+  preferences.begin("savedData") ; //define the namespace for saving preferences (used for saving WIFI parameters, and z coord for change tool and nb axis)
+  grblLink = preferences.getChar("grblLink", GRBL_LINK_SERIAL) ; // retrieve the last used way of communication with GRBL
+  dirLevel = -1 ;   // negative value means that SD card has to be uploaded
+  
+  // Récupère les données de paramétrage si elles sont présentes sur la SD
+  //TODO
+  NbAxes = preferences.getChar("NB_AXES", NB_AXIS) ;
+  screenRotation = preferences.getChar("SCREEN_ROTATION", 1) ;
+  retrieveConfigFileParam();
+  
   initButtons() ; //initialise les noms des boutons et les boutons pour chaque page.
   tftInit() ; // init screen and touchscreen, set rotation and calibrate
   
 //  listSpiffsDir( "/", 0 );   // uncomment to see the SPIFFS content
-  preferences.begin("savedData") ; //define the namespace for saving preferences (used for saving WIFI parameters, and z coord for change tool)
-  grblLink = preferences.getChar("grblLink", GRBL_LINK_SERIAL) ; // retrieve the last used way of communication with GRBL
-  dirLevel = -1 ;   // negative value means that SD card has to be uploaded
+  //preferences.begin("savedData") ; //define the namespace for saving preferences (used for saving WIFI parameters, and z coord for change tool and nb axis)
+  //grblLink = preferences.getChar("grblLink", GRBL_LINK_SERIAL) ; // retrieve the last used way of communication with GRBL
+  //dirLevel = -1 ;   // negative value means that SD card has to be uploaded
 
   nunchuk_init() ; 
   prevPage = _P_NULL ;     
@@ -225,6 +244,12 @@ void setup() {
   updateFullPage = true ;
   // en principe les données pour les buttons sont initialisés automatiquement à 0
   //drawFullPage( ) ;
+  
+  // Récupère les données de paramétrage si elles sont présentes sur la SD
+  //TODO
+  //NbAxes = preferences.getChar("NB_AXES", NB_AXIS) ;
+  //retrieveConfigFileParam();
+  
   initWifi() ;
   if ( (wifiType == ESP32_ACT_AS_STATION ) || (wifiType == ESP32_ACT_AS_AP ) ) {
     telnetInit() ;
@@ -329,14 +354,14 @@ void loop() {
         }
     }       
     if ( currentPage == _P_INFO || currentPage == _P_MOVE || currentPage == _P_SETXYZ || currentPage == _P_SETUP || currentPage == _P_TOOL 
-              || currentPage == _P_OVERWRITE || currentPage == _P_COMMUNICATION) { //force a refresh if a message has been received from GRBL and we are in a info screen or in a info screen
+              || currentPage == _P_OVERWRITE || currentPage == _P_COMMUNICATION || currentPage == _P_MOVE_ABC) { //force a refresh if a message has been received from GRBL and we are in a info screen or in a info screen
         updatePartPage = true ;
     } 
   }
       
   newGrblStatusReceived = false ;
   if (lastMsgChanged == true && ( currentPage == _P_INFO || currentPage == _P_MOVE || currentPage == _P_SETXYZ || currentPage == _P_SETUP 
-                                || currentPage == _P_TOOL || currentPage == _P_COMMUNICATION ) ) { //force a refresh if a message has been filled
+                                || currentPage == _P_TOOL || currentPage == _P_COMMUNICATION || currentPage == _P_MOVE_ABC) ) { //force a refresh if a message has been filled
     updatePartPage = true ;
   }
   
@@ -355,5 +380,3 @@ void loop() {
   //}
   yield();
 }
-
-

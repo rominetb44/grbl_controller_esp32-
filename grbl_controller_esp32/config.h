@@ -2,8 +2,11 @@
 #define _config_h
 
 
-#define ESP32_VERSION "v.2.1.j.aOTA"
-#define VERSION_TEXT "Firmware vers.2.1.j.aOTA (04 May 2023)"
+#define ESP32_VERSION "v.2.2.OTA" 
+#define VERSION_TEXT "Firmware v.2.2.OTA (1st Nov. 2025)"
+
+// For more parameters
+#define ADVANCED_PARAMETERS
 
 
 // decide if you will use Wifi or not (and how)
@@ -33,9 +36,10 @@
 
 // select your language between EN, FR, DE
 #define LANGUAGE FR
-
-// uncomment if you want that the firmware handles 4 axes instead of 3 ;(The GRBL STM32 firmware has to be compiled/flashed with the same option)
-//#define AA_AXIS    
+   
+// The firmware can handle until 6 axes.
+// If you are using a 4-axis CNC, replace XYZ by XYZA - If you are using a 5-axis CNC, replace XYZ by XYZAB - If you are using a 6-axis CNC, replace XYZ by XYZABC
+#define NB_AXIS XYZ //XYZ or XYZA or XYZAB or XYZABC
 
 // select the version of the TFT board being used ; it can be 1 or 2 (1 uses 4 pins header to connect to GRbl; 2 use RJ45 connector)               
 #define TFT_CARD_VERSION 2
@@ -45,7 +49,7 @@
 
 // only if you selected 4.0 (or 3.5) display else ignore
 // select the 4.0 (or 3.5) TFT driver version : must be 1 for (ST7796S) or 2 (for ILI9486) or 3 (for ILI9488)
-#define TFT4_0_DRIVER 1                
+#define TFT4_0_DRIVER 2                
 
 // Set REPEAT_CAL to true instead of false to run calibration again, otherwise it will only be done once.
 // Repeat calibration if you change the screen rotation.
@@ -103,7 +107,7 @@
 #define BUTTON_BACKGROUND TFT_GREEN
 #define BUTTON_TEXT TFT_BLACK
 #define SCREEN_BACKGROUND TFT_BLACK   //TFT_DARKGREY
-#define SCREEN_NORMAL_TEXT TFT_GREEN
+#define SCREEN_NORMAL_TEXT TFT_WHITE
 #define SCREEN_ALERT_TEXT TFT_RED
 #define SCREEN_HEADER_TEXT TFT_WHITE
 #define SCREEN_TO_SEND_TEXT TFT_WHITE   // used when looking at Sd file content for lines still to be sent to GRBL
@@ -230,6 +234,11 @@
 #define ESP32_ACT_AS_STATION 1
 #define ESP32_ACT_AS_AP 2
 
+#define XYZ 0               // code used to identify the number of axes
+#define XYZA 1
+#define XYZAB 2
+#define XYZABC 3
+
 // This is the file name used to store the touch coordinate in the SPIFFS from ESP32 (in es32 flash memory)
 // calibration data. Cahnge the name to start a new calibration.
 #define CALIBRATION_FILE "/TouchCalData3"
@@ -240,7 +249,8 @@
 #define _SETZ_STRING "G10 L20 P1 Z0\n"
 #define _SETA_STRING "G10 L20 P1 A0\n"
 #define _SETXYZ_STRING "G10 L20 P1 X0 Y0 Z0\n"
-#define _SETXYZA_STRING "G10 L20 P1 X0 Y0 Z0 A0\n"
+#define _SETAB_STRING "G10 L20 P1 A0 B0\n"
+#define _SETABC_STRING "G10 L20 P1 A0 B0 C0\n"
 
 
 

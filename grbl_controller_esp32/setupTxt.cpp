@@ -23,6 +23,8 @@ extern boolean cmdIconExist[11];       // store a flag to say if an icon exist o
 extern char fileNames[4][23] ; // 22 car per line + "\0"
 extern char grblFileNamesTft[4][40]; // contains only the 4 names to be displayed on TFT (needed because name is altered during btn drawing 
 
+extern uint8_t NbAxes ; // can be XYZ(= 0), XYZA(= 1), XYZAB(= 2), XYZABC(= 3)
+
 // rempli le paramÃ©trage d'un boutons d'une page 
 void fillMPage (uint8_t _page , uint8_t _btnPos , uint8_t _boutons, uint8_t _actions , void (*_pfNext)(uint8_t) , uint8_t _parameters ) {
   mPages[_page].boutons[_btnPos] =  _boutons ;
@@ -53,8 +55,6 @@ mButton[_YP].pLabel = "Y+" ;
 mButton[_YM].pLabel = "Y-" ;
 mButton[_ZP].pLabel = "Z+" ;
 mButton[_ZM].pLabel = "Z-" ;
-mButton[_AP].pLabel = "A+" ;
-mButton[_AM].pLabel = "A-" ;
 mButton[_D_AUTO].pLabel = __D_AUTO  ;
 mButton[_D100].pLabel = "100" ;
 mButton[_D10].pLabel = "10" ;
@@ -66,8 +66,9 @@ mButton[_SETX].pLabel = __SETX  ;
 mButton[_SETY].pLabel = __SETY  ;
 mButton[_SETZ].pLabel = __SETZ  ;
 mButton[_SETA].pLabel = __SETA  ;
+mButton[_SETAB].pLabel = __SETAB  ;
+mButton[_SETABC].pLabel = __SETABC  ;
 mButton[_SETXYZ].pLabel = __SETXYZ  ;
-mButton[_SETXYZA].pLabel = __SETXYZA  ;
 mButton[_TOOL].pLabel = __TOOL  ;
 mButton[_SET_CHANGE].pLabel = __SET_CHANGE  ;
 mButton[_SET_PROBE].pLabel = __SET_PROBE  ;
@@ -119,6 +120,35 @@ mButton[_YES_BTN].pLabel = __YES ;
 mButton[_NO_BTN].pLabel = __NO ;
 mButton[_LOG].pLabel =  __LOG ;
 
+mButton[_BACK_XYZ].pLabel =  __BACK_XYZ ;
+mButton[_GOTO_A_AXES].pLabel =  __GOTO_A_AXES ;
+mButton[_GOTO_AB_AXES].pLabel =  __GOTO_AB_AXES ;
+mButton[_GOTO_ABC_AXES].pLabel =  __GOTO_ABC_AXES ;
+mButton[_ARROW_A_NEG].pLabel =  __ARROW_A_NEG ;
+mButton[_ARROW_A_POS].pLabel =  __ARROW_A_POS ;
+mButton[_ARROW_B_NEG].pLabel =  __ARROW_B_NEG ;
+mButton[_ARROW_B_POS].pLabel =  __ARROW_B_POS ;
+mButton[_ARROW_C_NEG].pLabel =  __ARROW_C_NEG ;
+mButton[_ARROW_C_POS].pLabel =  __ARROW_C_POS ;
+
+#ifdef ADVANCED_PARAMETERS
+mButton[_ADVANCED_PARAM].pLabel =  __ADVANCED_PARAM ;
+mButton[_REBOOT_SCREEN].pLabel =  __REBOOT_SCREEN ;
+mButton[_REBOOT_GRBL].pLabel =  __REBOOT_GRBL ;
+mButton[_RECONNECT_GRBL].pLabel =  __RECONNECT_GRBL ;
+mButton[_RECONNECT_WIFI].pLabel =  __RECONNECT_WIFI ;
+mButton[_SCREEEN_CAL].pLabel =  __SCREEEN_CAL ;
+//mButton[_AXIS_XY].pLabel =  __AXIS_XY ;
+mButton[_AXIS_XYZ].pLabel =  __AXIS_XYZ ;
+mButton[_AXIS_XYZA].pLabel =  __AXIS_XYZA ;
+mButton[_AXIS_XYZAB].pLabel =  __AXIS_XYZAB ;
+mButton[_AXIS_XYZABC].pLabel =  __AXIS_XYZABC ;
+mButton[_CHANGE_ROTATION].pLabel =  __CHANGE_ROTATION ;
+
+mButton[_NB_AXIS].pLabel =  __NB_AXIS ;
+#endif
+
+
 
 #ifdef USE_ICONS
 mButton[_SETUP].pIcon = setupIcon  ;
@@ -142,8 +172,6 @@ mButton[_YP].pIcon = ypIcon ;
 mButton[_YM].pIcon = ymIcon ;
 mButton[_ZP].pIcon = zpIcon ;
 mButton[_ZM].pIcon = zmIcon ;
-mButton[_AP].pIcon = apIcon ; 			//added by HTheatre
-mButton[_AM].pIcon = amIcon ; 			//added by HTheatre
 mButton[_D_AUTO].pIcon = dAutoIcon  ;
 mButton[_D100].pIcon = d100Icon ;
 mButton[_D10].pIcon = d10Icon ;
@@ -154,9 +182,10 @@ mButton[_SET_WCS].pIcon = setWCSIcon  ;
 mButton[_SETX].pIcon = setXIcon ;
 mButton[_SETY].pIcon = setYIcon ;
 mButton[_SETZ].pIcon = setZIcon ;
-mButton[_SETA].pIcon = setAIcon ;
 mButton[_SETXYZ].pIcon = setXYZIcon  ;
-mButton[_SETXYZA].pIcon = setXYZAIcon ;
+mButton[_SETA].pIcon = setAIcon ;
+mButton[_SETAB].pIcon = setABIcon ;
+mButton[_SETABC].pIcon = setABCIcon ;
 mButton[_TOOL].pIcon = toolIcon  ;
 mButton[_SET_CHANGE].pIcon = setChangeIcon  ;
 mButton[_SET_PROBE].pIcon = setProbeIcon  ;
@@ -216,6 +245,31 @@ mButton[_YES_BTN].pIcon = yesIcon ;
 mButton[_NO_BTN].pIcon = noIcon ;
 mButton[_LOG].pIcon = logGrblIcon ;
 
+mButton[_BACK_XYZ].pIcon =  backXyzIcon ;
+mButton[_GOTO_A_AXES].pIcon =  gotoAAxesIcon ;
+mButton[_GOTO_AB_AXES].pIcon =  gotoABAxesIcon ;
+mButton[_GOTO_ABC_AXES].pIcon =  gotoABCAxesIcon ;
+mButton[_ARROW_A_NEG].pIcon =  arrowANegIcon ;
+mButton[_ARROW_A_POS].pIcon =  arrowAPosIcon ;
+mButton[_ARROW_B_NEG].pIcon =  arrowBNegIcon ;
+mButton[_ARROW_B_POS].pIcon =  arrowBPosIcon ;
+mButton[_ARROW_C_NEG].pIcon =  arrowCNegIcon ;
+mButton[_ARROW_C_POS].pIcon =  arrowCPosIcon ;
+
+	#ifdef ADVANCED_PARAMETERS
+			mButton[_ADVANCED_PARAM].pIcon =  advParametersIcon ;
+			mButton[_NB_AXIS].pIcon =  setAxisNumberIcon ;
+			mButton[_CHANGE_ROTATION].pIcon =  rotateTFTIcon ;
+			mButton[_REBOOT_SCREEN].pIcon =  rebootTFTIcon ;
+			mButton[_REBOOT_GRBL].pIcon =  rebootGRBLIcon ;
+			mButton[_RECONNECT_WIFI].pIcon =  reconnectWifiScreenIcon ;
+			//mButton[_AXIS_XY].pIcon = set2axesCNCIcon ;
+			mButton[_AXIS_XYZ].pIcon = set3axesCNCIcon ;
+			mButton[_AXIS_XYZA].pIcon = set4axesCNCIcon ;
+			mButton[_AXIS_XYZAB].pIcon = set5axesCNCIcon ;
+			mButton[_AXIS_XYZABC].pIcon = set6axesCNCIcon ;
+	#endif
+
 #endif //end of USE_ICONS
 
 // ************** fill the parameters to declare the buttons for each pages
@@ -261,38 +315,35 @@ fillMPage (_P_PAUSE , 11 , _INFO , _JUST_PRESSED , fGoToPage , _P_INFO) ;
 
 mPages[_P_MOVE].titel = "" ;
 mPages[_P_MOVE].pfBase = fMoveBase ;
-#ifdef AA_AXIS
 fillMPage (_P_MOVE , 0 , _XM , _JUST_LONG_PRESSED_RELEASED , fMove , _XM) ;
 fillMPage (_P_MOVE , 1 , _YP , _JUST_LONG_PRESSED_RELEASED , fMove , _YP) ;
 fillMPage (_P_MOVE , 2 , _XP , _JUST_LONG_PRESSED_RELEASED , fMove , _XP) ;
 fillMPage (_P_MOVE , 3 , _ZP , _JUST_LONG_PRESSED_RELEASED , fMove , _ZP) ;
-fillMPage (_P_MOVE , 4 , _AM , _JUST_LONG_PRESSED_RELEASED , fMove , _AM) ;
-fillMPage (_P_MOVE , 5 , _YM , _JUST_LONG_PRESSED_RELEASED , fMove , _YM) ;
-fillMPage (_P_MOVE , 6 , _AP , _JUST_LONG_PRESSED_RELEASED , fMove , _AP) ;
-fillMPage (_P_MOVE , 7 , _ZM , _JUST_LONG_PRESSED_RELEASED , fMove , _ZM) ;
-#else
-fillMPage (_P_MOVE , 1 , _YP , _JUST_LONG_PRESSED_RELEASED , fMove , _YP) ;
-fillMPage (_P_MOVE , 3 , _ZP , _JUST_LONG_PRESSED_RELEASED , fMove , _ZP) ;
 fillMPage (_P_MOVE , 5 , _YM , _JUST_LONG_PRESSED_RELEASED , fMove , _YM) ;
 fillMPage (_P_MOVE , 7 , _ZM , _JUST_LONG_PRESSED_RELEASED , fMove , _ZM) ;
-fillMPage (_P_MOVE , 8 , _XM , _JUST_LONG_PRESSED_RELEASED , fMove , _XM) ;
-fillMPage (_P_MOVE , 10 , _XP , _JUST_LONG_PRESSED_RELEASED , fMove , _XP) ;
-#endif
-fillMPage (_P_MOVE , POS_OF_MOVE_D_AUTO , _D_AUTO , _JUST_PRESSED , fDist, _D_AUTO) ;  // -1 because range here is 0...11 
-fillMPage (_P_MOVE , 11 , _BACK , _JUST_PRESSED , fGoBack , 0) ;
+if (NbAxes == XYZA) {
+	fillMPage (_P_MOVE , 10 , _GOTO_A_AXES , _JUST_PRESSED , fGoToPage , _P_MOVE_ABC) ;
+} else if (NbAxes == XYZAB) {
+	fillMPage (_P_MOVE , 10 , _GOTO_AB_AXES , _JUST_PRESSED , fGoToPage , _P_MOVE_ABC) ;
+} else if (NbAxes == XYZABC) {
+	fillMPage (_P_MOVE , 10 , _GOTO_ABC_AXES , _JUST_PRESSED , fGoToPage , _P_MOVE_ABC) ;
+}
+fillMPage (_P_MOVE , /*9*/POS_OF_MOVE_D_AUTO , _D_AUTO , _JUST_PRESSED , fDist, _D_AUTO) ;  // -1 because range here is 0...11 
+fillMPage (_P_MOVE , 11 , _SETUP , _JUST_PRESSED , fGoToPage , _P_SETUP) ;
 
 mPages[_P_SETXYZ].titel = "" ;  
 mPages[_P_SETXYZ].pfBase = fSetXYZBase ;
 fillMPage (_P_SETXYZ , 4 , _SETX , _JUST_PRESSED , fSetXYZ , _SETX) ;
 fillMPage (_P_SETXYZ , 5 , _SETY , _JUST_PRESSED , fSetXYZ , _SETY) ;
 fillMPage (_P_SETXYZ , 6 , _SETZ, _JUST_PRESSED , fSetXYZ , _SETZ) ;
-#ifdef AA_AXIS
-fillMPage (_P_SETXYZ , 7 , _SETA, _JUST_PRESSED , fSetXYZ , _SETA) ;
-fillMPage (_P_SETXYZ , 8 , _SETXYZ , _JUST_PRESSED , fSetXYZ , _SETXYZ) ;
-fillMPage (_P_SETXYZ , 9 , _SETXYZA , _JUST_PRESSED , fSetXYZ , _SETXYZA) ;
-#else
-fillMPage (_P_SETXYZ , 8 , _SETXYZ , _JUST_PRESSED , fSetXYZ , _SETXYZ) ;
-#endif
+fillMPage (_P_SETXYZ , 7 , _SETXYZ , _JUST_PRESSED , fSetXYZ , _SETXYZ) ;
+if (NbAxes == XYZA) {
+	fillMPage (_P_SETXYZ , 8 , _SETA , _JUST_PRESSED , fSetXYZ , _SETA) ;
+} else if (NbAxes == XYZAB) {
+	fillMPage (_P_SETXYZ , 8 , _SETAB , _JUST_PRESSED , fSetXYZ , _SETAB) ;
+} else if (NbAxes == XYZABC) {
+	fillMPage (_P_SETXYZ , 8 , _SETABC , _JUST_PRESSED , fSetXYZ , _SETABC) ;
+}
 fillMPage (_P_SETXYZ , 10 , _SETUP , _JUST_PRESSED , fGoToPage , _P_SETUP ) ;
 fillMPage (_P_SETXYZ , 11 , _INFO , _JUST_PRESSED , fGoToPage , _P_INFO ) ;
 
@@ -385,6 +436,64 @@ fillMPage (_P_PAUSE_GRBL , 7 , _OVERWRITE , _JUST_PRESSED , fGoToPage , _P_OVERW
 fillMPage (_P_PAUSE_GRBL , 11 , _INFO , _JUST_PRESSED , fGoToPage , _P_INFO) ;
 
 
+// Ajout de la page de déplacements des axes A, B et C
+mPages[_P_MOVE_ABC].titel = "" ;
+mPages[_P_MOVE_ABC].pfBase = fMoveABCBase ;
+if (NbAxes == XYZA) {
+	fillMPage (_P_MOVE_ABC , 0 , _ARROW_A_NEG , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_A_NEG) ;
+	fillMPage (_P_MOVE_ABC , 2 , _ARROW_A_POS , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_A_POS) ;
+} else if (NbAxes == XYZAB) {
+	fillMPage (_P_MOVE_ABC , 0 , _ARROW_A_NEG , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_A_NEG) ;
+	fillMPage (_P_MOVE_ABC , 2 , _ARROW_A_POS , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_A_POS) ;
+	fillMPage (_P_MOVE_ABC , 1 , _ARROW_B_POS , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_B_POS) ;
+	fillMPage (_P_MOVE_ABC , 5 , _ARROW_B_NEG , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_B_NEG) ;
+} else if (NbAxes == XYZABC) {
+	fillMPage (_P_MOVE_ABC , 0 , _ARROW_A_NEG , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_A_NEG) ;
+	fillMPage (_P_MOVE_ABC , 2 , _ARROW_A_POS , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_A_POS) ;
+	fillMPage (_P_MOVE_ABC , 1 , _ARROW_B_POS , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_B_POS) ;
+	fillMPage (_P_MOVE_ABC , 5 , _ARROW_B_NEG , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_B_NEG) ;
+	fillMPage (_P_MOVE_ABC , 3 , _ARROW_C_POS , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_C_POS) ;
+	fillMPage (_P_MOVE_ABC , 7 , _ARROW_C_NEG , _JUST_LONG_PRESSED_RELEASED , fMove , _ARROW_C_NEG) ;
+}
+fillMPage (_P_MOVE_ABC , /*9*/POS_OF_MOVE_D_AUTO_ABC , _D_AUTO , _JUST_PRESSED , fDist, _D_AUTO) ;
+fillMPage (_P_MOVE_ABC , 10 , _BACK_XYZ , _JUST_PRESSED , fGoToPage , _P_MOVE) ;
+fillMPage (_P_MOVE_ABC , 11 , _SETUP , _JUST_PRESSED , fGoToPage , _P_SETUP ) ;
+
+//Ajout de la page paramètres avancés
+#ifdef ADVANCED_PARAMETERS
+fillMPage (_P_PRINT , 9 , _ADVANCED_PARAM , _JUST_PRESSED , fGoToPage , _P_ADVANCED_PARAM) ;
+mPages[_P_ADVANCED_PARAM].titel = "" ;
+mPages[_P_ADVANCED_PARAM].pfBase = fNoBase ; //fAdvParamBase ;
+fillMPage (_P_ADVANCED_PARAM , 0 , _REBOOT_SCREEN , _JUST_PRESSED , fAdvParam , _REBOOT_SCREEN) ;
+fillMPage (_P_ADVANCED_PARAM , 1 , _REBOOT_GRBL , _JUST_PRESSED , fAdvParam , _REBOOT_GRBL) ;
+fillMPage (_P_ADVANCED_PARAM , 2 , _RECONNECT_WIFI , _JUST_PRESSED , fAdvParam , _RECONNECT_WIFI) ;
+//Zfficher les infos du nunchuck
+//Calibrage écran + debug écran ?
+fillMPage (_P_ADVANCED_PARAM , 3 , _NB_AXIS , _JUST_PRESSED , fGoToPage , _P_NB_AXIS) ;
+fillMPage (_P_ADVANCED_PARAM , 4 , _CHANGE_ROTATION , _JUST_PRESSED , fAdvParam , _CHANGE_ROTATION) ;
+#ifdef SCREEN_DEBUG
+fillMPage (_P_ADVANCED_PARAM , 5 , _SCREEEN_CAL , _JUST_PRESSED , fAdvParam , _SCREEEN_CAL) ;
+fillMPage (_P_ADVANCED_PARAM , 6 , _RECONNECT_GRBL , _JUST_PRESSED , fAdvParam , _RECONNECT_GRBL) ;
+#endif
+fillMPage (_P_ADVANCED_PARAM , 11 , _PRINT , _JUST_PRESSED , fGoToPage , _P_PRINT ) ;
+//Debug Nunchuk
+
+
+// Ajout de la page pour choisir le nombre d'axes
+mPages[_P_NB_AXIS].titel = "" ;
+mPages[_P_NB_AXIS].pfBase = fNoBase ; //fAdvParamBase ;
+fillMPage (_P_NB_AXIS , 0 , _AXIS_XYZ , _JUST_PRESSED , fAdvParam , _AXIS_XYZ) ;
+fillMPage (_P_NB_AXIS , 1 , _AXIS_XYZA , _JUST_PRESSED , fAdvParam , _AXIS_XYZA) ;
+fillMPage (_P_NB_AXIS , 2 , _AXIS_XYZAB , _JUST_PRESSED , fAdvParam , _AXIS_XYZAB) ;
+fillMPage (_P_NB_AXIS , 3 , _AXIS_XYZABC , _JUST_PRESSED , fAdvParam , _AXIS_XYZABC) ;
+
+fillMPage (_P_NB_AXIS , 11 , _ADVANCED_PARAM , _JUST_PRESSED , fGoToPage , _P_ADVANCED_PARAM ) ;
+
+#endif
+
+
+
+
 // ************************** Fill the messages ****************************
 mText[_WPOS].pLabel = __WPOS ;
 mText[_MPOS].pLabel = __MPOS ;
@@ -433,8 +542,9 @@ mText[_SETX_EXECUTED].pLabel = __SETX_EXECUTED ;
 mText[_SETY_EXECUTED].pLabel = __SETY_EXECUTED ;
 mText[_SETZ_EXECUTED].pLabel = __SETZ_EXECUTED ;
 mText[_SETA_EXECUTED].pLabel = __SETA_EXECUTED ;
+mText[_SETAB_EXECUTED].pLabel = __SETAB_EXECUTED ;
+mText[_SETABC_EXECUTED].pLabel = __SETABC_EXECUTED ;
 mText[_SETXYZ_EXECUTED].pLabel = __SETXYZ_EXECUTED ;
-mText[_SETXYZA_EXECUTED].pLabel = __SETXYZA_EXECUTED ;
 mText[_SET_CHANGE_EXECUTED].pLabel = __SET_CHANGE_EXECUTED ;
 mText[_SET_PROBE_EXECUTED].pLabel = __SET_PROBE_EXECUTED ;
 mText[_SET_CAL_EXECUTED].pLabel = __SET_CAL_EXECUTED ;

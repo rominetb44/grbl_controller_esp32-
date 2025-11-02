@@ -71,12 +71,6 @@ const uint8_t zpIcon[] = {
 const uint8_t zmIcon[] = {
 #include "icons/bmp74/arrow_Zdown_button.h"  
 };
-const uint8_t apIcon[] = {
-#include "icons/bmp74/arrow_Apos_button.h"		//added by HTheatre
-};
-const uint8_t amIcon[] = {
-#include "icons/bmp74/arrow_Aneg_button.h"  	//added by HTheatre
-};						  
 const uint8_t dAutoIcon[] = {
 #include "icons/bmp74/pitch_auto_button.h"  
 };
@@ -99,23 +93,17 @@ const uint8_t setWCSIcon[] = {
 #include "icons/bmp74/set_WCS_button.h"  
 };
 const uint8_t setXIcon[] = {
-#include "icons/bmp74/setX_button.h"  
+#include "icons/bmp74/set_X_button.h"  
 };
 const uint8_t setYIcon[] = {
-#include "icons/bmp74/setY_button.h"  
+#include "icons/bmp74/set_Y_button.h"  
 };
 const uint8_t setZIcon[] = {
-#include "icons/bmp74/setZ_button.h"  
-};
-const uint8_t setAIcon[] = {					//added by HTheatre
-#include "icons/bmp74/setA_button.h"			//added by HTheatre
+#include "icons/bmp74/set_Z_button.h"  
 };
 const uint8_t setXYZIcon[] = {
-#include "icons/bmp74/setXYZ_button.h"  
+#include "icons/bmp74/set_XYZ_button.h"  
 };
-const uint8_t setXYZAIcon[] = {					//added by HTheatre
-#include "icons/bmp74/setXYZA_button.h"			//added by HTheatre
-};					 
 const uint8_t toolIcon[] = {
 #include "icons/bmp74/tool_button.h"  
 };
@@ -126,7 +114,7 @@ const uint8_t backIcon[] = {
 //#include "icons/bmp74/.h"  
 //};
 //const uint8_t rightIcon[] = {
-//#include "icons/bmp74/.h"  
+//#include "icons/bmp74/ .h"  
 //};
 const uint8_t upIcon[] = {
 #include "icons/bmp74/up_button.h"  
@@ -191,6 +179,79 @@ const uint8_t setProbeIcon[] = {
 const uint8_t GoProbeIcon[] = {
 #include "icons/bmp74/zprobe_button.h"  
 };
+const uint8_t backXyzIcon[] = {
+#include "icons/bmp74/back_XYZ_button.h"  
+};
+const uint8_t gotoAAxesIcon[] = {
+#include "icons/bmp74/go_to_A_axis_button.h"  
+};
+const uint8_t gotoABAxesIcon[] = {
+#include "icons/bmp74/go_to_AB_axes_button.h"  
+};
+const uint8_t gotoABCAxesIcon[] = {
+#include "icons/bmp74/go_to_ABC_axes_button.h"  
+};
+const uint8_t arrowANegIcon[] = {
+#include "icons/bmp74/arrow_Aneg_button.h"  
+};
+const uint8_t arrowAPosIcon[] = {
+#include "icons/bmp74/arrow_Apos_button.h"  
+};
+const uint8_t arrowBNegIcon[] = {
+#include "icons/bmp74/arrow_Bneg_button.h"  
+};
+const uint8_t arrowBPosIcon[] = {
+#include "icons/bmp74/arrow_Bpos_button.h"  
+};
+const uint8_t arrowCNegIcon[] = {
+#include "icons/bmp74/arrow_Cneg_button.h"  
+};
+const uint8_t arrowCPosIcon[] = {
+#include "icons/bmp74/arrow_Cpos_button.h"  
+};
+const uint8_t deleteIcon[] = {
+#include "icons/bmp74/delete_button.h"  
+};
+const uint8_t setAIcon[] = {
+#include "icons/bmp74/set_A_button.h"  
+};
+const uint8_t setABIcon[] = {
+#include "icons/bmp74/set_AB_button.h"  
+};
+const uint8_t setABCIcon[] = {
+#include "icons/bmp74/set_ABC_button.h"  
+};
+const uint8_t advParametersIcon[] = {
+#include "icons/bmp74/adv_parameters_button.h"  
+};
+const uint8_t setAxisNumberIcon[] = {
+#include "icons/bmp74/change_axes_nber_button.h"  
+};
+const uint8_t rotateTFTIcon[] = {
+#include "icons/bmp74/rotate_tft_button.h"  
+};
+const uint8_t rebootTFTIcon[] = {
+#include "icons/bmp74/reboot_TFT_button.h"  
+};
+const uint8_t rebootGRBLIcon[] = {
+#include "icons/bmp74/reboot_grbl_fluid_button.h"  
+};
+const uint8_t reconnectWifiScreenIcon[] = {
+#include "icons/bmp74/reconnect_wifi_screen_button.h" 
+};
+const uint8_t set3axesCNCIcon[] = {
+#include "icons/bmp74/set_3axes_cnc_button.h"
+};
+const uint8_t set4axesCNCIcon[] = {
+#include "icons/bmp74/set_4axes_cnc_button.h"
+};
+const uint8_t set5axesCNCIcon[] = {
+#include "icons/bmp74/set_5axes_cnc_button.h"
+};
+const uint8_t set6axesCNCIcon[] = {
+#include "icons/bmp74/set_6axes_cnc_button.h"
+};
+
 
 //********************************************* 4" TFT
 #elif defined(TFT_SIZE) and (TFT_SIZE == 4)
@@ -261,12 +322,6 @@ const uint8_t zpIcon[] = {
 const uint8_t zmIcon[] = {
 #include "icons/bmp100/arrow_Zdown_button.h"  
 };
-const uint8_t apIcon[] = {							//added by HTheatre
-#include "icons/bmp100/arrow_Apos_button.h"			//added by HTheatre  
-};
-const uint8_t amIcon[] = {							//added by HTheatre
-#include "icons/bmp100/arrow_Aneg_button.h"			//added by HTheatre  
-};
 const uint8_t dAutoIcon[] = {
 #include "icons/bmp100/pitch_auto_button.h"  
 };
@@ -289,22 +344,16 @@ const uint8_t setWCSIcon[] = {
 #include "icons/bmp100/set_WCS_button.h"  
 };
 const uint8_t setXIcon[] = {
-#include "icons/bmp100/setX_button.h"  
+#include "icons/bmp100/set_X_button.h"  
 };
 const uint8_t setYIcon[] = {
-#include "icons/bmp100/setY_button.h"  
+#include "icons/bmp100/set_Y_button.h"  
 };
 const uint8_t setZIcon[] = {
-#include "icons/bmp100/setZ_button.h"  
-};
-const uint8_t setAIcon[] = {
-#include "icons/bmp100/setA_button.h"  
+#include "icons/bmp100/set_Z_button.h"  
 };
 const uint8_t setXYZIcon[] = {
-#include "icons/bmp100/setXYZ_button.h"  
-};
-const uint8_t setXYZAIcon[] = {
-#include "icons/bmp100/setXYZA_button.h"  
+#include "icons/bmp100/set_XYZ_button.h"  
 };
 const uint8_t toolIcon[] = {
 #include "icons/bmp100/tool_button.h"  
@@ -397,6 +446,79 @@ const uint8_t setProbeIcon[] = {
 };
 const uint8_t GoProbeIcon[] = {
 #include "icons/bmp100/zprobe_button.h"  
+};
+
+const uint8_t backXyzIcon[] = {
+#include "icons/bmp100/back_XYZ_button.h"  
+};
+const uint8_t gotoAAxesIcon[] = {
+#include "icons/bmp100/go_to_A_axis_button.h"  
+};
+const uint8_t gotoABAxesIcon[] = {
+#include "icons/bmp100/go_to_AB_axes_button.h"  
+};
+const uint8_t gotoABCAxesIcon[] = {
+#include "icons/bmp100/go_to_ABC_axes_button.h"  
+};
+const uint8_t arrowANegIcon[] = {
+#include "icons/bmp100/arrow_Aneg_button.h"  
+};
+const uint8_t arrowAPosIcon[] = {
+#include "icons/bmp100/arrow_Apos_button.h"  
+};
+const uint8_t arrowBNegIcon[] = {
+#include "icons/bmp100/arrow_Bneg_button.h"  
+};
+const uint8_t arrowBPosIcon[] = {
+#include "icons/bmp100/arrow_Bpos_button.h"  
+};
+const uint8_t arrowCNegIcon[] = {
+#include "icons/bmp100/arrow_Cneg_button.h"  
+};
+const uint8_t arrowCPosIcon[] = {
+#include "icons/bmp100/arrow_Cpos_button.h"  
+};
+const uint8_t setAIcon[] = {
+#include "icons/bmp100/set_A_button.h"  
+};
+const uint8_t setABIcon[] = {
+#include "icons/bmp100/set_AB_button.h"  
+};
+const uint8_t setABCIcon[] = {
+#include "icons/bmp100/set_ABC_button.h"  
+};
+const uint8_t advParametersIcon[] = {
+#include "icons/bmp100/adv_parameters_button.h"
+};
+const uint8_t setAxisNumberIcon[] = {
+#include "icons/bmp100/change_axes_nber_button.h"
+};
+const uint8_t rotateTFTIcon[] = {
+#include "icons/bmp100/rotate_tft_button.h" 
+};
+const uint8_t rebootTFTIcon[] = {
+#include "icons/bmp100/reboot_TFT_button.h"
+};
+const uint8_t rebootGRBLIcon[] = {
+#include "icons/bmp100/reboot_grbl_fluid_button.h"  
+};
+const uint8_t reconnectWifiScreenIcon[] = {
+#include "icons/bmp100/reconnect_wifi_screen_button.h"
+};
+const uint8_t set2axesCNCIcon[] = {
+#include "icons/bmp100/set_2axes_cnc_button.h"
+};
+const uint8_t set3axesCNCIcon[] = {
+#include "icons/bmp100/set_3axes_cnc_button.h"
+};
+const uint8_t set4axesCNCIcon[] = {
+#include "icons/bmp100/set_4axes_cnc_button.h"
+};
+const uint8_t set5axesCNCIcon[] = {
+#include "icons/bmp100/set_5axes_cnc_button.h"
+};
+const uint8_t set6axesCNCIcon[] = {
+#include "icons/bmp100/set_6axes_cnc_button.h"
 };
 
 

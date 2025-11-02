@@ -31,6 +31,7 @@
   
 #define WAIT_OK_SD_TIMEOUT 120000
 
+#define MAX_LINE_LENGTH_TO_GRBL 200
 
 
 uint8_t grblLink = GRBL_LINK_SERIAL ;
@@ -43,9 +44,9 @@ uint8_t getGrblPosState = GET_GRBL_STATUS_CLOSED ;
 float feedSpindle[2] ;  // first is FeedRate, second is Speed
 float bufferAvailable[2] ;  // first is number of blocks available in planner, second is number of chars available in serial buffer
 float overwritePercent[3] ; // first is for feedrate, second for rapid (G0...), third is for RPM
-float wcoXYZA[4] ;           // 4 because we can support 4 axis
-float wposXYZA[4] ;
-float mposXYZA[4] ;
+float wcoXYZA[6] ;           // 4 because we can support 4 axis
+float wposXYZA[6] ;
+float mposXYZA[6] ;
 
 extern Preferences preferences ; // object from ESP32 lib used to save/get data in flash 
 
@@ -57,6 +58,7 @@ char G30SavedY[12] = "0.0" ; // store the value of G30 Y offset in a message rec
 char printString[250] = {0} ;       // contains a command to be send from a string; wait for OK after each 0x13 char
 char * pPrintString = printString ;
 uint8_t lastStringCmd ;
+char actualReadDir[250] = {0};		// Repertoire de lecture des fichiers de la carte SD sous FluidNC
 
 char strGrblBuf[STR_GRBL_BUF_MAX_SIZE] ; // this buffer is used to store a few char received from GRBL before decoding them
 uint8_t strGrblIdx ;
@@ -67,6 +69,8 @@ extern int8_t jogDistX ;
 extern int8_t jogDistY ;
 extern int8_t jogDistZ ;
 extern int8_t jogDistA ;
+extern int8_t jogDistB ;
+extern int8_t jogDistC ;
 
 extern float moveMultiplier ;
 // used by nunchuck
@@ -109,7 +113,7 @@ extern char grblFileNames[GRBLFILEMAX][40]; // contain n filename or directory n
 extern int grblFileIdx ; // index in the array where next file name being parse would be written
 uint32_t millisLastGetGBL = 0 ;
 extern int8_t errorGrblFileReading ; // store the error while reading grbl files (0 = no error)
-float decodedFloat[4] ; // used to convert 4 floats comma delimited when parsing a status line
+float decodedFloat[6] ; // used to convert 4 floats comma delimited when parsing a status line
 float runningPercent ; // contains the percentage of char being sent to GRBL from SD card on GRBL_ESP32; to check if it is valid
 boolean runningFromGrblSd = false ; // indicator saying that we are running a job from the GRBL Sd card ; is set to true when status line contains SD:
 
@@ -132,14 +136,17 @@ void getFromGrblAndForward( void ) {   //get char from GRBL, forward them if sta
       if ( statusPrinting == PRINTING_FROM_USB  ) {
         Serial.print( (char) c) ;                         // forward characters from GRBL to PC when PRINTING_FROM_USB
       }
-      sendViaTelnet((char) c) ;                   // forward characters from GRBL to telnet when PRINTING_FROM_TELNET
+	  if ( statusPrinting == PRINTING_FROM_TELNET  ) {
+        sendViaTelnet((char) c) ;                   // forward characters from GRBL to telnet when PRINTING_FROM_TELNET
+	  }
       if ( c == 0x0A ) {
         lineToDecode[lineToDecodeIdx] = 0 ; // add a 0 to close the string
         //Serial.print("To decode="); Serial.println(lineToDecode);
         decodeGrblLine(lineToDecode) ; // decode the line
         lineToDecodeIdx =  0; // reset the position
         lineToDecode[lineToDecodeIdx] = '\0' ;
-      } else {                // store the char
+		//millisDataExGRBL = millis();
+      } else if (c >= 0x0A && c <= 0x7E) {                // filtre les caractères illisibles
         lineToDecode[lineToDecodeIdx] = c;
         if (lineToDecodeIdx < (MAX_LINE_LENGTH_FROM_GRBL - 2) ) lineToDecodeIdx++ ;  
       }
@@ -196,7 +203,7 @@ void decodeGrblLine(char * line){  // decode a full line when CR or LF is receiv
 }
 
 void parseErrorLine(const char * line){ // extract error code, convert it in txt
-  int errorNum = atoi( &line[6]) ;
+  /*int errorNum = atoi( &line[6]) ;
   int errorNumCorr;
   errorNumCorr = errorNum ;
   if (errorNum < 1 || errorNum > 70 ) errorNumCorr = 0 ;
@@ -208,7 +215,14 @@ void parseErrorLine(const char * line){ // extract error code, convert it in txt
   if ( errorNum >= 60 && errorNum <= 69 ) {
     errorGrblFileReading = errorNum +20; // save the grbl error (original value)
     parseGrblFilesStatus = PARSING_FILE_NAMES_DONE ; // inform main loop that callback function must be executed
-  }
+  }*/
+  
+  //Le nombre d'erreurs dans FluidNC est supérieur à 70.
+  int errorNum = atoi( &line[6]) ;
+  if (errorNum < 1 || errorNum > _MAX_GRBL_ERRORS - 1 ) errorNum = 0 ;
+  memccpy ( lastMsg , mGrblErrors[errorNum].pLabel , '\0' , 79); // fill Message ; note: it is also added to Log
+  lastMsgColor = SCREEN_ALERT_TEXT ;
+  lastMsgChanged = true ;
 }
 
 void parseAlarmLine(const char * line){
@@ -228,19 +242,16 @@ void parseMsgLine(char * line) {  // parse Msg line from GRBL
      char * pSearch ;
      char * pEndNumber1 ;
      char * pEndNumber2 ;
-     if ( strncmp(line, "[FILE:", strlen("[FILE:")) == 0 ) {
+	 if ( strncmp(line, "[DIR:", strlen("[DIR:")) == 0 ) {
+        parseDirLine( line + strlen("[DIR:"));
+        return; // do not log the Dir lines
+     } else if ( strncmp(line, "[FILE:", strlen("[FILE:")) == 0 ) {
         parseFileLine( line + strlen("[FILE:"));
         return; // do not log the File lines
      
-     } else if ( strncmp(line , "[SD Free:", strlen("[SD Free:")) == 0 ) {
+     } else if ( strncmp(line , "[SD Free:", strlen("[SD Free:")) == 0 || strncmp(line , "[/sd/ Free:", strlen("[/sd/ Free:")) == 0 ) {
         if ( parseGrblFilesStatus == PARSING_FILE_NAMES_RUNNING ) {
           parseGrblFilesStatus = PARSING_FILE_NAMES_DONE ; // mark that all lines have been read ; it allows main loop to handle the received list
-          //Serial.println("End of lile list");
-          //Serial.print("Nr of entries=");Serial.println(grblFileIdx);
-          //int i = 0; 
-          //for ( i  ; i < grblFileIdx ; i++) {
-            //Serial.print("file ="); Serial.println(grblFileNames[i]);
-          //}
           
         }
         return; // do not log the SD lines
@@ -272,14 +283,46 @@ void parseMsgLine(char * line) {  // parse Msg line from GRBL
 
   
 void parseFileLine(char * line ){  // parse file line from GRBL; "[FILE:" is alredy removed
-  // line looks like [FILE:/dir1/TestDir3.nc|SIZE:5]  [FILE: is alredy removed
-  // grblDirFilter is supposed to contains "/" or "/abc/" or "/abc/de/" (so last char = "/"
-  char * sizePtr ;
-  char * fileNameOrDirPtr ;
-  char * firstNextDirPtr ;
-  int grblDirFilterLen = strlen(grblDirFilter) ; 
-  sizePtr = strchr(line , '|' );  // search for | to separate name from to size
-  //if (parseGrblFilesStatus == PARSING_FILE_NAMES_RUNNING) {      // process line only if requested
+	// line looks like [FILE:/dir1/TestDir3.nc|SIZE:5]  [FILE: is alredy removed
+	// grblDirFilter is supposed to contains "/" or "/abc/" or "/abc/de/" (so last char = "/"
+	char * sizePtr ;
+	char * fileNameOrDirPtr ;
+	char * firstNextDirPtr ;
+	int grblDirFilterLen = strlen(grblDirFilter) ; 
+	//if (parseGrblFilesStatus == PARSING_FILE_NAMES_RUNNING) {      // process line only if requested
+  
+    //Adaptation de la fonction pour FluidNC : modifie le nom des fichiers
+	//au format GRBL
+	if (*actualReadDir != '\0') {	//Adaptation FLuidNC
+		char tempStr[512] = {0} ;
+		uint8_t i = 0;
+		
+		//Calcule du nombre de sous repertoire actuel en comptant les espaces
+		while (*(line + i) == ' ') {	
+			i++; 
+		}
+		
+		// Il ne doit pas y avoir 0 espaces dans un nom de fichier
+		if (i == 0)  i=1;
+
+		//Modification du nom des fihiers pour remplacer les espaces par le nom des repertoires
+		strcpy(tempStr, actualReadDir);
+		char *tempSlashStr = tempStr;
+		for (int j = 0 ; j < i ; j++) {
+			tempSlashStr = strchr(tempSlashStr, '/');
+			if (!tempSlashStr) return;
+			tempSlashStr++;
+		}
+		tempSlashStr[0] = '\0';
+		strcat(tempStr, line + i);
+		strcpy(line, tempStr);
+		
+		/*for (int j = 0 ; j < strlen(line) ; j++)
+			Serial.print(line[j]);
+		Serial.println("");*/
+	}
+	
+	sizePtr = strchr(line , '|' );  // search for | to separate name from to size
     if ( sizePtr == NULL) return ; // discard the line if it does not contains | separator between name and size
     *sizePtr = '\0' ;  //Replace | with string terminator
     if ( strncmp(line , grblDirFilter , grblDirFilterLen ) != 0 )  { // discard the line if it does not contains the dirFilter
@@ -312,6 +355,46 @@ void parseFileLine(char * line ){  // parse file line from GRBL; "[FILE:" is alr
 }
 
 
+// Fonction spécifique à FluidNC qui permet de stocker le repertoire en cours dans une variable - actualReadDir -
+// au format de GRBL
+void parseDirLine(char * line ){
+	uint8_t i = 0;
+	char * strTemp;
+	
+	//Initialisation de actualReadDir
+	if (actualReadDir[0] != '/') {
+		actualReadDir[0] = '/';
+		actualReadDir[1] = '\0';
+	}
+	
+	//Compatbilise le nombre d'espaces devant le nom du repetoire
+	while (*(line + i) == ' ') {	//Calcule du nombre de sous repertoire actuel en comptant les espaces
+		i++; 
+	}
+	
+	// On se positionne sur le bon nom de repertoire en fonction du nombre d'espacces
+	strTemp = actualReadDir;
+	//Serial.println(strTemp);
+	for (int j = 0 ; j <= i ; j++) {
+		/*char * strPosSlash;
+		strPosSlash = strchr(strTemp, '/');
+		if (strPosSlash == NULL)
+			break;
+		strTemp = strPosSlash;*/
+		strTemp = strchr(strTemp, '/');
+		if (!strTemp) return;
+		strTemp++;
+	}
+	
+	//Ajoute le nom du nouveau repertoire
+	strncpy(strTemp, line + i , strlen(line) - 2 - i);
+	strTemp[strlen(line) - 1 - i - 1] = '/';
+	strTemp[strlen(line) - i - 1] = '\0';
+	
+	//Serial.println(actualReadDir);
+}
+
+
 void parseSatusLine(char * line) {
 // GRBL status are : Idle, Run, Hold, Jog, Alarm, Door, Check, Home, Sleep
 // a message should look like (note : GRBL sent or WPOS or MPos depending on grbl parameter : to get WPos, we have to set "$10=0"
@@ -337,7 +420,7 @@ void parseSatusLine(char * line) {
    //Serial.print("line="); Serial.println(line);
    //Serial.print("line len") ; Serial.println(strlen(line)); 
    //Serial.print("line[len-2]= "); Serial.println(line[strlen(line) -2]);
-   if ( line[strlen(line) -2] != '>' ) return ; // discard if last char is not '>'
+   if ( line[strlen(line) -1] != '>' && line[strlen(line) -2] != '>' ) return ; // discard if last char is not '>'
       pBegin = line + 1;
       pEndType = strchr( pBegin , '|' ) ;
       *pEndType = '\0' ; // replace | by 0 in order to let memccpy copy end of string too 
@@ -350,19 +433,19 @@ void parseSatusLine(char * line) {
           if (pEndType ) {
               decodeFloat(pEndType+1) ;
               if ( strncmp( pBegin, "MPos:" , strlen("MPos:") ) == 0 ) {
-                  for (uint8_t i=0 ; i<4 ; i++) {
+                  for (uint8_t i=0 ; i<6 ; i++) {
                     mposXYZA[i] = decodedFloat[i] ;
                     wposXYZA[i] = mposXYZA[i] - wcoXYZA[i] ;
                     MPosOrWPos = 'M' ;
                   }      
               } else if ( strncmp( pBegin, "WPos:" , strlen("WPos:") )== 0 ) {
-                  for (uint8_t i=0  ; i<4 ; i++) {
+                  for (uint8_t i=0  ; i<6 ; i++) {
                     wposXYZA[i] = decodedFloat[i] ;
                     mposXYZA[i] = wposXYZA[i] + wcoXYZA[i] ;
                     MPosOrWPos = 'W' ;
                   }  
               } else if ( strncmp( pBegin, "WCO:" , strlen("WCO:") ) ==0 ){
-                  for (uint8_t i=0 ; i<4 ; i++) {
+                  for (uint8_t i=0 ; i<6 ; i++) {
                       wcoXYZA[i] =  decodedFloat[i] ;
                       if ( MPosOrWPos == 'W') {                  // we previously had a WPos so we update MPos
                         mposXYZA[i] = wposXYZA[i] + wcoXYZA[i] ;  
@@ -405,17 +488,19 @@ void decodeFloat(char * pSection) { // decode up to 4 float numbers comma delimi
   decodedFloat[1] = 0;
   decodedFloat[2] = 0;
   decodedFloat[3] = 0;
+  decodedFloat[4] = 0;
+  decodedFloat[5] = 0;
   char * pEndNum ;
   int i = 0 ;
   pEndNum = strpbrk ( pSection , ",|>") ; // cherche un dernier caractère valide après le nombre
-  while ( (i < 4) && pEndNum) { // decode max 4 floats
+  while ( (i < 6) && pEndNum) { // decode max 4 floats
       decodedFloat[i] = atof (pSection) ;
       if ( *pEndNum == ',') { // if last char is ',', then we loop
         pSection =  pEndNum + 1;
         i++; 
         pEndNum = strpbrk ( pSection , ",|>") ; // search first char that end the section and return the position of this end
       } else {
-        i=4; // force to exit while when the last char was not a comma
+        i=6; // force to exit while when the last char was not a comma
       }
   }    
 }
@@ -454,7 +539,7 @@ void sendToGrbl( void ) {
           case PRINTING_FROM_TELNET :
             while ( telnetClient.available() && statusPrinting == PRINTING_FROM_TELNET ) {
               sdChar = telnetClient.read() ;
-              toGrbl( (char) sdChar ) ;
+			  toGrbl( (char) sdChar ) ;
               //Serial2.print( (char) sdChar ) ;
             } // end while       
             break ;
@@ -486,6 +571,9 @@ void sendToGrbl( void ) {
 
 void sendFromSd() {        // send next char from SD; close file at the end
       int sdChar ;
+	  char dataToSendBuffer[MAX_LINE_LENGTH_TO_GRBL];
+	  uint8_t bufferPos = 0;
+	  dataToSendBuffer[bufferPos] = '\0';
       waitOkWhenSdMillis = millis()  + WAIT_OK_SD_TIMEOUT ;  // set time out on 
       while ( aDir[dirLevel+1].available() > 0 && (! waitOk) && statusPrinting == PRINTING_FROM_SD && ( (grblLink == GRBL_LINK_SERIAL)?Serial2.availableForWrite() > 2: true) ) {
           sdChar = aDir[dirLevel+1].read() ;
@@ -494,14 +582,25 @@ void sendFromSd() {        // send next char from SD; close file at the end
             updateFullPage = true ;           // force to redraw the whole page because the buttons haved changed
           } else {
             sdNumberOfCharSent++ ;
-            if( sdChar != 13 && sdChar != ' ' ){             // 13 = carriage return; do not send the space.
+            if( sdChar != 0x0D && sdChar != ' ' ){             // 13 = carriage return; do not send the space.
                                                              // to do : skip the comments
-              toGrbl((char) sdChar ) ;
-              //Serial2.print( (char) sdChar ) ;
+              //toGrbl((char) sdChar ) ;
+			  dataToSendBuffer[bufferPos++] = (char) sdChar;
             }
             if ( sdChar == '\n' ) {        // n= new line = line feed = 10 decimal
                waitOk = true ;
-            }
+			   dataToSendBuffer[bufferPos] = '\0';
+			   toGrbl(dataToSendBuffer);
+			   Serial.print(dataToSendBuffer) ; Serial.print('\r');
+			   bufferPos = 0;
+			   dataToSendBuffer[bufferPos] = '\0';
+            } else if ( bufferPos >= MAX_LINE_LENGTH_TO_GRBL - 2 ) {
+				dataToSendBuffer[bufferPos] = '\0';
+				toGrbl(dataToSendBuffer);
+				Serial.print(dataToSendBuffer) ;
+			    bufferPos = 0;
+				dataToSendBuffer[bufferPos] = '\0';
+			}
           }
       } // end while
       if ( aDir[dirLevel+1].available() == 0 ) { 
@@ -537,7 +636,7 @@ void sendFromCmd() {
 
 void sendFromString(){
     char strChar ;   
-    float savedWposXYZA[4] ; 
+    float savedWposXYZA[6] ; 
     waitOkWhenSdMillis = millis()  + WAIT_OK_SD_TIMEOUT ;  // set time out on 
     while ( *pPrintString != 0 && (! waitOk) && statusPrinting == PRINTING_STRING  ) {
       strChar = *pPrintString ++;
@@ -751,6 +850,28 @@ boolean sendJogCmd(uint32_t startTime) {
           bufferise2Grbl(sdistanceMove) ;
           //Serial2.print(distanceMove) ;
         }
+		if (jogDistB > 0) {
+          bufferise2Grbl(" B") ;
+          //Serial2.print(" B") ;
+        } else if (jogDistB ) {
+          bufferise2Grbl(" B-") ;
+          //Serial2.print(" B-") ;
+        }
+        if (jogDistB ) {
+          bufferise2Grbl(sdistanceMove) ;
+          //Serial2.print(distanceMove) ;
+        }
+		if (jogDistC > 0) {
+          bufferise2Grbl(" C") ;
+          //Serial2.print(" C") ;
+        } else if (jogDistC ) {
+          bufferise2Grbl(" C-") ;
+          //Serial2.print(" C-") ;
+        }
+        if (jogDistC ) {
+          bufferise2Grbl(sdistanceMove) ;
+          //Serial2.print(distanceMove) ;
+        }
         //Serial2.print(" F2000");  Serial2.print( (char) 0x0A) ;
         sprintf(sspeedMove, "%u" , speedMove); // convert to string integer
                 
@@ -792,7 +913,7 @@ void fillStringExecuteMsg( uint8_t buttonMessageIdx ) {   // buttonMessageIdx co
 void toGrbl(char c){  // send only one char to GRBL on Serial, Bluetooth or telnet 
   switch (grblLink) {
     case GRBL_LINK_SERIAL:
-      Serial2.print(c);
+      Serial2.print(c);	
       //Serial.print("send char="); Serial.println(c);
       break;
     case GRBL_LINK_BT :

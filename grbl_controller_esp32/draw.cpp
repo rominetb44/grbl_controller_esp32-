@@ -60,8 +60,8 @@ extern SdBaseFile aDir[DIR_LEVEL_MAX] ;
 extern char cmdName[11][17] ;          // contains the names of the commands
 
 extern uint8_t statusPrinting ;
-extern float wposXYZA[4] ;
-extern float mposXYZA[4] ;
+extern float wposXYZA[6] ;
+extern float mposXYZA[6] ;
 extern char machineStatus[9];
 extern float feedSpindle[2] ;  
 extern float overwritePercent[3] ; // first is for feedrate, second for rapid (G0...), third is for RPM
@@ -104,7 +104,7 @@ extern uint8_t logBuffer[MAX_BUFFER_SIZE] ;                              // log 
 extern uint8_t * pGet ; // position of the last char to be read for display
 uint8_t * pLastLogLine ; // pointer to the last Log line
 boolean endOfLog = true ;
-float wposMoveInitXYZA[4] ;
+float wposMoveInitXYZA[6] ;
 
 // previous values used to optimise redraw of INFO screen
 uint8_t statusPrintingPrev;
@@ -131,6 +131,10 @@ extern uint8_t fileToExecuteIdx ; // save the idex (0...3) of the file to be exe
 
 extern float runningPercent ; // contains the percentage of char being sent to GRBL from SD card on GRBL_ESP32; to check if it is valid
 extern boolean runningFromGrblSd  ; // indicator saying that we are running a job from the GRBL Sd card ; is set to true when status line contains SD:
+
+extern uint8_t NbAxes ; // can be XYZ(= 0), XYZA(= 1), XYZAB(= 2), XYZABC(= 3)
+
+extern uint8_t screenRotation ; //Rotation of the screen 1 or 3 ; //Rotation of the screen 1 or 3
 
 
 //**************** normal screen definition.
@@ -237,7 +241,7 @@ void tftInit() {
                 //#define TFT_RST  -1  // Set TFT_RST to -1 if display RESET is connected to ESP32 board RST
                 //Cette fonction met les pins en mode input/output; elle envoie aussi les commandes d'initialisation
   // Set the rotation before we calibrate
-  tft.setRotation(1); // normally, this is already done in tft.int() but it is not clear how is rotation set (probably 0); so it can be usefull to change it here
+  tft.setRotation(screenRotation); // normally, this is already done in tft.int() but it is not clear how is rotation set (probably 0); so it can be usefull to change it here
   
   //spiTouch.begin( TOUCH_SCLK , TOUCH_MISO ,TOUCH_MOSI , TOUCH_CS_PIN );
   touchscreen.begin(spiTouch , TOUCH_CS_PIN ) ; // specify the SPI being used (we do not use "SPI" = default from Arduino = HVSPI) and the pin used for touchscreen Chip select 
@@ -488,7 +492,7 @@ void updateBtnState( void) {
   justReleasedBtn = 0 ;  
   if ( touchMillis > nextMillis ) {    // s'il n'y a pas assez longtemps depuis la dernière lecture, on fait juste un reset des justPressedBtn et justReleasedBtn
     touchPressed = touchscreen.getTouch( &x,  &y, 600);   // read the touch screen; // later perhaps exit immediately if IrqPin is HIGH (not touched)
-                                                // false = key not pressed
+                                                // false = key not pressed											
     nextMillis = touchMillis + WAIT_TIME_BETWEEN_TOUCH ;
     if ( touchPressed)  {
       if ( currentPage == _P_SD || currentPage == _P_SD_GRBL ) {             // conversion depend on current screen.
@@ -505,7 +509,7 @@ void updateBtnState( void) {
         prevBt0 = bt0 ;     // if different, only save the new state but do not handel  
     } else {  // traite uniquement si 2 fois le même bouton consécutivement 
       if ( currentBtn != bt0 ) {    // en cas de changement, active justPressedBtn et justReleasedBtn 
-//      Serial.print(" x=") ; Serial.print(x) ; Serial.print("  y=") ; Serial.print(y) ; Serial.print("  bt=") ; Serial.println(bt0) ; 
+      //Serial.print(" x=") ; Serial.print(x) ; Serial.print("  y=") ; Serial.print(y) ; Serial.print("  bt=") ; Serial.println(bt0) ; Serial.print("  bt=") ; Serial.println(currentBtn) ;
          justPressedBtn = bt0 ;
          justReleasedBtn = currentBtn ;
          currentBtn = bt0 ;
@@ -519,12 +523,12 @@ void updateBtnState( void) {
       }
     }
   }
-  //if (justPressedBtn){
-  //  Serial.print( "just pressed") ;   Serial.println( justPressedBtn) ;    
-  //}
-  //if (justReleasedBtn){
-  //  Serial.print( "just released") ;   Serial.println( justReleasedBtn) ;    
-  //}
+  /*if (justPressedBtn){
+    Serial.print( "just pressed") ;   Serial.println( justPressedBtn) ;    
+  }
+  if (justReleasedBtn){
+    Serial.print( "just released") ;   Serial.println( justReleasedBtn) ;    
+  }*/
 }
 
 void drawUpdatedBtn( ) {   // update the color of the buttons on a page (based on currentPage, justPressedBtn , justReleasedBtn, longPressedBtn)
@@ -555,6 +559,7 @@ void executeMainActionBtn( ) {   // find and execute main action for ONE button 
   if ( actionBtn) {
     (*mPages[currentPage].pfNext[actionBtn - 1 ])(mPages[currentPage].parameters[actionBtn - 1 ]) ;// execute the action with the predefined parameter
   }
+  //if (justPressedBtn) Serial.println( justPressedBtn) ;
 }
 
 
@@ -628,6 +633,8 @@ void drawPartPage() {          // update only the data on screen (not the button
     drawDataOnInfoPage() ;
   } else if ( currentPage == _P_MOVE) {
     drawWposOnMovePage() ;
+  } else if ( currentPage == _P_MOVE_ABC) {
+    drawWposOnABCMovePage() ;
   } else if (currentPage == _P_SETUP ){
     drawDataOnSetupPage() ;
   } else if (currentPage == _P_SETXYZ ){
@@ -809,17 +816,15 @@ void drawDataOnInfoPage() { // to do : affiche les données sur la page d'info
   tft.setTextColor(SCREEN_NORMAL_TEXT ,  SCREEN_BACKGROUND ) ;
   tft.setTextPadding (120) ;      // expect to clear 120 pixel when drawing text or float
   uint16_t c1 = hCoord(120), c2 =  c1 + hCoord(120) ;
-#ifdef AA_AXIS
   uint16_t lineSpacing1 = vCoord(24) ;
-#else 
-  uint16_t lineSpacing1 = vCoord(34) ; // we have more space for 3 axis
-#endif   
-  line += vCoord(20)           ; tft.drawFloat( wposXYZA[0] , 2 , c1 , line ); tft.drawFloat( mposXYZA[0] , 2 , c2 , line ); 
-  line += lineSpacing1 ; tft.drawFloat( wposXYZA[1] , 2 , c1 , line ); tft.drawFloat( mposXYZA[1] , 2 , c2 , line );
-  line += lineSpacing1 ; tft.drawFloat( wposXYZA[2] , 2 , c1 , line ); tft.drawFloat( mposXYZA[2] , 2 , c2 , line  ); 
-#ifdef AA_AXIS
-  line += lineSpacing1 ; tft.drawFloat( wposXYZA[3] , 2 , c1 , line ); tft.drawFloat( mposXYZA[3] , 2 , c2 , line  );
-#endif  
+  if (NbAxes == XYZ )
+	lineSpacing1 = vCoord(34) ;
+  line += vCoord(20) ; tft.drawFloat( wposXYZA[0] , 2 , c1 , line ); tft.drawFloat( mposXYZA[0] , 2 , c2 , line ); 		// X
+  line += lineSpacing1 ; tft.drawFloat( wposXYZA[1] , 2 , c1 , line ); tft.drawFloat( mposXYZA[1] , 2 , c2 , line );	// Y
+  line += lineSpacing1 ; tft.drawFloat( wposXYZA[2] , 2 , c1 , line ); tft.drawFloat( mposXYZA[2] , 2 , c2 , line  ); 	// Z
+  if (NbAxes != XYZ ) {
+	line += lineSpacing1 ; tft.drawFloat( wposXYZA[3] , 2 , c1 , line ); tft.drawFloat( mposXYZA[3] , 2 , c2 , line  );		// A
+  }
   tft.setTextFont( 2 );
   tft.setTextSize(1) ;
   tft.setTextPadding (0) ;
@@ -877,8 +882,20 @@ void fMoveBase(void) {
   wposMoveInitXYZA[0] = wposXYZA[0];             // save the position when entering (so we calculate distance between current pos and init pos on this screen)
   wposMoveInitXYZA[1] = wposXYZA[1];
   wposMoveInitXYZA[2] = wposXYZA[2];
-  wposMoveInitXYZA[3] = wposXYZA[3];
+  //wposMoveInitXYZA[3] = wposXYZA[3];
   drawWposOnMovePage() ;
+  // multiplier = 0.01 ; // à voir si cela sera encore utilisé (si on met à jour le bouton distance au fur et à mesure, on peut l'utiliser pour calculer 
+  // movePosition = 0 ;  à utiliser si on l'affiche 
+  // afficher la position des axes
+}
+
+
+void fMoveABCBase(void) {
+  fillMPage (_P_MOVE_ABC , POS_OF_MOVE_D_AUTO_ABC , _D_AUTO , _JUST_LONG_PRESSED , fDist , _D_AUTO) ;  // reset the button for autochange of speed
+  wposMoveInitXYZA[3] = wposXYZA[3];             // save the position when entering (so we calculate distance between current pos and init pos on this screen)
+  wposMoveInitXYZA[4] = wposXYZA[4];
+  wposMoveInitXYZA[5] = wposXYZA[5];
+  drawWposOnABCMovePage() ;
   // multiplier = 0.01 ; // à voir si cela sera encore utilisé (si on met à jour le bouton distance au fur et à mesure, on peut l'utiliser pour calculer 
   // movePosition = 0 ;  à utiliser si on l'affiche 
   // afficher la position des axes
@@ -922,16 +939,39 @@ void drawWposOnSetXYZPage() {
   tft.setTextSize(1) ;           // char is 2 X magnified => 
   tft.setTextColor(SCREEN_NORMAL_TEXT ,  SCREEN_BACKGROUND ) ; // when oly 1 parameter, background = fond);
   tft.setTextDatum( TR_DATUM ) ; // align rigth ( option la plus pratique pour les float ou le statut GRBL)
-  tft.setTextPadding (80) ;      // expect to clear 70 pixel when drawing text or   
+  tft.setTextPadding (65/*80*/) ;      // expect to clear 70 pixel when drawing text or   
   uint16_t line = vCoord(60) ; // was 60 ;
-  uint16_t col = hCoord(60) ;
+  uint16_t col = hCoord(70) ;
   tft.drawString( mText[_WPOS].pLabel , col , line);
   tft.drawFloat( wposXYZA[0] , 2 , col , line ); // affiche la valeur avec 3 décimales 
   tft.drawFloat( wposXYZA[1] , 2 , col + hCoord(80) , line );
-  tft.drawFloat( wposXYZA[2] , 2 , col + hCoord(160) , line );
-#ifdef AA_AXIS  
-  tft.drawFloat( wposXYZA[3] , 2 , col + hCoord(240) , line );
-#endif  
+  tft.drawFloat( wposXYZA[2] , 2 , col + hCoord(160) , line ); 
+
+	if (NbAxes == XYZA) {
+		tft.drawFloat( wposXYZA[3] , 2 , col + hCoord(80) , line + vCoord(110));
+		tft.setTextPadding (0);
+		tft.drawString( "A" , hCoord(95) , line + vCoord(110) );
+	} else if (NbAxes == XYZAB) {
+		tft.drawFloat( wposXYZA[3] , 2 , col + hCoord(80) , line + vCoord(110));
+		tft.setTextPadding (0);
+		tft.drawString( "A" , hCoord(95) , line + vCoord(110) );
+		tft.setTextPadding (65);
+		tft.drawFloat( wposXYZA[4] , 2 , col + hCoord(80) , line + vCoord(130));
+		tft.setTextPadding (0);
+		tft.drawString( "B" , hCoord(95) , line + vCoord(130) );
+	} else if (NbAxes == XYZABC) {
+		tft.drawFloat( wposXYZA[3] , 2 , col + hCoord(80) , line + vCoord(110));
+		tft.setTextPadding (0);
+		tft.drawString( "A" , hCoord(95) , line + vCoord(110) );
+		tft.setTextPadding (65);
+		tft.drawFloat( wposXYZA[4] , 2 , col + hCoord(80) , line + vCoord(130));
+		tft.setTextPadding (0);
+		tft.drawString( "B" , hCoord(95) , line + vCoord(130) );
+		tft.setTextPadding (65);
+		tft.drawFloat( wposXYZA[5] , 2 , col + hCoord(80) , line + vCoord(150));
+		tft.setTextPadding (0);
+		tft.drawString( "C" , hCoord(95) , line + vCoord(150) );
+	}
 }
 
 
@@ -1040,7 +1080,7 @@ void fOverBase(void) {                 //  En principe il n'y a rien à faire;
 }
 
 void drawWposOnMovePage() {
-#ifdef AA_AXIS
+/*#ifdef AA_AXIS
   //  X-    Y+      X+    Z+
   //  X-    Y+      X+    Z+
   //  X-    Y+      X+    Z+
@@ -1062,7 +1102,7 @@ void drawWposOnMovePage() {
   uint16_t col1 = hCoord(75) ;
   uint16_t col2 = hCoord(75 + 80) ;
   tft.drawString( mText[_WPOS].pLabel , col1  , line );
-  tft.drawString( mButton[_MOVE].pLabel , col2  , line  );
+  tft.drawString( mText[_MOVE].pLabel , col2  , line  );
   line += vCoord(16) ;
   //tft.drawString( "  X  " , col  , line + 80 );
   tft.drawFloat( wposXYZA[0] , 2 , col1 , line ); // affiche la valeur avec 2 décimales 
@@ -1112,7 +1152,106 @@ void drawWposOnMovePage() {
   tft.drawFloat( wposXYZA[2] , 2 , col + hCoord(160) , line + vCoord(20) );
   tft.drawFloat( wposXYZA[2] - wposMoveInitXYZA[2] , 2 , col + hCoord(160) , line + vCoord(40) ) ;
 
-#endif
+#endif*/
+
+
+  tft.setTextFont( 2 ); // use Font2 = 16 pixel X 7 probably
+  tft.setTextSize(1) ;           // char is 2 X magnified => 
+  tft.setTextColor(SCREEN_NORMAL_TEXT ,  SCREEN_BACKGROUND ) ; // when only 1 parameter, background = fond);
+  tft.setTextDatum( TR_DATUM ) ; // align rigth ( option la plus pratique pour les float ou le statut GRBL)
+  tft.setTextPadding (65/*75*/) ;      // expect to clear 70 pixel when drawing text or 
+  
+  uint16_t line1 = vCoord(80) ;
+  uint16_t line2 = vCoord(80 + 80) ;
+  uint16_t col = hCoord(70/*75*/) ;
+  //uint16_t col2 = hCoord(75 + 80) ;
+  tft.drawString( mText[_WPOS].pLabel , 35/*40*//*col*/  , line1 );
+  tft.drawString( /*mText[_MOVE].pLabel*/mButton[_MOVE].pLabel , 45/*40*//*col*/  , line2  );		//_MOVE ???? _MPOS
+  line1 += vCoord(20/*16*/) ;
+  line2 += vCoord(20/*16*/) ;
+
+  tft.drawFloat( wposXYZA[0] , 2 , col , line1 ); // affiche la valeur avec 2 décimales 
+  tft.drawFloat( wposXYZA[0] - wposMoveInitXYZA[0] , 2 , col , line2  ); // affiche la valeur avec 2 décimales 
+  tft.drawString( "X" , 15/*25*/  , line1 );
+  tft.drawString( "X" , 15/*25*/  , line2 );
+  line1 +=vCoord(20/*16*/) ;
+  line2 += vCoord(20/*16*/) ;
+
+  tft.drawFloat( wposXYZA[1] , 2 , col , line1 );
+  tft.drawFloat( wposXYZA[1] - wposMoveInitXYZA[1] , 2 , col , line2 ); //mposXYZA ???
+  tft.drawString( "Y" , 15  , line1 );
+  tft.drawString( "Y" , 15  , line2 );
+  line1 +=vCoord(20/*16*/) ;
+  line2 += vCoord(20/*16*/) ;
+
+  tft.drawFloat( wposXYZA[2] , 2 , col , line1 );
+  tft.drawFloat( wposXYZA[2] - wposMoveInitXYZA[2] , 2 , col , line2 ) ;
+  tft.drawString( "Z" , 15  , line1 );
+  tft.drawString( "Z" , 15  , line2 );
+  /*line1 +=vCoord(16) ;
+  line2 += vCoord(16) ;
+  tft.drawFloat( wposXYZA[3] , 2 , col , line1 );
+  tft.drawFloat( wposXYZA[3] - wposMoveInitXYZA[3] , 2 , col , line2 ) ;*/
+}
+
+
+
+void drawWposOnABCMovePage() {
+  tft.setTextFont( 2 ); // use Font2 = 16 pixel X 7 probably
+  tft.setTextSize(1) ;           // char is 2 X magnified => 
+  tft.setTextColor(SCREEN_NORMAL_TEXT ,  SCREEN_BACKGROUND ) ; // when only 1 parameter, background = fond);
+  tft.setTextDatum( TR_DATUM ) ; // align rigth ( option la plus pratique pour les float ou le statut GRBL)
+  tft.setTextPadding (65) ;      // expect to clear 70 pixel when drawing text or 
+  
+  uint16_t line1 = vCoord(80) ;
+  uint16_t line2 = vCoord(80 + 80) ;
+  uint16_t col = hCoord(70) ;
+  tft.drawString( mText[_WPOS].pLabel , 35  , line1 );
+  tft.drawString( mButton[_MOVE].pLabel , 45  , line2  );
+  line1 += vCoord(20) ;
+  line2 += vCoord(20) ;
+  
+  if (NbAxes == XYZA) {
+	  tft.drawFloat( wposXYZA[3] , 2 , col , line1 ); // affiche la valeur avec 2 décimales 
+	  tft.drawFloat( wposXYZA[3] - wposMoveInitXYZA[3] , 2 , col , line2  ); // affiche la valeur avec 2 décimales
+	  tft.drawString( "A" , 15  , line1 );
+	  tft.drawString( "A" , 15  , line2 );
+	  line1 +=vCoord(20) ;
+	  line2 += vCoord(20) ;
+  } else if (NbAxes == XYZAB) {
+	  tft.drawFloat( wposXYZA[3] , 2 , col , line1 ); // affiche la valeur avec 2 décimales 
+	  tft.drawFloat( wposXYZA[3] - wposMoveInitXYZA[3] , 2 , col , line2  ); // affiche la valeur avec 2 décimales
+	  tft.drawString( "A" , 15  , line1 );
+	  tft.drawString( "A" , 15  , line2 );
+	  line1 +=vCoord(20) ;
+	  line2 += vCoord(20) ;
+
+	  tft.drawFloat( wposXYZA[4] , 2 , col , line1 );
+	  tft.drawFloat( wposXYZA[4] - wposMoveInitXYZA[4] , 2 , col , line2 );
+	  tft.drawString( "B" , 15  , line1 );
+	  tft.drawString( "B" , 15  , line2 );
+	  line1 +=vCoord(20) ;
+	  line2 += vCoord(20) ;
+  } else if (NbAxes == XYZABC) {
+	  tft.drawFloat( wposXYZA[3] , 2 , col , line1 ); // affiche la valeur avec 2 décimales 
+	  tft.drawFloat( wposXYZA[3] - wposMoveInitXYZA[3] , 2 , col , line2  ); // affiche la valeur avec 2 décimales
+	  tft.drawString( "A" , 15  , line1 );
+	  tft.drawString( "A" , 15  , line2 );
+	  line1 +=vCoord(20) ;
+	  line2 += vCoord(20) ;
+
+	  tft.drawFloat( wposXYZA[4] , 2 , col , line1 );
+	  tft.drawFloat( wposXYZA[4] - wposMoveInitXYZA[4] , 2 , col , line2 );
+	  tft.drawString( "B" , 15  , line1 );
+	  tft.drawString( "B" , 15  , line2 );
+	  line1 +=vCoord(20) ;
+	  line2 += vCoord(20) ;
+
+	  tft.drawFloat( wposXYZA[5] , 2 , col , line1 );
+	  tft.drawFloat( wposXYZA[5] - wposMoveInitXYZA[5] , 2 , col , line2 ) ;
+	  tft.drawString( "C" , 15  , line1 );
+	  tft.drawString( "C" , 15  , line2 );
+  }
 }
 
 
@@ -1514,11 +1653,11 @@ void fConfirmYesNoBase() { // should display the name of the file to be printed 
 // ********************************************************************************************
 // ******************************** touch calibrate ********************************************
 //#define DEBUG_CALIBRATION
-void touch_calibrate() {
+void touch_calibrate(bool bForce) {
   uint16_t calData[5]; // contains calibration parameters 
   uint8_t calDataOK = 0;
   bool repeatCal = REPEAT_CAL;  // parameter in the config.h file (true when calibration is requested)
-  if (checkCalibrateOnSD()) { // to do todo MS to remove
+  if (checkCalibrateOnSD() || bForce) { // to do todo MS to remove
     repeatCal = true ; // force a recalibration if a file "calibrate.txt" exist on SD card
   }
   // check file system exists

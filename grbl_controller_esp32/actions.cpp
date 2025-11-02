@@ -11,6 +11,9 @@
 #include "com.h"
 #include "log.h"
 #include "bt.h"
+#include <Preferences.h>
+#include "browser.h"
+#include "SdFat.h"
 
 // create for touchscreeen
 extern TFT_eSPI tft ;
@@ -47,6 +50,8 @@ extern int8_t jogDistX ;
 extern int8_t jogDistY ;
 extern int8_t jogDistZ ;
 extern int8_t jogDistA ;
+extern int8_t jogDistB ;
+extern int8_t jogDistC ;
 
 
 extern float moveMultiplier ;
@@ -65,6 +70,14 @@ extern char grblDirFilter[100]  ; // contains the name of the directory to be fi
 extern char grblFileNames[GRBLFILEMAX][40]; // contain max n filename or directory name with max 40 char.
 extern uint8_t firstGrblFileToDisplay ;   // 0 = first file in the directory
 extern int grblFileIdx ; // index in the array where next file name being parse would be written
+
+extern Preferences preferences ; // object from ESP32 lib used to save/get data in flash 
+
+extern SdFat32 sd;
+
+extern uint8_t NbAxes ; // can be XYZ(= 0), XYZA(= 1), XYZAB(= 2), XYZABC(= 3)
+
+extern uint8_t screenRotation ; //Rotation of the screen 1 or 3
 
 
 uint8_t fileToExecuteIdx ; // save the idex (0...3) of the file to be executed after confimation; 0/3 = sd on tft, 10/3 = sd on GRBL card
@@ -195,25 +208,39 @@ void fResumeGrbl(uint8_t param) {
 
 
 void fDist( uint8_t param ) {
-  uint8_t newDist =  mPages[_P_MOVE].boutons[POS_OF_MOVE_D_AUTO] ;       // convertit la position du bouton en type de bouton 
+  uint8_t posOfAutoButton = 0;
+  if (currentPage == _P_MOVE)
+		posOfAutoButton = POS_OF_MOVE_D_AUTO;
+	else if (currentPage == _P_MOVE_ABC)
+		posOfAutoButton = POS_OF_MOVE_D_AUTO_ABC;
+	else
+		return;
+  uint8_t newDist =  mPages[currentPage].boutons[posOfAutoButton] ;       // convertit la position du bouton en type de bouton 
   //Serial.print("newDist=") ; Serial.println(newDist) ;
   if ( ++newDist > _D0_01 ) newDist = _D_AUTO ; // increase and reset to min value if to big
-  mPages[_P_MOVE].boutons[POS_OF_MOVE_D_AUTO ] = newDist ;   // update the button to display
-  mButtonClear(POS_OF_MOVE_D_AUTO + 1 , newDist ) ;  // clear the current button
-  mButtonDraw( POS_OF_MOVE_D_AUTO + 1 , newDist ) ;  // draw  at position (from 1 to 12) a button (newDist)
+  mPages[currentPage].boutons[posOfAutoButton] = newDist ;   // update the button to display
+  mButtonClear(posOfAutoButton + 1 , newDist ) ;  // clear the current button
+  mButtonDraw( posOfAutoButton + 1 , newDist ) ;  // draw  at position (from 1 to 12) a button (newDist)
   //updateFullPage = true ;                     // force a redraw of buttons
   waitReleased = true ;          // discard "pressed" until a release 
 }  
 
 void fMove( uint8_t param ) { // param contains the touch being pressed or the released if no touch has been pressed
+	uint8_t newDist = 0;
+	if (currentPage == _P_MOVE)
+		newDist = mPages[currentPage].boutons[POS_OF_MOVE_D_AUTO];
+	else if (currentPage == _P_MOVE_ABC)
+		newDist = mPages[currentPage].boutons[POS_OF_MOVE_D_AUTO_ABC];
+	else
+		return;
     //Serial.println("running fMove");
     float distance = 0.01 ;
     //uint32_t moveMillis = millis() ;
     //static uint32_t prevMoveMillis ;
-    if ( mPages[_P_MOVE].boutons[POS_OF_MOVE_D_AUTO] == _D_AUTO ) {
+    if ( newDist == _D_AUTO ) {
       handleAutoMove(param) ; // process in a similar way as Nunchuk
     } else if (justPressedBtn) {                      // just pressed in non auto mode
-      switch ( mPages[_P_MOVE].boutons[POS_OF_MOVE_D_AUTO] ) {        
+      switch ( newDist ) {        
       case _D0_01 :
         distance = 0.01;
         break ;
@@ -251,8 +278,12 @@ void fMove( uint8_t param ) { // param contains the touch being pressed or the r
         case _YM :  bufferise2Grbl("Y-") ;  break ;
         case _ZP :  bufferise2Grbl("Z")  ;  break ;
         case _ZM :  bufferise2Grbl("Z-") ;  break ;
-        case _AP :  bufferise2Grbl("A")  ;  break ;
-        case _AM :  bufferise2Grbl("A-") ;  break ;
+		case _ARROW_A_POS :  bufferise2Grbl("A")  ;  break ;
+        case _ARROW_A_NEG :  bufferise2Grbl("A-") ;  break ;
+		case _ARROW_B_POS :  bufferise2Grbl("B")  ;  break ;
+        case _ARROW_B_NEG :  bufferise2Grbl("B-") ;  break ;
+		case _ARROW_C_POS :  bufferise2Grbl("C")  ;  break ;
+        case _ARROW_C_NEG :  bufferise2Grbl("C-") ;  break ;
       }
       if (distance == 100 && ( typeOfMove == _ZP || typeOfMove == _ZM ) ) distance =10;  
       char sdistance[20];
@@ -302,6 +333,8 @@ void handleAutoMove( uint8_t param) { // in Auto mode, we support long press to 
     jogDistY = 0 ;
     jogDistZ = 0 ;
     jogDistA = 0 ;
+	jogDistB = 0 ;
+	jogDistC = 0 ;
     //switch ( pressedBtn ) {  // fill one direction of move
     //  case 7 :  jogDistX = 1  ;  break ;
     //  case 5 :  jogDistX = -1 ;  break ;
@@ -319,8 +352,12 @@ void handleAutoMove( uint8_t param) { // in Auto mode, we support long press to 
         case _YM :  jogDistY = -1 ;  break ;
         case _ZP :  jogDistZ = 1  ;  break ;
         case _ZM :  jogDistZ = -1  ;  break ;
-        case _AP :  jogDistA = 1  ;  break ;
-        case _AM :  jogDistA = -1  ;  break ;
+		case _ARROW_A_POS :  jogDistA = 1  ;  break ;
+        case _ARROW_A_NEG :  jogDistA = -1 ;  break ;
+		case _ARROW_B_POS :  jogDistB = 1  ;  break ;
+        case _ARROW_B_NEG :  jogDistB = -1 ;  break ;
+		case _ARROW_C_POS :  jogDistC = 1  ;  break ;
+        case _ARROW_C_NEG :  jogDistC = -1 ;  break ;
         
     }
     //Serial.print("type of move=");Serial.println(typeOfMove);
@@ -406,7 +443,8 @@ void fSetXYZ(uint8_t param) {     // param contient le n° de la commande
   case _SETZ :   memccpy ( printString , _SETZ_STRING , '\0' , 249); break ;
   case _SETA :   memccpy ( printString , _SETA_STRING , '\0' , 249); break ;
   case _SETXYZ : memccpy ( printString , _SETXYZ_STRING , '\0' , 249); break ;
-  case _SETXYZA : memccpy ( printString , _SETXYZA_STRING , '\0' , 249); break ;
+  case _SETAB : memccpy ( printString , _SETAB_STRING , '\0' , 249); break ;
+  case _SETABC : memccpy ( printString , _SETABC_STRING , '\0' , 249); break ;
   case _SET_CHANGE : memccpy ( printString , _SET_CHANGE_STRING , '\0' , 249); break ;
   case _SET_PROBE :  memccpy ( printString , _SET_PROBE_STRING , '\0' , 249);  break ;  
   case _SET_CAL :    memccpy ( printString , _CAL_STRING , '\0' , 249);    break ;  
@@ -667,6 +705,197 @@ void fConfirmedYes(uint8_t param ) { // called when Yes btn is pressed; based on
 }
 void fConfirmedNo(uint8_t param ) { // called when No btn is pressed; should do the same as back btn in principe
   fGoBack(0);
+}
+
+void fAdvParam(uint8_t param ) { // called for advanced actions
+  
+  if ( param == _REBOOT_SCREEN ) {
+	  ESP.restart();
+  } else if ( param == _REBOOT_GRBL) {
+	  toGrbl("$System/Control=RESTART\n\r");
+  } else if ( param == _RECONNECT_GRBL) {
+	  //startGrblCom(grblLink, true);
+	  startGrblCom(preferences.getChar("grblLink", GRBL_LINK_SERIAL), true); //Vérifier fct
+  } else if ( param == _RECONNECT_WIFI) {
+	  //initWifi() ;
+	  telnetInit();
+	  //checkTelnetConnection();	//Ne marche pas
+  } else if ( param == _SCREEEN_CAL) {
+	  /*touch_calibrate(true);
+	  clearScreen();
+	  prevPage = _P_NULL ;     
+	  currentPage = _P_INFO ;
+	  updateFullPage = true ;*/
+	  
+	  /*SdBaseFile calibrateFile ;
+	  if (calibrateFile.open("/calibrate.txt" )) calibrateFile.remove();
+	  calibrateFile.close() ;*/
+	  
+	  //SPIFFS.remove(CALIBRATION_FILE);
+	  //ESP.restart();
+	  
+	  touch_calibrate(true);
+	  updateFullPage = true ;
+	  
+	  /*uint16_t x_tmp, y_tmp , z_tmp ;
+	  while ( !touchscreen.getTouchRaw( &x_tmp, &y_tmp, &z_tmp )) ;
+	  Serial.print("Tutu"); Serial.print(x_tmp);Serial.print(","); Serial.print(y_tmp);*/
+  } else if ( param == _AXIS_XYZ) {
+	  NbAxes = XYZ;
+	  preferences.putChar("NB_AXES", NbAxes ) ;
+	  //initButtons();
+  } else if ( param == _AXIS_XYZA) {
+	  NbAxes = XYZA;
+	  preferences.putChar("NB_AXES", NbAxes ) ;
+	  //initButtons();
+  } else if ( param == _AXIS_XYZAB) {
+	  NbAxes = XYZAB;
+	  preferences.putChar("NB_AXES", NbAxes ) ;
+	  //initButtons();
+  } else if ( param == _AXIS_XYZABC) {
+	  NbAxes = XYZABC;
+	  preferences.putChar("NB_AXES", NbAxes ) ;
+	  //initButtons();
+  } else if ( param == _CHANGE_ROTATION) {
+	  if (screenRotation == 1)
+		  screenRotation = 3;
+	  else
+		  screenRotation = 1;
+	  //(screenRotation == 1)?screenRotation=3:screenRotation=1;
+	  preferences.putChar("SCREEN_ROTATION", screenRotation ) ;
+	  tft.setRotation(screenRotation);
+	  //tftInit() ;
+	  updateFullPage = true ;
+	  touch_calibrate(true);
+	  //SPIFFS.remove(CALIBRATION_FILE);
+	  //ESP.restart();
+  }
+  
+  
+  
+  waitReleased = true ; 
+}
+
+// Fonction qui permet de récuperer les paramètres depuis un fichier de configuration sur la carte SD
+boolean retrieveConfigFileParam() {
+	String path = "/config.cfg";
+	SdBaseFile configFile ;
+	char line[100] ;  //buffer to get a line from SD
+	//File32 configFile ;
+	uint8_t n; // number of bytes in a line
+    char * pBeginValue ;
+    char * pEndValue ;
+    uint8_t sizeValue ;
+	bool nbAxesOk = false;
+	/*if (checkSd() ) { 
+		if (sd.exists( path.c_str() ) ) {
+		  //Serial.println("Open file") ;
+		  File32 configFile ;
+		  configFile = sd.open( path.c_str() );
+		  if (configFile) {
+			//Serial.println("File open successfully") ;
+			configFile.close(); 
+		  }
+		  //configFile.close() ;
+		}
+	}*/
+	
+	char wifiTypeString[30] ;
+    char local_IPChar[50] = {0} ;
+    char gatewayChar[50] = {0} ;
+    char subnetChar[50] = {0} ;
+    char grbl_Telnet_IPChar[50] = {0};
+	char nb_axes[50] = {0};
+	
+	if ( ! sd.begin(SD_CHIPSELECT_PIN , SD_SCK_MHZ(5)) ) {  
+        //Serial.println( __CARD_MOUNT_FAILED  ) ;
+        return false;       
+	}
+	//if ( ! SD.exists( "/" ) ) { // check if root exist
+	if ( ! sd.exists( "/" ) ) { // check if root exist   
+		//Serial.println( __ROOT_NOT_FOUND  ) ;
+		return false;  
+	}
+	if ( ! sd.chdir( "/" ) ) {
+		//Serial.println( __CHDIR_ERROR  ) ;
+		return false;  
+	}
+	if ( ! configFile.open(path.c_str()) ) { // try to open wifi.cfg 
+		//Serial.println("failed to open calibrate.txt" ) ;
+		return false;  
+	}
+	while ( (n = configFile.fgets(line, sizeof(line)-2)) > 0) {
+        //Serial.print("line=");  Serial.println(line) ;
+        line[n+1] = 0;  // add a end of string code in order to use strrchr
+        pBeginValue = strchr(line,'"'); //search first "
+        pEndValue = strrchr(line,'"'); //search last "
+        if ( (pBeginValue !=NULL) && ( pEndValue != NULL) ) {
+          if ( pEndValue > pBeginValue) {
+            *pEndValue = 0 ;
+            sizeValue = pEndValue - pBeginValue -1;  // number of char between the ""
+			
+			
+			/*if ( memcmp ( "WIFI=", line, sizeof("WIFI=")-1) == 0){
+              wifiTypeOk = true;
+              memcpy(wifiTypeString , pBeginValue+1 , sizeValue) ;
+              if (memcmp ( "NO_WIFI", wifiTypeString ,sizeof("NO_WIFI")-1  )== 0) {
+                wifiType = NO_WIFI ; 
+              } else if (memcmp ( "ESP32_ACT_AS_STATION", wifiTypeString ,sizeof("ESP32_ACT_AS_STATION")-1  )== 0) {
+                wifiType = ESP32_ACT_AS_STATION ; 
+              } else if (memcmp ( "ESP32_ACT_AS_AP", wifiTypeString ,sizeof("ESP32_ACT_AS_AP")-1  )== 0) {
+                wifiType = ESP32_ACT_AS_AP ; 
+              } else {
+                wifiTypeOk = false;
+              }
+            } else if ( memcmp ( "PASSWORD=", line, sizeof("PASSWORD=")-1) == 0){
+              memcpy(wifiPassword , pBeginValue+1 , sizeValue) ; 
+              wifiPasswordOk = true;
+            } else if ( memcmp ( "SSID=", line, sizeof("SSID=")-1) == 0){
+              memcpy(wifiSsid , pBeginValue+1 , sizeValue) ;
+              wifiSsidOk = true ;
+            } else if ( memcmp ( "LOCAL_IP=", line, sizeof("LOCAL_IP=")-1) == 0){
+              memcpy(local_IPChar , pBeginValue+1 , sizeValue) ;
+              local_IPStr = local_IPChar ;
+              //local_IPOk = true ;
+            } else if ( memcmp ( "GATEWAY=", line, sizeof("GATEWAY=")-1) == 0){
+              memcpy(gatewayChar , pBeginValue+1 , sizeValue) ;
+              gatewayStr = gatewayChar ;
+              //gatewayOk = true ;
+            } else if ( memcmp ( "SUBNET=", line, sizeof("SUBNET=")-1) == 0){
+              memcpy(subnetChar , pBeginValue+1 , sizeValue) ;
+              subnetStr = subnetChar ;
+              //subnetOk = true ;
+            } else if ( memcmp ( "GRBL_TELNET_IP=", line, sizeof("GRBL_TELNET_IP=")-1) == 0){
+              memcpy(grbl_Telnet_IPChar , pBeginValue+1 , sizeValue) ;
+              grbl_Telnet_IPStr = grbl_Telnet_IPChar ;
+              //grbl_Telnet_IPOk = true ;
+            } else*/ if  ( memcmp ( "NB_AXES=", line, sizeof("NB_AXES=")-1) == 0){
+				memcpy(nb_axes , pBeginValue+1 , sizeValue) ;
+				nbAxesOk = true;
+				if (memcmp ( "XYZ", nb_axes ,sizeof("XYZ")-1  )== 0) {
+					NbAxes = XYZ ;		
+				} else if (memcmp ( "XYZA", nb_axes ,sizeof("XYZA")-1  )== 0) {
+					NbAxes = XYZA ;					
+				} else if (memcmp ( "XYZAB", nb_axes ,sizeof("XYZAB")-1  )== 0) {
+					NbAxes = XYZAB ;
+				} else if (memcmp ( "XYZABC", nb_axes ,sizeof("XYZABC")-1  )== 0) {
+					NbAxes = XYZABC ;
+				} else {
+					nbAxesOk = false;
+				}
+				
+			}  else if  ( memcmp ( "LANGUAGE=", line, sizeof("LANGUAGE=")-1) == 0){
+				
+			}
+		  }
+		}
+	}
+	configFile.close();
+	
+	if (nbAxesOk)
+		preferences.putChar("NB_AXES", NbAxes ) ;
+
+	return true;
 }
 
 

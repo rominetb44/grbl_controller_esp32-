@@ -103,7 +103,7 @@ void toTelnet(char c) {
 void toTelnet(const char * data) {
   //Serial.print("In toTelnet data=") ; Serial.println(data) ;
   //grblClient.print(data);
-  grblClient.write(data);		// Cette fonction envoi l'ensemble des données en un seul paquet IP au lieu de un paquet par caractère
+  grblClient.write(data, strlen(data));		// Cette fonction envoi l'ensemble des données en un seul paquet IP au lieu de un paquet par caractère
   /*
   if ( (millis() - wifiGrblMillis) > 2000){
     Serial.print("connection lost, trying to reconnect at ");Serial.println(millis());

@@ -48,5 +48,10 @@ void handleAutoMove( uint8_t param) ;
 
 void sendStringToGrbl(void ) ;
 
+void fAdvParam(uint8_t param) ;
+
+/// Fonction qui permet de récuperer les paramètres depuis un fichier de configuration sur la carte SD
+boolean retrieveConfigFileParam(void);
+
 #endif
 

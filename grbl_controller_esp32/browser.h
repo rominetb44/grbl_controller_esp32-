@@ -26,6 +26,20 @@ boolean getWifiIp( char * ipBuf ) ;
 void confirmDelete();
 void confirmDownload() ;
 void retrieveWifiParam(void) ;
-boolean checkWifiOnSD(void) ; 
+boolean checkWifiOnSD(void) ;
+boolean checkSd(void) ; 
+/// Page de Login pour la MAJ OTA
+//void loginIndexPage(void) ;
+/// Page de MAJ via OTA
+void serverIndexPage(void) ;
+void spiff_dir();
+void printSPIFFDirectory(const char * dirname, uint8_t levels);
+void DownloadFileSPIFF(String filename) ;
+void DeleteFileSPIFF(String filename) ;
+void File_DownloadSPIFF();
+void File_DeleteSPIFF();
+void handleFileUploadSPIFF();
+void confirmDeleteSPIFF();
+void confirmDownloadSPIFF() ;
 #endif                                       
 

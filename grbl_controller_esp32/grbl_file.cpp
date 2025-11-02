@@ -29,7 +29,7 @@ extern uint8_t statusPrinting ;
 extern uint16_t sdFileDirCnt ;
 
 extern boolean updateFullPage ;
-extern boolean waitReleased ;
+//extern boolean waitReleased ;
 
 //uint16_t sdFileRootCnt ; // count the nbr of files in root; used to check if SD card has been changed
 //extern char fileNames[4][23] ; // 22 car per line + "\0"

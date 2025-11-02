@@ -20,10 +20,14 @@
 #include <ESPmDNS.h>
 #include <Update.h>
 
+#include "FS.h"
+
+
+
 #define maxCharFileName 47
 
 const char* loginIndex = 
- "<form name='loginForm'>"
+ "<form name='loginForm' id='loginForm'>"
     "<table width='20%' bgcolor='A09F9F' align='center'>"
         "<tr>"
             "<td colspan=2>"
@@ -34,44 +38,45 @@ const char* loginIndex =
             "<br>"
         "</tr>"
         "<td>Username:</td>"
-        "<td><input type='text' size=25 name='userid'><br></td>"
+        "<td><input type='text' size=25 name='userid' id='userid'><br></td>"
         "</tr>"
         "<br>"
         "<br>"
         "<tr>"
             "<td>Password:</td>"
-            "<td><input type='Password' size=25 name='pwd'><br></td>"
+            "<td><input type='Password' size=25 name='pwd' id='pwd'><br></td>"
             "<br>"
             "<br>"
         "</tr>"
         "<tr>"
-            "<td><input type='submit' onclick='check(this.form)' value='Login'></td>"
+            "<td><input type='submit' value='Login'></td>"
         "</tr>"
     "</table>"
 "</form>"
 "<script>"
-    "function check(form)"
-    "{"
-    "if(form.userid.value=='admin' && form.pwd.value=='admin')" // can change USER and Password for OTA here
-    "{"
-    "window.open('/serverIndex')"
-    "}"
-    "else"
-    "{"
-    " alert('Error Password or Username')/*displays error message*/"
-    "}"
-    "}"
+	"const form = document.getElementById('loginForm');"
+    "form.addEventListener('submit', function(event) {"
+		"event.preventDefault();"
+		"if (document.getElementById('userid').value=='admin' && document.getElementById('pwd').value=='admin') {"
+			"window.location.href='serverIndex'"
+		"} else {"
+		"alert('Error Password or Username')"
+		"}"
+    "});"
 "</script>";
  
 /*
  * Server Index Page
  */
- 
 const char* serverIndex = 
-"<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>"
+//"<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>"
+//  "<script src='/jquery.min.js'></script>"
+  "<h3>Select file to update firmware</h3>"
   "<form method='POST' action='#' enctype='multipart/form-data' id='upload_form'>"
-    "<input type='file' name='update'>"
+    "<input type='file' name='update'  class='buttons' style='width:80%'>"
+	"<br><br>"
     "<input type='submit' value='Update'>"
+	"<br><br>"
   "</form>"
  "<div id='prg'>progress: 0%</div>"
  "<script>"
@@ -197,16 +202,51 @@ void initWifi() {
     server.on("/dir",      sd_dir);
     server.on("/confirmDelete",      confirmDelete);
     server.on("/confirmDownload",      confirmDownload);
+    server.on("/SPIFF",      spiff_dir);
+    server.on("/downloadSPIFF", File_DownloadSPIFF);
+    server.on("/deleteSPIFF",   File_DeleteSPIFF);
+    server.on("/fuploadSPIFF",  HTTP_POST,[](){ server.send(200);}, handleFileUploadSPIFF);
+    server.on("/confirmDeleteSPIFF",      confirmDeleteSPIFF);
+    server.on("/confirmDownloadSPIFF",      confirmDownloadSPIFF);
+	
+	server.on("/jquery.min.js", HTTP_GET, []() {	// Récupération du fichier jquery.min.js en local
+		String path = "/jquery.min.js";
+		
+		// Vérification dans mémoire SPIFF
+		if (SPIFFS.begin() && SPIFFS.exists(path)) {
+			fs::File jqueryFile = SPIFFS.open(path, FILE_READ);
+			server.streamFile(jqueryFile, "application/javascript");
+			jqueryFile.close();
+		}
+		
+		// Verification sur carte SD
+		/*if (checkSd() ) { 
+			if (sd.exists( path.c_str() ) ) {
+			  //Serial.println("Open file") ;
+			  File32 jqueryFile ;
+			  jqueryFile = sd.open( path.c_str() );
+			  if (jqueryFile) {
+				//Serial.println("File open successfully") ;
+				server.streamFile(jqueryFile, "application/javascript");
+				jqueryFile.close(); 
+			  }
+			  jqueryFile.close() ;
+			}
+		}*/
+	});
 
 // **************************ADD by SMARTELECTRONIC ************************************************************
-      server.on("/OTA", HTTP_GET, []() {
+  /*server.on("/OTA", HTTP_GET, []() {
     server.sendHeader("Connection", "close");
     server.send(200, "text/html", loginIndex);
-  });
-  server.on("/serverIndex", HTTP_GET, []() {
+  });*/
+  //server.on("/OTA", loginIndexPage);
+  /*server.on("/serverIndex", HTTP_GET, []() {
     server.sendHeader("Connection", "close");
     server.send(200, "text/html", serverIndex);
-  });
+  });*/
+  //server.on("/serverIndex", serverIndexPage);
+  server.on("/OTA", serverIndexPage);
   /*handling uploading firmware file */
   server.on("/update", HTTP_POST, []() {
     server.sendHeader("Connection", "close");
@@ -232,6 +272,7 @@ void initWifi() {
       }
     }
   });
+
 ///**************************end of ADD*************************************************************************
     
     ///////////////////////////// End of Request commands
@@ -259,7 +300,6 @@ void retrieveWifiParam(void){  // get the wifi parameters (type, SSID, password)
       preferences.putString("SSID", wifiSsid ) ;
       preferences.putString("LOCAL_IP", local_IPStr ) ;
       preferences.putString("GATEWAY", gatewayStr ) ;
-      preferences.putString("SUBNET", subnetStr ) ;
       preferences.putString("SUBNET", subnetStr ) ;
       preferences.putString("GRBL_TELNET_IP", grbl_Telnet_IPStr ) ;
       preferences.putChar("wifiDef", 1); // 1 is used to say that a set of wifi preferences is saved
@@ -338,9 +378,10 @@ boolean checkWifiOnSD(void){
           //Serial.println( __CHDIR_ERROR  ) ;
           return false;  
       }
-      if ( ! wifiFile.open("/wifi.cfg" ) ) { // try to open wifi.cfg 
-          //Serial.println("failed to open calibrate.txt" ) ;
-          return false;  
+      if ( ! wifiFile.open("/config.cfg" ) ) { // try to open wifi.cfg 
+          //Serial.println("failed to open calibrate.txt" ) 
+		  if ( ! wifiFile.open("/wifi.cfg" ))
+			return false;  
       }
       //Serial.println("wifi.cfg exist on SD" ) ;
       //Serial.print("sizeof line=") ; Serial.println(sizeof(line));      
@@ -496,7 +537,7 @@ void DownloadFile(String filename){
         download.close(); 
       } else {
         //Serial.println("File not opened") ;
-        reportError("Error : could not open file to dowload"); 
+        reportError("Error : could not open file to download"); 
       }
       download.close() ;
     } else reportError( "Error: file to download did not exist");
@@ -504,14 +545,17 @@ void DownloadFile(String filename){
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 void File_Upload(){
-  append_page_header();
-  webpage += F("<h3>Select File to Upload</h3>"); 
-  webpage += F("<FORM action='/fupload' method='post' enctype='multipart/form-data'>");
-  webpage += F("<input class='buttons' style='width:80%' type='file' name='fupload' id = 'fupload' value=''><br>");
-  webpage += F("<br><button class='buttons' style='width:20%' type='submit'>Upload File</button><br>");
-  webpage += F("<a href='/'>[Back]</a><br><br>");
-  append_page_footer();
-  server.send(200, "text/html",webpage);
+  if (checkSd() ) { 
+    append_page_header();
+    webpage += F("<h3>Select File to Upload</h3>"); 
+    webpage += F("<form action='/fupload' method='post' enctype='multipart/form-data'>");
+    webpage += F("<input class='buttons' style='width:80%' type='file' name='fupload' id = 'fupload' value=''><br>");
+    webpage += F("<br><button class='buttons' style='width:20%' type='submit'>Upload File</button><br>");
+    webpage += F("</form>");
+    //webpage += F("<a href='/'>[Back]</a><br><br>");
+    append_page_footer();
+    server.send(200, "text/html",webpage);
+  }
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 File32 UploadFile;
@@ -767,6 +811,8 @@ void append_page_header() {
   webpage += F("<a href='/upload'><button>Upload</button></a>");
 //  webpage += F("<a href='/stream'><button>Stream</button></a>");
   //webpage += F("<a href='/delete'><button>Delete</button></a>");
+  webpage += F("<a href='/OTA'><button>OTA</button></a>");
+  webpage += F("<a href='/SPIFF'><button>SPIFF</button></a>");
   
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -777,4 +823,279 @@ void append_page_footer(){ // Saves repeating many lines of code for HTML page f
  // webpage += String(char((0x84>>1)))+String(char(byte(0xd2>>1)))+String(char(0xe4>>1))+String(char(0xc8>>1))+String(char(byte(0x40>>1)));
  // webpage += String(char(byte(0x64/2)))+String(char(byte(0x60>>1)))+String(char(byte(0x62>>1)))+String(char(0x70>>1))+"</footer>";
   webpage += F("</body></html>");
+}
+
+
+// ---------------------------------------------------------------------------
+// --------------------------- OTA Function ----------------------------------
+// Affiche la page de login pour la MAJ via OTA
+/*void loginIndexPage() {
+	SendHTML_Header();
+	webpage += loginIndex;
+    SendHTML_Content(); 
+    append_page_footer();
+    SendHTML_Content();
+    SendHTML_Stop();   // Stop is needed because no content length was sent
+	
+}*/
+
+// Affiche la page de MAJ via OTA
+void serverIndexPage() {
+	SendHTML_Header();
+	// Vérification de la présence du fichier jquery.min.js sur la SD sinon téléchargement
+	/*if (checkSd() ) { 
+		String path = "/jquery.min.js";
+		if (sd.exists( path.c_str() ) ) {
+			webpage += "<script src='/jquery.min.js'></script>";
+		} else {
+			webpage += "<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>";
+		}
+	}*/
+	// Vérification de la présence du fichier jquery.min.js dans la mémoire SPIFF sinon téléchargement
+	if (SPIFFS.begin()) {
+		String path = "/jquery.min.js";
+		if (SPIFFS.exists(path)) {
+			webpage += "<script src='/jquery.min.js'></script>";
+		} else {
+			webpage += "<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>";
+		}
+
+	}
+	webpage += serverIndex;
+    SendHTML_Content(); 
+    append_page_footer();
+    SendHTML_Content();
+    SendHTML_Stop();   // Stop is needed because no content length was sent
+	
+}
+
+// ----------------------------------------------------------------------------------------------------------
+// ----------------------------SPIFF functions-----------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------
+
+// ----------- Page qui affiche le contenu de la SPIFF ainsi que l'upload de fichiers -------------
+void spiff_dir() {
+	
+    fs::File root = SPIFFS.open("/");
+    if(!root){
+        Serial.println("- failed to open directory");
+		root.close();
+        return;
+    }
+    if(!root.isDirectory()){
+        Serial.println(" - not a directory");
+		root.close();
+        return;
+    }
+	
+	//webpage += F("<h3></h3><br>");
+    //webpage += F("<table align='center'>");
+    //webpage += F("<tr><th>Name/Type</th><th style='width:20%'>Type File/Dir</th><th>File Size</th><th>Delete</th><th>Download</th></tr>");
+	
+	//append_page_header();
+	SendHTML_Header();
+    webpage += F("<h3>Select File to Upload</h3>"); 
+    webpage += F("<form action='/fuploadSPIFF' method='post' enctype='multipart/form-data'>");
+    webpage += F("<input class='buttons' style='width:80%' type='file' name='fupload' id = 'fupload' value=''><br>");
+    webpage += F("<br><button class='buttons' style='width:20%' type='submit'>Upload File</button><br>");
+	webpage += F("</form>");
+
+	if (root) {
+      //root.rewind();
+      //SendHTML_Header();
+      webpage += F("<h3></h3><br>");
+      webpage += F("<table align='center'>");
+      webpage += F("<tr><th>Name/Type</th><th style='width:20%'>Type File/Dir</th><th>File Size</th><th>Delete</th><th>Download</th></tr>");
+      printSPIFFDirectory("/",0);
+      webpage += F("</table>");
+      SendHTML_Content(); 
+    } else {
+      SendHTML_Header();
+      webpage += F("<h3>No Files Found</h3>");
+      SendHTML_Content();
+    }
+	
+	
+	webpage += F("</table>");
+    SendHTML_Content();
+	append_page_footer();
+    SendHTML_Content();
+    SendHTML_Stop();   // Stop is needed because no content length was sent
+	root.close();
+  
+}
+
+// ------------------- Fonction plus recursive qui liste le contenu de tous les repertoires ----------------------
+void printSPIFFDirectory(const char * dirname, uint8_t levels){
+  fs::File root1 = SPIFFS.open(dirname);
+  char fileName[maxCharFileName] ;
+  if(!root1){
+    root1.close() ;
+    return;
+  }
+  if(!root1.isDirectory()){
+    root1.close() ;
+    return;
+  }
+  //root1.rewind();
+
+  fs::File file1 ;
+  while(file1=root1.openNextFile()){
+    if (webpage.length() > 1000) {
+      SendHTML_Content();
+    }
+	strncpy(fileName, file1.name(), maxCharFileName - 1);
+
+    if(file1.isDirectory()){
+      webpage += "<tr><td>" +String(fileName)+ "</td><td>Dir</td><td></td><td></td><td></td></tr>";
+    } else {
+      int bytes = file1.size();
+      String fsize = "";
+      if (bytes < 1024)                     fsize = String(bytes)+" B";
+      else if(bytes < (1024 * 1024))        fsize = String(bytes/1024.0,3)+" KB";
+      else if(bytes < (1024 * 1024 * 1024)) fsize = String(bytes/1024.0/1024.0,3)+" MB";
+      else                                  fsize = String(bytes/1024.0/1024.0/1024.0,3)+" GB";
+      webpage += "<tr><td>"  + String(fileName) +  "</td><td>File</td><td>" + fsize + "</td>"; //</tr>";
+      webpage += "<td><form action='/confirmDeleteSPIFF'> <input type='hidden' name='fileName' value='" + String(fileName) +  "' ><input type='submit' value='Delete' ></form></td>" ;
+      webpage += "<td><form action='/confirmDownloadSPIFF'> <input type='hidden' name='fileName' value='" + String(fileName) +  "' ><input type='submit' value='Download' ></form></td>" ;
+      webpage +=  "</tr>";
+    }   
+    file1.close();   
+  }
+  file1.close();
+  root1.close() ;
+}
+
+// -------------- Page qui permet de télécharger un fichier de la SPIFF ----------------------
+void File_DownloadSPIFF() {
+	if (server.args() > 0 ) { // Arguments were received
+		if (server.hasArg("downloadSPIFF")) DownloadFileSPIFF(server.arg(0));
+	}
+	else SelectInput("Enter filename to download","downloadSPIFF","downloadSPIFF","");
+}
+
+// --------------- Page qui permet de supprimer un fichier de la SPIFF ------------------------
+void File_DeleteSPIFF() {
+	if (server.args() > 0 ) { // Arguments were received
+		if (server.hasArg("deleteSPIFF")) DeleteFileSPIFF(server.arg(0));
+	}
+	else SelectInput("Select a File to Delete","deleteSPIFF","deleteSPIFF","");
+}
+
+// --------------- Page de confirmation pour la suppression d'un fichier dans la SPIFF -----------------
+void confirmDeleteSPIFF(){ 
+  if (server.args() > 0 ) { // check that arguments were received
+    if (server.hasArg("fileName")) SelectInput("Confirm filename to delete","deleteSPIFF","deleteSPIFF" , server.arg(0)); 
+  }
+}
+
+// --------------- Page de confirmation pour le téléchargement d'un fichier dans la SPIFF -----------------
+void confirmDownloadSPIFF(){ 
+  if (server.args() > 0 ) { // check that arguments were received
+    if (server.hasArg("fileName")) SelectInput("Confirm filename to download","downloadSPIFF","downloadSPIFF" , server.arg(0)); 
+  }
+}
+
+// --------------- Fonction qui télécharge un fichier de la SPIFF -------------------------------
+void DownloadFileSPIFF(String filename) {  
+  //if (checkSd() ) { 
+    if (SPIFFS.exists( filename.c_str() ) ) {
+      fs::File download ;
+      download = SPIFFS.open( filename.c_str() );
+	  filename.remove(0,1);
+      if (download) {
+        server.sendHeader("Content-Type", "text/text");
+        server.sendHeader("Content-Disposition", "attachment; filename="+filename);
+		//server.sendHeader("Content-Disposition", "attachment; filename="+(filename.c_str()[1]));
+        server.sendHeader("Connection", "close");
+        server.streamFile(download, "application/octet-stream");
+        download.close(); 
+      } else {
+        reportError("Error : could not open file to download"); 
+      }
+      download.close();
+    } else reportError( "Error: file to download did not exist");
+  //} 
+}
+
+
+// ----------------------- Fonction qui supprime un fichier de la SPIFF ------------------------------
+void DeleteFileSPIFF(String filename) {
+    //if (checkSd() ) { 
+    SendHTML_Header();  
+    fs::File dataFile = SPIFFS.open( filename.c_str() );
+    if (dataFile) {
+      if (SPIFFS.remove( filename.c_str() )) {
+        webpage += "<h3>File '" +filename+ "' has been erased</h3>"; 
+      } else { 
+        webpage += "<h3>File '"  +filename+ "' could not be erased !!!!!</h3>";
+      }
+	  dataFile.close();
+    } else {
+      webpage += "<h3>File '" +filename+ "' does not exist !!!!!</h3>";
+	  dataFile.close();
+    }
+    append_page_footer(); 
+    SendHTML_Content();
+    SendHTML_Stop();
+  //}
+}
+
+
+// ---------------------------- Fonction qui permet d'uploader un fichier dans la SPIFF -------------------------------
+fs::File UploadFileSPIFF;
+boolean errorWhileUploadingSPIFF; 
+boolean errorEmptyFile;
+void handleFileUploadSPIFF() {
+
+      HTTPUpload& uploadfile = server.upload(); // See https://github.com/esp8266/Arduino/tree/master/libraries/ESP8266WebServer/srcv
+                                                // For further information on 'status' structure, there are other reasons such as a failed transfer that could be used
+      if(uploadfile.status == UPLOAD_FILE_START) {
+        errorWhileUploadingSPIFF = false ;
+		errorEmptyFile = false;
+        String filename = "/" + uploadfile.filename;	// Contrairement à la SD, les fichiers doivent commencer par "\"
+		
+		// On vérifie que le fichier n'est pas un répertoire ni la racine / sinon la SPIFF devient illisible lors de l'ouverture en w+
+		UploadFileSPIFF.close() ;
+		UploadFileSPIFF = SPIFFS.open(filename.c_str());
+		if(/*UploadFileSPIFF.isDirectory() || */!filename.compareTo("/")){	//isDirectory renvoie true même pour des fichiers...
+			errorWhileUploadingSPIFF = true;
+			errorEmptyFile = true;
+			return;
+		}
+		UploadFileSPIFF.close() ;
+		
+		// Supression du fichier s'il existe déjà, sinon append...
+		SPIFFS.remove( filename.c_str() );
+
+	    UploadFileSPIFF = SPIFFS.open(filename.c_str() , "w+");  // Open the file for writing (create it, if doesn't exist)
+	    if ( ! UploadFileSPIFF ) errorWhileUploadingSPIFF = true ;
+      } else if (uploadfile.status == UPLOAD_FILE_WRITE)  {
+        if(UploadFileSPIFF) { 
+          int32_t bytesWritten = UploadFileSPIFF.write(uploadfile.buf, uploadfile.currentSize); // Write the received bytes to the file
+          if ( bytesWritten == -1) errorWhileUploadingSPIFF = true ; 
+        } else { 
+          errorWhileUploadingSPIFF = true ;
+        }
+      } else if (uploadfile.status == UPLOAD_FILE_END) {
+        if(UploadFileSPIFF && ( errorWhileUploadingSPIFF == false) )          // If the file was successfully created
+        {                                    
+          UploadFileSPIFF.close();   // Close the file at the end
+		  SendHTML_Header();
+		  webpage += F("<h3>File was successfully uploaded</h3>"); 
+          webpage += F("<h2>Uploaded File Name: "); webpage += uploadfile.filename+"</h2>";
+          webpage += F("<h2>File Size: "); webpage += file_size(uploadfile.totalSize) + "</h2><br>";  
+          append_page_footer();
+          SendHTML_Content();
+          SendHTML_Stop();
+        } 
+        else
+        {
+          UploadFileSPIFF.close(); // close for safety ; not sure it is really needed
+		  if (errorEmptyFile)
+			reportError("<h3>Please select valid file (no directory and no empty name)</h3>");
+		  else
+			reportError("<h3>Could Not Create Uploaded File (write-protected?)</h3>");
+        }
+      }
 }
