@@ -263,13 +263,11 @@ mButton[_ARROW_C_POS].pIcon =  arrowCPosIcon ;
 			mButton[_REBOOT_SCREEN].pIcon =  rebootTFTIcon ;
 			mButton[_REBOOT_GRBL].pIcon =  rebootGRBLIcon ;
 			mButton[_RECONNECT_WIFI].pIcon =  reconnectWifiScreenIcon ;
-		#if defined( TFT_SIZE) and (TFT_SIZE == 4)
 			//mButton[_AXIS_XY].pIcon = set2axesCNCIcon ;
 			mButton[_AXIS_XYZ].pIcon = set3axesCNCIcon ;
 			mButton[_AXIS_XYZA].pIcon = set4axesCNCIcon ;
 			mButton[_AXIS_XYZAB].pIcon = set5axesCNCIcon ;
 			mButton[_AXIS_XYZABC].pIcon = set6axesCNCIcon ;
-		#endif
 	#endif
 
 #endif //end of USE_ICONS
