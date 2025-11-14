@@ -14,6 +14,7 @@
 #include "telnetgrbl.h"
 #include "BluetoothSerial.h"
 #include "bt.h"
+#include "grbl_file.h"
 #ifdef FLUIDNC
 #include "error.h"
 #endif
@@ -207,6 +208,8 @@ void decodeGrblLine(char * line){  // decode a full line when CR or LF is receiv
 
 void parseErrorLine(const char * line){ // extract error code, convert it in txt
   int errorNum = atoi( &line[6]) ;
+  if (errorNum == 60)  // Error FsFailedMount
+    grblMountError();
 #ifndef FLUIDNC
   if (errorNum < 1 || errorNum > _MAX_GRBL_ERRORS - 1 ) errorNum = 0 ;
   memccpy ( lastMsg , mGrblErrors[errorNum].pLabel , '\0' , 79); // fill Message ; note: it is also added to Log
