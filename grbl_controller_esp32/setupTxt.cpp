@@ -798,7 +798,7 @@ void handleLangLine(char* line) {  // process one line of language.txt
 }      
 
 boolean copyLanguage(void){ // copy language.txt from SD to SPIFFS
-      SdBaseFile langFile ;
+      File32 langFile ;
       fs::File language;
       if ( ! sd.begin(SD_CHIPSELECT_PIN , SD_SCK_MHZ(5)) ) {  
           //Serial.println(" fail to begin sd");

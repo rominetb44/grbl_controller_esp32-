@@ -6,6 +6,7 @@
 #define GRBL_FIRST_READ 0 // code says why we are reading the filenames from grbl; it is handle in the callback function
 void grblReadFiles( uint8_t reason); // request grbl to provide the list of file.
 void updateGrblFilesBtn() ; // update the button for the files being displayed
+void grblMountError();
 
 /*
 void fillFileMenu ( void ) ;

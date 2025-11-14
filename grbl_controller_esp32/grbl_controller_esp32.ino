@@ -131,8 +131,8 @@ char fileNames[MAX_FILES][23] ; // 22 car per line + "\0"; utilisé dans la cons
 //File workDirParents[DIR_LEVEL_MAX] ;
 //File aDir[DIR_LEVEL_MAX] ;
 SdFat32 sd;
-SdBaseFile aDir[DIR_LEVEL_MAX] ; 
-//SdBaseFile fileToRead ; // file being printed
+File32 aDir[DIR_LEVEL_MAX] ; 
+//File32 fileToRead ; // file being printed
 
 uint16_t sdFileDirCnt = 0 ;
 uint16_t firstFileToDisplay ;   // 0 = first file in the directory

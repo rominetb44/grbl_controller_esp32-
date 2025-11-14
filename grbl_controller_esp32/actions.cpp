@@ -727,7 +727,7 @@ void fAdvParam(uint8_t param ) { // called for advanced actions
 	  currentPage = _P_INFO ;
 	  updateFullPage = true ;*/
 	  
-	  /*SdBaseFile calibrateFile ;
+	  /*File32 calibrateFile ;
 	  if (calibrateFile.open("/calibrate.txt" )) calibrateFile.remove();
 	  calibrateFile.close() ;*/
 	  
@@ -779,7 +779,7 @@ void fAdvParam(uint8_t param ) { // called for advanced actions
 // Fonction qui permet de récuperer les paramètres depuis un fichier de configuration sur la carte SD
 boolean retrieveConfigFileParam() {
 	String path = "/config.cfg";
-	SdBaseFile configFile ;
+	File32 configFile ;
 	char line[100] ;  //buffer to get a line from SD
 	//File32 configFile ;
 	uint8_t n; // number of bytes in a line

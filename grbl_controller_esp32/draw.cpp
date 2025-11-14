@@ -55,7 +55,7 @@ extern uint32_t sdNumberOfCharSent ;
 extern char fileNames[4][23] ; // 22 car per line + "\0"
 extern uint16_t firstFileToDisplay ;   // 0 = first file in the directory
 extern SdFat32 sd;  // is created in ino file
-extern SdBaseFile aDir[DIR_LEVEL_MAX] ;
+extern File32 aDir[DIR_LEVEL_MAX] ;
 
 extern char cmdName[11][17] ;          // contains the names of the commands
 
@@ -1857,7 +1857,7 @@ void perform_calibration(uint16_t *parameters, uint32_t color_fg, uint32_t color
 
 boolean checkCalibrateOnSD(void){
       // return true if a file calibrate.txt exist on the SD card; if so it means that new calibration is requested
-      SdBaseFile calibrateFile ;  
+      File32 calibrateFile ;  
       if ( ! sd.begin(SD_CHIPSELECT_PIN , SD_SCK_MHZ(5)) ) {  
           Serial.print("[MSG:");Serial.print( mText[_CARD_MOUNT_FAILED].pLabel  ) ;Serial.println("]");
           return false;       

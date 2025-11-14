@@ -20,8 +20,9 @@ int8_t errorGrblFileReading ; // store the error while reading grbl files (0 = n
 int grblFileIdx ; // index in the array where next file name being parse would be written
 int grblTotalFilesCount ; // total number of files on grbl sd card; used to avoid reading when no files in current dir
 
+extern uint8_t currentPage;
 extern uint8_t parseGrblFilesStatus ; 
-//extern SdBaseFile aDir[DIR_LEVEL_MAX] ;
+//extern File32 aDir[DIR_LEVEL_MAX] ;
 
 extern M_Button mButton[_MAX_BTN] ;
 extern uint8_t statusPrinting ;
@@ -48,6 +49,11 @@ void grblReadFiles( uint8_t reason){ // request grbl to provide the list of file
   grblTotalFilesCount = 0 ; // reset the total number of files
   parseGrblFilesStatus = PARSING_FILE_NAMES_RUNNING ; // allows com.cpp to get the [FILES:.... lines and to store them   
   toGrbl("$SD/List\r\n");
+}
+
+void grblMountError() {
+  if (currentPage == _P_SD_GRBL_WAIT)
+    fGoToPage(_P_INFO);
 }
 
 // Cette fonction affiche max N (=MAW_LCD_ROWS) noms de fichiers sélectionnés dans le directory courrant à partir du Xème fichier

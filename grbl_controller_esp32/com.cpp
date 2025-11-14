@@ -14,6 +14,10 @@
 #include "telnetgrbl.h"
 #include "BluetoothSerial.h"
 #include "bt.h"
+#include "grbl_file.h"
+#ifdef FLUIDNC
+#include "error.h"
+#endif
 
 // we can also get messages: They are enclosed between [....] ; they are currently discarded but stored in the log. 
 // used to decode the status and position sent by GRBL
@@ -94,7 +98,7 @@ extern boolean updateFullPage ;
 
 //        Pour sendToGrbl
 //extern File fileToRead ;
-extern SdBaseFile aDir[DIR_LEVEL_MAX] ; 
+extern File32 aDir[DIR_LEVEL_MAX] ; 
 extern int8_t dirLevel ;
 extern uint8_t cmdToSend ; // cmd to be send
 extern uint32_t sdNumberOfCharSent ;
@@ -203,39 +207,39 @@ void decodeGrblLine(char * line){  // decode a full line when CR or LF is receiv
 }
 
 void parseErrorLine(const char * line){ // extract error code, convert it in txt
-  /*int errorNum = atoi( &line[6]) ;
-  int errorNumCorr;
-  errorNumCorr = errorNum ;
-  if (errorNum < 1 || errorNum > 70 ) errorNumCorr = 0 ;
-  if (errorNum >=40 && errorNum <= 59 ) errorNumCorr = 0 ; //there are no num in range 40/59
-  if (errorNum >=60) errorNumCorr -= 20;  // there are no num in range 40/59; so we avoided those in the 
-  memccpy ( lastMsg , mGrblErrors[errorNumCorr].pLabel , '\0' , 79); // fill Message ; note: it is also added to Log
-  lastMsgColor = SCREEN_ALERT_TEXT ;
-  lastMsgChanged = true ;
-  if ( errorNum >= 60 && errorNum <= 69 ) {
-    errorGrblFileReading = errorNum +20; // save the grbl error (original value)
-    parseGrblFilesStatus = PARSING_FILE_NAMES_DONE ; // inform main loop that callback function must be executed
-  }*/
-  
-  //Le nombre d'erreurs dans FluidNC est supérieur à 70.
   int errorNum = atoi( &line[6]) ;
+  if (errorNum == 60)  // Error FsFailedMount
+    grblMountError();
+#ifndef FLUIDNC
   if (errorNum < 1 || errorNum > _MAX_GRBL_ERRORS - 1 ) errorNum = 0 ;
   memccpy ( lastMsg , mGrblErrors[errorNum].pLabel , '\0' , 79); // fill Message ; note: it is also added to Log
   lastMsgColor = SCREEN_ALERT_TEXT ;
   lastMsgChanged = true ;
+#else
+  const char *str = errorString((Error)errorNum);
+  if (str) {
+    memccpy(lastMsg, str, '\0', 79);
+    lastMsgColor = SCREEN_ALERT_TEXT;
+    lastMsgChanged = true;
+  }
+#endif
 }
 
 void parseAlarmLine(const char * line){
-  int alarmNum = atoi( &line[6]) ; // search from pos 6 
+  int alarmNum = atoi( &line[6]) ; // search from pos 6
+#ifndef FLUIDNC  
   if (alarmNum < 1 || alarmNum > 9 ) alarmNum = 0 ;
-  // char alarmTxt[80] ;
-  //int lenLine = strlen(line) ;
-  //memcpy(alarmTxt, line , lenLine);
-  //strncpy(alarmTxt + lenLine , alarmArrayMsg[alarmNum] , 79-lenLine) ;
-  //alarmTxt[79] = 0 ; // for safety we add a end of string  
   memccpy ( lastMsg , mAlarms[alarmNum].pLabel , '\0' , 79); // fill Message ; note: it is also added to Log
   lastMsgColor = SCREEN_ALERT_TEXT ;
   lastMsgChanged = true ;
+#else
+  const char *str = alarmString((ExecAlarm)alarmNum);
+  if (str) {
+    memccpy(lastMsg, str, '\0', 79);
+    lastMsgColor = SCREEN_ALERT_TEXT;
+    lastMsgChanged = true;
+  }
+#endif
 }
 
 void parseMsgLine(char * line) {  // parse Msg line from GRBL
@@ -387,10 +391,10 @@ void parseDirLine(char * line ){
 	}
 	
 	//Ajoute le nom du nouveau repertoire
-	strncpy(strTemp, line + i , strlen(line) - 2 - i);
-	strTemp[strlen(line) - 1 - i - 1] = '/';
-	strTemp[strlen(line) - i - 1] = '\0';
-	
+	strncpy(strTemp, line + i, 249);
+	int k = strlen(strTemp);
+	strTemp[k - 1] = '/';  // line ends with ']', so replace it by '/'
+	strTemp[k] = '\0';
 	//Serial.println(actualReadDir);
 }
 
@@ -420,7 +424,7 @@ void parseSatusLine(char * line) {
    //Serial.print("line="); Serial.println(line);
    //Serial.print("line len") ; Serial.println(strlen(line)); 
    //Serial.print("line[len-2]= "); Serial.println(line[strlen(line) -2]);
-   if ( line[strlen(line) -1] != '>' && line[strlen(line) -2] != '>' ) return ; // discard if last char is not '>'
+   if ( line[strlen(line) -1] != '>') return ; // discard if last char is not '>'
       pBegin = line + 1;
       pEndType = strchr( pBegin , '|' ) ;
       *pEndType = '\0' ; // replace | by 0 in order to let memccpy copy end of string too 
@@ -570,9 +574,11 @@ void sendToGrbl( void ) {
 }  
 
 void sendFromSd() {        // send next char from SD; close file at the end
-      int sdChar ;
+    int sdChar ;
 	  char dataToSendBuffer[MAX_LINE_LENGTH_TO_GRBL];
 	  uint8_t bufferPos = 0;
+    bool skip = false; // skip comment, anything after and included ';' is not sent
+    
 	  dataToSendBuffer[bufferPos] = '\0';
       waitOkWhenSdMillis = millis()  + WAIT_OK_SD_TIMEOUT ;  // set time out on 
       while ( aDir[dirLevel+1].available() > 0 && (! waitOk) && statusPrinting == PRINTING_FROM_SD && ( (grblLink == GRBL_LINK_SERIAL)?Serial2.availableForWrite() > 2: true) ) {
@@ -582,12 +588,15 @@ void sendFromSd() {        // send next char from SD; close file at the end
             updateFullPage = true ;           // force to redraw the whole page because the buttons haved changed
           } else {
             sdNumberOfCharSent++ ;
-            if( sdChar != 0x0D && sdChar != ' ' ){             // 13 = carriage return; do not send the space.
-                                                             // to do : skip the comments
-              //toGrbl((char) sdChar ) ;
-			  dataToSendBuffer[bufferPos++] = (char) sdChar;
+            if( !skip && sdChar != 0x0D && sdChar != 0x0A && sdChar != ' ' ){                                                          
+			        dataToSendBuffer[bufferPos++] = (char) sdChar;
+            }
+            if (sdChar == ';') {
+              skip = true;
+              continue;
             }
             if ( sdChar == '\n' ) {        // n= new line = line feed = 10 decimal
+               skip = false;
                waitOk = true ;
 			   dataToSendBuffer[bufferPos] = '\0';
 			   toGrbl(dataToSendBuffer);
@@ -607,9 +616,7 @@ void sendFromSd() {        // send next char from SD; close file at the end
         aDir[dirLevel+1].close() ; // close the file when all bytes have been sent.
         statusPrinting = PRINTING_STOPPED  ; 
         updateFullPage = true ;           // force to redraw the whole page because the buttons haved changed
-        //Serial2.print( (char) 0x18 ) ; //0x85) ;   // cancel jog (just for testing); must be removed
-        toGrbl( (char) 10 ) ;
-        //Serial2.print( (char) 10 ) ; // sent a new line to be sure that Grbl handle last line.
+        toGrbl(0x0A) ;
       }
 } 
 
@@ -660,7 +667,7 @@ void sendFromString(){
          case 'Z' : // Put some char in the flow
             savedWposXYZA[2] = preferences.getFloat("wposZ" , 0 ) ; // if wposZ does not exist in preferences, the function returns 0
             char floatToString[20] ;
-            gcvt(savedWposXYZA[2], 3, floatToString); // convert float to string
+            dtostrf(savedWposXYZA[2], 15, 4, floatToString);  // convert float to string
             toGrbl(floatToString) ;
             //Serial2.print(floatToString) ;
             //Serial.print( "wpos Z is retrieved with value = ") ; Serial.println( floatToString ) ; // to debug
@@ -988,7 +995,11 @@ int fromGrblRead(){       // return the first character in the read buffer
   int firstChar = -1;
   switch (grblLink) {
     case GRBL_LINK_SERIAL:
-      firstChar = Serial2.read();
+      // For FluidNC >= v3.9.6 remove CR is mandatory for UART1 support
+      // https://github.com/bdring/FluidNC/issues/1598
+      do {
+        firstChar = Serial2.read();
+      } while (firstChar  == 0xD);
       break;
     case GRBL_LINK_BT :
       //Serial.println("read BT"); 

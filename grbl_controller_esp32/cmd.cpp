@@ -10,8 +10,8 @@
    https://github.com/me-no-dev/arduino-esp32fs-plugin */
 #define FORMAT_SPIFFS_IF_FAILED true
 
-File createdFile ;
-File cmdFileToRead ;
+fs::File createdFile ;
+fs::File cmdFileToRead ;
 extern char cmdName[11][17] ;           // store the name of the button.
 extern uint8_t cmdIcons[11][1300] ;    // store the icons of the commands buttons (if any) 1300 = an icon of 100X100
 extern boolean cmdIconExist[11];       // store a flag to say if an icon exist or not for a cmd
@@ -39,13 +39,13 @@ boolean cmdNameInit() {  // seach on SPIFFS the names of the commands
     cmdName[i][0] = 0 ; // clear fill name   
   }
 
-  File root = SPIFFS.open("/");
+  fs::File root = SPIFFS.open("/");
     if(!root){
         root.close() ;
         return false ;
     }
-    File file = root.openNextFile();
-    File fIcon;
+    fs::File file = root.openNextFile();
+    fs::File fIcon;
     char fIconName[] = "/icon_.txt"  ; // Name is supposed to be iconX.txt; / is added because required by spiffs
     while(file){           // process only Cmdx_yyyyyy.zzzzz files
         pchar = file.name() ;
@@ -111,13 +111,13 @@ boolean cmdNameInit() {  // seach on SPIFFS the names of the commands
 void deleteFileLike (const char * path) {       // path does not start with "/" but is a format CmdX_name.yyyy)
                                                 // we have to delete also files having a name "iconX.yyyyy (does not take care of yyyy
     const char * pchar; 
-    File root = SPIFFS.open("/");
+    fs::File root = SPIFFS.open("/");
     if(!root){
         fillMsg(_SPIFFS_FAIL_TO_OPEN );
         root.close() ;
         return;
     }
-    File file = root.openNextFile();
+    fs::File file = root.openNextFile();
     while(file){
         pchar = file.name() ;      // filename from SPIFFS starts with "/" so it is different from path
         if(pchar[1] == 'C' && pchar[2] == 'm' && pchar[3] == 'd' && pchar[4] == path[3] && pchar[5] == '_' ) {
@@ -204,7 +204,7 @@ char spiffsReadCmdFile() {              // return the code being read
 void listSpiffsDir(const char * dirname, uint8_t levels){
     Serial.printf("Listing directory: %s\r\n", dirname);
 
-    File root = SPIFFS.open(dirname);
+    fs::File root = SPIFFS.open(dirname);
     if(!root){
         Serial.println("- failed to open directory");
         return;
@@ -214,7 +214,7 @@ void listSpiffsDir(const char * dirname, uint8_t levels){
         return;
     }
 
-    File file = root.openNextFile();
+    fs::File file = root.openNextFile();
     while(file){
         if(file.isDirectory()){
             Serial.print("  DIR : ");
@@ -237,7 +237,7 @@ void listSpiffsDir(const char * dirname, uint8_t levels){
 void readFile(const char * path){
     Serial.printf("Reading file: %s\r\n", path);
 
-    File file = SPIFFS.open(path);
+    fs::File file = SPIFFS.open(path);
     if(!file || file.isDirectory()){
         Serial.println("- failed to open file for reading");
         return;
@@ -252,7 +252,7 @@ void readFile(const char * path){
 void writeFile( const char * path, const char * message){
     Serial.printf("Writing file: %s\r\n", path);
 
-    File file = SPIFFS.open(path, FILE_WRITE);
+    fs::File file = SPIFFS.open(path, FILE_WRITE);
     if(!file){
         Serial.println("- failed to open file for writing");
         return;
@@ -267,7 +267,7 @@ void writeFile( const char * path, const char * message){
 void appendFile(const char * path, const char * message){
     Serial.printf("Appending to file: %s\r\n", path);
 
-    File file = SPIFFS.open(path, FILE_APPEND);
+    fs::File file = SPIFFS.open(path, FILE_APPEND);
     if(!file){
         Serial.println("- failed to open file for appending");
         return;
@@ -302,7 +302,7 @@ void testFileIO( const char * path){
 
     static uint8_t buf[512];
     size_t len = 0;
-    File file = SPIFFS.open(path, FILE_WRITE);
+    fs::File file = SPIFFS.open(path, FILE_WRITE);
     if(!file){
         Serial.println("- failed to open file for writing");
         return;
