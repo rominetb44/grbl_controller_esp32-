@@ -388,10 +388,10 @@ void parseDirLine(char * line ){
 	}
 	
 	//Ajoute le nom du nouveau repertoire
-	strncpy(strTemp, line + i , strlen(line) - 2 - i);
-	strTemp[strlen(line) - 1 - i - 1] = '/';
-	strTemp[strlen(line) - i - 1] = '\0';
-	
+	strncpy(strTemp, line + i, 249);
+	int k = strlen(strTemp);
+	strTemp[k - 1] = '/';  // line ends with ']', so replace it by '/'
+	strTemp[k] = '\0';
 	//Serial.println(actualReadDir);
 }
 
