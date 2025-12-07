@@ -141,11 +141,12 @@ void initWifi() {
     drawLineText( __WIFI_NOT_REQUESTED , hCoord(160), vCoord(yText), 2 , 1 , TFT_GREEN) ; // texte, x, y , font, size ,color  
       //return ; 
   } else {
-    grbl_Telnet_IP.fromString(grbl_Telnet_IPStr); // convert telnet ip adr
     if ( local_IPStr != "" && gatewayStr != "" && subnetStr != "" ){
       local_IP.fromString(local_IPStr);
       gateway.fromString(gatewayStr);
       subnet.fromString(subnetStr);
+	  if (grbl_Telnet_IPStr != "")
+		grbl_Telnet_IP.fromString(grbl_Telnet_IPStr); // convert telnet ip adr
   
       if (!WiFi.config(local_IP, gateway, subnet)) {
         Serial.println("[MSG:Fix IP address failed to configure]");
@@ -158,6 +159,7 @@ void initWifi() {
         //Serial.print("local IP="); Serial.println(local_IPStr);
         //Serial.print("gateway="); Serial.println(gatewayStr);
         //Serial.print("subnet="); Serial.println(subnetStr);
+		//Serial.print("Telnet IP="); Serial.println(grbl_Telnet_IPStr);
         //blankTft("Connecting to Wifi access point", 5 , 20 ) ; // blank screen and display a text at x, y 
         WiFi.begin(wifiSsid , wifiPassword);
         uint8_t initWifiCnt = 40 ;   // maximum 40 retries for connecting to wifi
