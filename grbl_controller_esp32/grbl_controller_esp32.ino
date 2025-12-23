@@ -284,7 +284,7 @@ void setup() {
   delay(200);    // wait that all char are sent
   //while (Serial2.availableForWrite() != 0x7F ) ;                        // wait that all char are sent
 	
-	#ifdef NEOPIXEL_LED_PIN
+	#ifdef STATUS_LED_PIN
 		StatusLED::initStatusLED();
 	#endif
    
@@ -363,7 +363,7 @@ void loop() {
         updatePartPage = true ;
     }
 	
-	#ifdef NEOPIXEL_LED_PIN
+	#ifdef STATUS_LED_PIN
 		StatusLED::updateStatusLED(machineStatus[0]);
 	#endif
   }
