@@ -29,22 +29,22 @@ void StatusLED::updateStatusLED(uint8_t nStatus) {
 	
 	switch (nStatus) {
 		case 'J':
-			ledColor = NeoPixel.Color(255, 255, 0); // Jog = orange
+			ledColor = NeoPixel.Color(0, 0, 255); // Jog = bleu
 			break;
 		case 'H':
-		ledColor = NeoPixel.Color(0, 0, 255); // Hold = Blue
+		ledColor = NeoPixel.Color(255, 68, 0); // Hold = orange
 			break;
 		case 'I':
 		ledColor = NeoPixel.Color(0, 255, 0); // Idle = vert
 			break;
 		case 'R':
-			ledColor = NeoPixel.Color(0, 255, 255); // Run = jaune
+			ledColor = NeoPixel.Color(255, 255, 255); // Run = blanc
 			break;
 		case 'A':
 			ledColor = NeoPixel.Color(255, 0, 0); // Alarme = rouge
 			break;
 		case '?':
-			ledColor = NeoPixel.Color(255, 0, 0); // ? = rouge
+			ledColor = NeoPixel.Color(0, 0, 0); // ? = éteint
 			break;
 		/*case 'H':
 			ledColor = NeoPixel.Color(0, 255, 255); // Homing = rouge
