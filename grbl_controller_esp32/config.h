@@ -41,8 +41,8 @@
 // If you are using a 4-axis CNC, replace XYZ by XYZA - If you are using a 5-axis CNC, replace XYZ by XYZAB - If you are using a 6-axis CNC, replace XYZ by XYZABC
 #define NB_AXIS XYZ //XYZ or XYZA or XYZAB or XYZABC
 
-// select the version of the TFT board being used ; it can be 1 or 2 (1 uses 4 pins header to connect to GRbl; 2 use RJ45 connector)               
-#define TFT_CARD_VERSION 2
+// select the version of the TFT board being used ; it can be 1 or 2 or 3 (1 uses 4 pins header to connect to GRbl; 2 use RJ45 connector; 3 use USB connector)               
+#define TFT_CARD_VERSION 3
 
 // define size of display : must be 3 (for 3.2) or 4 (for 3.5 ou 4.0)
 #define TFT_SIZE 3
@@ -213,6 +213,14 @@
 #define TOUCH_SCLK 18
   
 #endif  // end of type of board
+
+
+// for board version 3 ******************************
+#if TFT_CARD_VERSION == 3
+	#define STATUS_LED_PIN 15		// Numéro de port pour la commande des leds
+	#define NB_STATUS_LED 9		// Nombre de leds
+	#define STATUS_LED_BRIGHTNESS 64	// Luminosité des leds
+#endif
 
 // pins for Serial to GRBL (it uses Serial2 UART)
 #define SERIAL2_RXPIN 16

@@ -23,8 +23,8 @@
 
 #ifndef TFT_CARD_VERSION
 	#error TFT_CARD_VERSION must be defined in config.h
-#elif TFT_CARD_VERSION != 1 && TFT_CARD_VERSION != 2
-	#error TFT_CARD_VERSION defined in config.h must be 1 or 2
+#elif TFT_CARD_VERSION != 1 && TFT_CARD_VERSION != 2 && TFT_CARD_VERSION != 3
+	#error TFT_CARD_VERSION defined in config.h must be 1, 2 or 3
 #endif
 
 // ##################################################################################
@@ -141,7 +141,7 @@
 // The ESP32 has 2 free SPI ports i.e. VSPI and HSPI, the VSPI is the default.
 // If the VSPI port is in use and pins are not accessible (e.g. TTGO T-Beam)
 // then uncomment the following line:
-#if TFT_CARD_VERSION == 2
+#if TFT_CARD_VERSION >= 2
 #define USE_HSPI_PORT
 #endif
 // Comment out the following #define if "SPI Transactions" do not need to be

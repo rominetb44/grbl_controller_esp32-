@@ -90,6 +90,7 @@ Sur l'écran de base, prévoir l'affichage des infos
 #include "telnetgrbl.h"
 #include "bt.h"
 #include "actions.h"
+#include "statusLED.h"
 
 
 //uart_dev_t * dev = (volatile uart_dev_t *)(DR_REG_UART_BASE) ;
@@ -282,6 +283,10 @@ void setup() {
   //Serial2.println("$10=3");   // $10=3 is used in order to get available space in GRBL buffer in GRBL status messages; il also means we are asking GRBL to sent always MPos.
   delay(200);    // wait that all char are sent
   //while (Serial2.availableForWrite() != 0x7F ) ;                        // wait that all char are sent
+	
+	#ifdef NEOPIXEL_LED_PIN
+		StatusLED::initStatusLED();
+	#endif
    
 }
 
@@ -378,5 +383,9 @@ void loop() {
     prevMachine = machineStatus[0] ;
   //  Serial.println( machineStatus ) ;
   //}
+  
+  #ifdef NEOPIXEL_LED_PIN
+		StatusLED::updateStatusLED(machineStatus[0]);
+  #endif
   yield();
 }
