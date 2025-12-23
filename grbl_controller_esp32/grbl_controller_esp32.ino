@@ -361,7 +361,11 @@ void loop() {
     if ( currentPage == _P_INFO || currentPage == _P_MOVE || currentPage == _P_SETXYZ || currentPage == _P_SETUP || currentPage == _P_TOOL 
               || currentPage == _P_OVERWRITE || currentPage == _P_COMMUNICATION || currentPage == _P_MOVE_ABC) { //force a refresh if a message has been received from GRBL and we are in a info screen or in a info screen
         updatePartPage = true ;
-    } 
+    }
+	
+	#ifdef NEOPIXEL_LED_PIN
+		StatusLED::updateStatusLED(machineStatus[0]);
+	#endif
   }
       
   newGrblStatusReceived = false ;
@@ -384,8 +388,5 @@ void loop() {
   //  Serial.println( machineStatus ) ;
   //}
   
-  #ifdef NEOPIXEL_LED_PIN
-		StatusLED::updateStatusLED(machineStatus[0]);
-  #endif
   yield();
 }
