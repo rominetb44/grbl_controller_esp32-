@@ -6,7 +6,7 @@
 #include "StatusLED.h"
 
 // NEO_KHZ800 ou NEO_KHZ400, NEO_RGB ou NEO_GRB ou ....ou NEO_RGBW ou NEO_WRGB, ...
-Adafruit_NeoPixel StatusLED::NeoPixel = Adafruit_NeoPixel(NB_STATUS_LED, STATUS_LED_PIN, NEO_RGB + NEO_KHZ800);
+Adafruit_NeoPixel StatusLED::NeoPixel = Adafruit_NeoPixel(NB_STATUS_LED, STATUS_LED_PIN, NEO_GRB + NEO_KHZ800);
 
 
 /**
