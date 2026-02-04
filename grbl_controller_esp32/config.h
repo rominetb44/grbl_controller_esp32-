@@ -2,8 +2,8 @@
 #define _config_h
 
 
-#define ESP32_VERSION "v.2.2.1.OTA Dev" 
-#define VERSION_TEXT "Firmware v.2.2.1.OTA (Dev)"
+#define ESP32_VERSION "v.2.3.OTA" 
+#define VERSION_TEXT "Firmware v.2.3.OTA (4th Feb. 2026)"
 
 // For more parameters
 #define ADVANCED_PARAMETERS
@@ -220,6 +220,15 @@
 	#define STATUS_LED_PIN 15		// Numéro de port pour la commande des leds
 	#define NB_STATUS_LED 9		// Nombre de leds
 	#define STATUS_LED_BRIGHTNESS 64	// Luminosité des leds
+	
+	#define STATUS_LED_COLOR_JOG	NeoPixel.Color(127, 0, 255)	// Status JOG : violet
+	#define STATUS_LED_COLOR_HOLD	NeoPixel.Color(255, 68, 0)	// Status HOLD : orange
+	#define STATUS_LED_COLOR_IDLE	NeoPixel.Color(0, 255, 0)	// Status IDLE : vert
+	#define STATUS_LED_COLOR_RUN	NeoPixel.Color(0, 0, 255)	// Status RUN : bleu
+	#define STATUS_LED_COLOR_ALARM	NeoPixel.Color(255, 0, 0)	// Status ALARM : rouge
+	#define STATUS_LED_COLOR_DOOR	NeoPixel.Color(255, 34, 0)	// Status DOOR : orange foncé
+	#define STATUS_LED_COLOR_UNKNOW	NeoPixel.Color(0, 0, 0)	// Status ? : éteint
+	#define STATUS_LED_COLOR_OTHER	NeoPixel.Color(255, 222, 33)	// Status autres : jaune
 #endif
 
 // pins for Serial to GRBL (it uses Serial2 UART)
@@ -259,6 +268,7 @@
 #define _SETXYZ_STRING "G10 L20 P1 X0 Y0 Z0\n"
 #define _SETAB_STRING "G10 L20 P1 A0 B0\n"
 #define _SETABC_STRING "G10 L20 P1 A0 B0 C0\n"
+#define _GET_GRBL_VERSION "$I\n"
 
 
 

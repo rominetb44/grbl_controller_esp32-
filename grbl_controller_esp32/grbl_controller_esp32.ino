@@ -220,7 +220,7 @@ void setup() {
     }
   }
   
-//  listSpiffsDir( "/", 0 );   // uncomment to see the SPIFFS content
+  //listSpiffsDir( "/", 0 );   // uncomment to see the SPIFFS content
   preferences.begin("savedData") ; //define the namespace for saving preferences (used for saving WIFI parameters, and z coord for change tool and nb axis)
   grblLink = preferences.getChar("grblLink", GRBL_LINK_SERIAL) ; // retrieve the last used way of communication with GRBL
   dirLevel = -1 ;   // negative value means that SD card has to be uploaded
