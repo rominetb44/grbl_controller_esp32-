@@ -2,8 +2,9 @@
   StatusLED.h - For NeoPixel LED
 */
 
-
 #include "StatusLED.h"
+
+#ifdef STATUS_LED_PIN
 
 // NEO_KHZ800 ou NEO_KHZ400, NEO_RGB ou NEO_GRB ou ....ou NEO_RGBW ou NEO_WRGB, ...
 Adafruit_NeoPixel StatusLED::NeoPixel = Adafruit_NeoPixel(NB_STATUS_LED, STATUS_LED_PIN, NEO_GRB + NEO_KHZ800);
@@ -58,4 +59,6 @@ void StatusLED::updateStatusLED(uint8_t nStatus) {
 	}
 	NeoPixel.show();  // update to the NeoPixel Led Strip
 }
+
+#endif
 

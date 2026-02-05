@@ -90,7 +90,9 @@ Sur l'écran de base, prévoir l'affichage des infos
 #include "telnetgrbl.h"
 #include "bt.h"
 #include "actions.h"
-#include "statusLED.h"
+#ifdef STATUS_LED_PIN
+	#include "statusLED.h"
+#endif
 
 
 //uart_dev_t * dev = (volatile uart_dev_t *)(DR_REG_UART_BASE) ;
