@@ -249,7 +249,7 @@ void parseMsgLine(char * line) {  // parse Msg line from GRBL
         parseFileLine( line + strlen("[FILE:"));
         return; // do not log the File lines
      
-     } else if ( strncmp(line , "[SD Free:", strlen("[SD Free:")) == 0 || strncmp(line , "[/sd/ Free:", strlen("[/sd/ Free:")) == 0 ) {
+     } else if ( strncmp(line , "[SD Free:", strlen("[SD Free:")) == 0 || strncmp(line , "[/sd/ Free:", strlen("[/sd/ Free:")) == 0 || strncmp(line , "[/sd Free:", strlen("[/sd Free:")) == 0 ) {
         if ( parseGrblFilesStatus == PARSING_FILE_NAMES_RUNNING ) {
           parseGrblFilesStatus = PARSING_FILE_NAMES_DONE ; // mark that all lines have been read ; it allows main loop to handle the received list
           
